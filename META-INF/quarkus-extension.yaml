@@ -1,0 +1,20 @@
+---
+artifact: "io.quarkus:quarkus-devservices:3.33.2"
+name: "Dev services"
+description: "Infrastructure supporting extensions providing dev services."
+metadata:
+  keywords:
+  - "cache"
+  categories:
+  - "core"
+  status: "stable"
+  unlisted: "true"
+  config:
+  - "quarkus.devservices."
+  built-with-quarkus-core: "3.33.2"
+  requires-quarkus-core: "[3.33,)"
+  minimum-java-version: "17"
+  scm-url: "https://github.com/quarkusio/quarkus"
+  extension-dependencies:
+  - "io.quarkus:quarkus-core"
+  - "io.quarkus:quarkus-arc"

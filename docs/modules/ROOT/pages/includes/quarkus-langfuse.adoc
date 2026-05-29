@@ -1,0 +1,336 @@
+[.configuration-legend]
+icon:lock[title=Fixed at build time] Configuration property fixed at build time - All other configuration properties are overridable at runtime
+[.configuration-reference.searchable, cols="80,.^10,.^10"]
+|===
+
+h|[.header-title]##Configuration property##
+h|Type
+h|Default
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-enabled]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-enabled[`+++quarkus.langfuse.devservices.enabled+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.enabled+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+If DevServices has been explicitly enabled or disabled. DevServices are generally enabled by default, unless there is an existing configuration present.
+
+When DevServices is enabled, Quarkus will attempt to automatically configure and start a Langfuse server when running in Dev or Test mode.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++true+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-shared]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-shared[`+++quarkus.langfuse.devservices.shared+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.shared+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Indicates if the Langfuse server managed by Quarkus Dev Services is shared. When shared, Quarkus looks for running containers using label-based service discovery. If a matching container is found, it is used, and so a second one is not started. Otherwise, Dev Services for Langfuse starts a new container.
+
+The discovery uses the `quarkus-dev-service-langfuse` label. The value is configured using the `service-name` property.
+
+Container sharing is only used in dev mode.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_SHARED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_SHARED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++true+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-service-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-service-name[`+++quarkus.langfuse.devservices.service-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.service-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The value of the `quarkus-dev-service-langfuse` label attached to the started container. This property is used when `shared` is set to `true`. In this case, before starting a container, Dev Services for Langfuse looks for a container with the `quarkus-dev-service-langfuse` label set to the configured value. If found, it will use this container instead of starting a new one. Otherwise, it starts a new container with the `quarkus-dev-service-langfuse` label set to the specified value.
+
+This property is used when you need multiple shared Langfuse servers.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_SERVICE_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_SERVICE_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++langfuse+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-username]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-username[`+++quarkus.langfuse.devservices.username+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.username+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Retrieves the username used for authentication.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_USERNAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_USERNAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|required icon:exclamation-circle[title=Configuration property is required]
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-password[`+++quarkus.langfuse.devservices.password+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.password+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Retrieves the password used for authentication.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_PASSWORD+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_PASSWORD+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|required icon:exclamation-circle[title=Configuration property is required]
+
+a| [[quarkus-langfuse_quarkus-langfuse-base-url]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-base-url[`+++quarkus.langfuse.base-url+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.base-url+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The default base url of where docling is
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_BASE_URL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_BASE_URL+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|required icon:exclamation-circle[title=Configuration property is required]
+
+a| [[quarkus-langfuse_quarkus-langfuse-username]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-username[`+++quarkus.langfuse.username+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.username+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Retrieves the username used for authentication.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_USERNAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_USERNAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|required icon:exclamation-circle[title=Configuration property is required]
+
+a| [[quarkus-langfuse_quarkus-langfuse-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-password[`+++quarkus.langfuse.password+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.password+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Retrieves the password used for authentication.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_PASSWORD+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_PASSWORD+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|required icon:exclamation-circle[title=Configuration property is required]
+
+a| [[quarkus-langfuse_quarkus-langfuse-timeout]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-timeout[`+++quarkus.langfuse.timeout+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.timeout+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Timeout for Docling calls
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-langfuse_quarkus-langfuse[icon:question-circle[title=More information about the Duration format]]
+|`+++1M+++`
+
+a| [[quarkus-langfuse_quarkus-langfuse-log-requests]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-log-requests[`+++quarkus.langfuse.log-requests+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.log-requests+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether the Docling client should log requests
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_LOG_REQUESTS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_LOG_REQUESTS+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
+
+a| [[quarkus-langfuse_quarkus-langfuse-log-responses]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-log-responses[`+++quarkus.langfuse.log-responses+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.log-responses+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether the Docling client should log responses
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_LOG_RESPONSES+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_LOG_RESPONSES+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
+
+a| [[quarkus-langfuse_quarkus-langfuse-pretty-print]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-pretty-print[`+++quarkus.langfuse.pretty-print+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.pretty-print+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Controls whether request/response bodies are pretty-printed if `log-requests()` or `log-responses()` is set to `true`
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_PRETTY_PRINT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_PRETTY_PRINT+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
+
+a| [[quarkus-langfuse_quarkus-langfuse-connect-timeout]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-connect-timeout[`+++quarkus.langfuse.connect-timeout+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.connect-timeout+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Timeout to establish a connection to Langfuse.
+
+Defaults to `quarkus.langfuse.timeout`
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_CONNECT_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_CONNECT_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-langfuse_quarkus-langfuse[icon:question-circle[title=More information about the Duration format]]
+|`+++${QUARKUS.LANGFUSE.TIMEOUT}+++`
+
+a| [[quarkus-langfuse_quarkus-langfuse-read-timeout]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-read-timeout[`+++quarkus.langfuse.read-timeout+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.read-timeout+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Timeout for receiving a response from the Langfuse.
+
+Defaults to `quarkus.langfuse.timeout`
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_READ_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_READ_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-langfuse_quarkus-langfuse[icon:question-circle[title=More information about the Duration format]]
+|`+++${QUARKUS.LANGFUSE.TIMEOUT}+++`
+
+|===
+
+ifndef::no-duration-note[]
+[NOTE]
+[id=duration-note-anchor-quarkus-langfuse_quarkus-langfuse]
+.About the Duration format
+====
+To write duration values, use the standard `java.time.Duration` format.
+See the link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html#parse(java.lang.CharSequence)[Duration#parse() Java API documentation] for more information.
+
+You can also use a simplified format, starting with a number:
+
+* If the value is only a number, it represents time in seconds.
+* If the value is a number followed by `ms`, it represents time in milliseconds.
+
+In other cases, the simplified format is translated to the `java.time.Duration` format for parsing:
+
+* If the value is a number followed by `h`, `m`, or `s`, it is prefixed with `PT`.
+* If the value is a number followed by `d`, it is prefixed with `P`.
+====
+endif::no-duration-note[]
