@@ -1,0 +1,44 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": true,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "edeandrea",
+      "name": "Eric Deandrea",
+      "avatar_url": "https://avatars.githubusercontent.com/u/363447?v=4",
+      "profile": "https://developers.redhat.com/author/eric-deandrea",
+      "contributions": [
+        "code",
+        "maintenance",
+        "test",
+        "ideas",
+        "content",
+        "doc"
+      ]
+    },
+    {
+      "login": "patriot1burke",
+      "name": "Bill Burke",
+      "avatar_url": "https://avatars.githubusercontent.com/u/704239?v=4",
+      "profile": "http://bill.burkecentral.com",
+      "contributions": [
+        "code",
+        "maintenance",
+        "content",
+        "doc",
+        "ideas"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": false,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "quarkus-langfuse",
+  "projectOwner": "quarkiverse"
+}

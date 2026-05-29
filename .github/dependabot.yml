@@ -1,0 +1,19 @@
+version: 2
+updates:
+  - package-ecosystem: maven
+    directory: /
+    schedule:
+      interval: weekly
+    ignore:
+      # don't update Quarkus as we want the extension to depend on the LTS version, thus allowing for inclusion of the extension in tooling for older Quarkus versions
+      - dependency-name: io.quarkus:*
+    cooldown:
+      default-days: 3
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7

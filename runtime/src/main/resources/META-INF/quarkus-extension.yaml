@@ -1,0 +1,9 @@
+name: Langfuse
+#description: Langfuse helps you ship AI Agents/Products from prototype to production and beyond.
+metadata:
+#  keywords:
+#    - langfuse
+#  guide: https://docs.quarkiverse.io/quarkus-langfuse/dev/ # To create and publish this guide, see https://github.com/quarkiverse/quarkiverse/wiki#documenting-your-extension
+#  categories:
+#    - "miscellaneous"
+#  status: "preview"
