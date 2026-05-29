@@ -20,6 +20,25 @@
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-devservices</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>io.quarkiverse.langfuse</groupId>
+			<artifactId>quarkus-langfuse-client</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkiverse.openapi.generator</groupId>
+			<artifactId>quarkus-openapi-generator</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-rest-client-jackson</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-hibernate-validator</artifactId>
+			<optional>true</optional>
+		</dependency>
 
 		<dependency>
 			<groupId>io.quarkus</groupId>
@@ -42,6 +61,30 @@
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-langfuse-client</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>io.quarkiverse.langfuse</groupId>
+									<artifactId>quarkus-langfuse-client</artifactId>
+									<version>${project.version}</version>
+									<outputDirectory>${project.build.outputDirectory}</outputDirectory>
+									<excludes>META-INF/MANIFEST.MF,META-INF/maven/**</excludes>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>io.quarkus</groupId>
 				<artifactId>quarkus-extension-maven-plugin</artifactId>
