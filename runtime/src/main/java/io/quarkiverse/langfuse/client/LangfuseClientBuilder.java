@@ -10,7 +10,7 @@ import org.jboss.resteasy.reactive.client.api.LoggingScope;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.rest.client.reactive.QuarkusRestClientBuilder;
 
-public final class LangfuseClientBuilder {
+public final class LangfuseClientBuilder<T> {
     private String baseUrl;
     private Duration timeout;
     private Duration connectTimeout;
@@ -18,11 +18,14 @@ public final class LangfuseClientBuilder {
     private boolean logRequests;
     private boolean logResponses;
     private boolean prettyPrint;
+    private final Class<T> clientTypeToBuild;
 
-    public LangfuseClientBuilder(LangfuseConfig config) {
+    public LangfuseClientBuilder(LangfuseConfig config, Class<T> clientTypeToBuild) {
         checkValidValue(config.baseUrl(), LangfuseConfig.BASE_URL_KEY);
         checkValidValue(config.username(), LangfuseConfig.USERNAME_KEY);
         checkValidValue(config.password(), LangfuseConfig.PASSWORD_KEY);
+
+        this.clientTypeToBuild = clientTypeToBuild;
 
         baseUrl(config.baseUrl());
         timeout(config.timeout());
@@ -74,8 +77,7 @@ public final class LangfuseClientBuilder {
         }
     }
 
-    public QuarkusLangfuseClient build() {
-
+    public T build() {
         var defaultTimeout = Optional.ofNullable(this.timeout).orElse(Duration.ofMinutes(1));
         var defaultConnectTimeout = getOrDefault(this.connectTimeout, defaultTimeout);
         var defaultReadTimeout = getOrDefault(this.readTimeout, defaultTimeout);
@@ -91,7 +93,7 @@ public final class LangfuseClientBuilder {
                     .clientLogger(new LangfuseClientLogger(this.logRequests, this.logResponses, this.prettyPrint));
         }
 
-        return restApiBuilder.build(QuarkusLangfuseClient.class);
+        return restApiBuilder.build(this.clientTypeToBuild);
     }
 
     private static Duration getOrDefault(Duration duration, Duration defaultValue) {

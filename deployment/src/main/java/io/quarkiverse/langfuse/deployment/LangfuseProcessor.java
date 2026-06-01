@@ -7,7 +7,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.jboss.jandex.ClassType;
 import org.jboss.jandex.DotName;
 
-import io.quarkiverse.langfuse.LangfuseClient;
+import com.langfuse.api.LangfuseApi;
+import com.langfuse.api.spi.LangfuseApiBuilderFactory;
+
+import io.quarkiverse.langfuse.client.QuarkusLangfuseApiBuilderFactory;
+import io.quarkiverse.langfuse.client.QuarkusLangfuseAsyncClient;
 import io.quarkiverse.langfuse.client.QuarkusLangfuseClient;
 import io.quarkiverse.langfuse.runtime.LangfuseRecorder;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
@@ -17,11 +21,13 @@ import io.quarkus.deployment.annotations.ExecutionTime;
 import io.quarkus.deployment.annotations.Record;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
+import io.quarkus.deployment.builditem.nativeimage.ServiceProviderBuildItem;
 
 class LangfuseProcessor {
     private static final String FEATURE = "langfuse";
     private static final DotName QUARKUS_LANGFUSE_CLIENT = DotName.createSimple(QuarkusLangfuseClient.class);
-    private static final DotName LANGFUSE_CLIENT = DotName.createSimple(LangfuseClient.class);
+    private static final DotName QUARKUS_LANGFUSE_ASYNC_CLIENT = DotName.createSimple(QuarkusLangfuseAsyncClient.class);
+    private static final DotName LANGFUSE_API = DotName.createSimple(LangfuseApi.class);
 
     @BuildStep
     FeatureBuildItem feature() {
@@ -42,13 +48,29 @@ class LangfuseProcessor {
 
         beanProducer.produce(
                 SyntheticBeanBuildItem
-                        .configure(LANGFUSE_CLIENT)
+                        .configure(QUARKUS_LANGFUSE_ASYNC_CLIENT)
                         .setRuntimeInit()
                         .defaultBean()
                         .scope(ApplicationScoped.class)
-                        .createWith(recorder.langfuseClient())
-                        .addInjectionPoint(ClassType.create(QUARKUS_LANGFUSE_CLIENT))
+                        .supplier(recorder.quarkusLangfuseAsyncClient())
                         .done());
+
+        beanProducer.produce(
+                SyntheticBeanBuildItem
+                        .configure(LANGFUSE_API)
+                        .setRuntimeInit()
+                        .defaultBean()
+                        .scope(ApplicationScoped.class)
+                        .createWith(recorder.langfuseApi())
+                        .addInjectionPoint(ClassType.create(QUARKUS_LANGFUSE_CLIENT))
+                        .addInjectionPoint(ClassType.create(QUARKUS_LANGFUSE_ASYNC_CLIENT))
+                        .done());
+    }
+
+    @BuildStep
+    ServiceProviderBuildItem nativeImageServiceProviderRegistration() {
+        return new ServiceProviderBuildItem(LangfuseApiBuilderFactory.class.getName(),
+                QuarkusLangfuseApiBuilderFactory.class.getName());
     }
 
     @BuildStep

@@ -3,8 +3,11 @@ package io.quarkiverse.langfuse.runtime;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-import io.quarkiverse.langfuse.LangfuseClient;
+import com.langfuse.api.LangfuseApi;
+
+import io.quarkiverse.langfuse.QuarkusLangfuseApi;
 import io.quarkiverse.langfuse.client.LangfuseClientBuilder;
+import io.quarkiverse.langfuse.client.QuarkusLangfuseAsyncClient;
 import io.quarkiverse.langfuse.client.QuarkusLangfuseClient;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.arc.SyntheticCreationalContext;
@@ -23,17 +26,27 @@ public class LangfuseRecorder {
         return new Supplier<QuarkusLangfuseClient>() {
             @Override
             public QuarkusLangfuseClient get() {
-                return new LangfuseClientBuilder(config.getValue()).build();
+                return new LangfuseClientBuilder<>(config.getValue(), QuarkusLangfuseClient.class).build();
             }
         };
     }
 
-    public Function<SyntheticCreationalContext<LangfuseClient>, LangfuseClient> langfuseClient() {
-        return new Function<SyntheticCreationalContext<LangfuseClient>, LangfuseClient>() {
+    public Supplier<QuarkusLangfuseAsyncClient> quarkusLangfuseAsyncClient() {
+        return new Supplier<QuarkusLangfuseAsyncClient>() {
             @Override
-            public LangfuseClient apply(SyntheticCreationalContext<LangfuseClient> ctx) {
-                return LangfuseClient.builder()
+            public QuarkusLangfuseAsyncClient get() {
+                return new LangfuseClientBuilder<>(config.getValue(), QuarkusLangfuseAsyncClient.class).build();
+            }
+        };
+    }
+
+    public Function<SyntheticCreationalContext<LangfuseApi>, LangfuseApi> langfuseApi() {
+        return new Function<SyntheticCreationalContext<LangfuseApi>, LangfuseApi>() {
+            @Override
+            public LangfuseApi apply(SyntheticCreationalContext<LangfuseApi> ctx) {
+                return QuarkusLangfuseApi.builder()
                         .client(ctx.getInjectedReference(QuarkusLangfuseClient.class))
+                        .asyncClient(ctx.getInjectedReference(QuarkusLangfuseAsyncClient.class))
                         .config(config.getValue())
                         .build();
             }

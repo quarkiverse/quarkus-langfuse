@@ -2,6 +2,8 @@ package io.quarkiverse.langfuse.deployment.devservices;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Duration;
+
 import jakarta.inject.Inject;
 
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -9,11 +11,10 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import io.quarkus.test.QuarkusUnitTest;
-
-import io.quarkiverse.langfuse.LangfuseClient;
-
+import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.model.HealthResponse;
+
+import io.quarkus.test.QuarkusUnitTest;
 
 class LangfuseDevServiceWorksTests {
     @RegisterExtension
@@ -23,11 +24,20 @@ class LangfuseDevServiceWorksTests {
             .overrideRuntimeConfigKey("quarkus.langfuse.log-responses", "true");
 
     @Inject
-    LangfuseClient langfuseClient;
+    LangfuseApi langfuseApi;
 
     @Test
-    void hello() {
-        assertThat(langfuseClient.healthHealth())
+    void health() {
+        assertThat(langfuseApi.health().healthHealth())
+                .isNotNull()
+                .extracting(HealthResponse::getStatus)
+                .isEqualTo("OK");
+    }
+
+    @Test
+    void healthAsync() {
+        assertThat(langfuseApi.asyncHealth().healthHealth())
+                .succeedsWithin(Duration.ofSeconds(5))
                 .isNotNull()
                 .extracting(HealthResponse::getStatus)
                 .isEqualTo("OK");

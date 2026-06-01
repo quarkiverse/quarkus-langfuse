@@ -332,7 +332,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_USER_PASSWO
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++quarkus+++`
+|`+++quarkuslangfuse+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-enable-experimental-features]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-enable-experimental-features[`+++quarkus.langfuse.devservices.langfuse.enable-experimental-features+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -542,7 +542,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_POSTGRES_PASSWORD+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++quarkus+++`
+|`+++quarkuspostgres+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-postgres-database-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-postgres-database-name[`+++quarkus.langfuse.devservices.postgres.database-name+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -647,7 +647,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_PASSWORD+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++quarkus+++`
+|`+++quarkusclickhouse+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-database-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-database-name[`+++quarkus.langfuse.devservices.clickhouse.database-name+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -731,7 +731,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_REDIS_PASSWORD+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++quarkus+++`
+|`+++quarkusredis+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-redis-tls-enabled]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-redis-tls-enabled[`+++quarkus.langfuse.devservices.redis.tls-enabled+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -836,7 +836,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_ROOT_PASSWORD+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++quarkus-minio+++`
+|`+++quarkusminio+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-minio-bucket-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-minio-bucket-name[`+++quarkus.langfuse.devservices.minio.bucket-name+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -857,7 +857,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_BUCKET_NAME+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++quarkus-langfuse+++`
+|`+++quarkuslangfuse+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-minio-container-env-container-env]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-minio-container-env-container-env[`+++quarkus.langfuse.devservices.minio.container-env."container-env"+++`]##
 ifdef::add-copy-button-to-config-props[]
