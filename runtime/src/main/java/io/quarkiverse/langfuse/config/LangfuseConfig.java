@@ -14,20 +14,20 @@ public interface LangfuseConfig {
     /**
      * The key for the base url
      */
-    String BASE_URL_KEY = "quarkus.docling.base-url";
+    String BASE_URL_KEY = "quarkus.langfuse.base-url";
 
     /**
      * The key for the username
      */
-    String USERNAME_KEY = "quarkus.docling.username";
+    String USERNAME_KEY = "quarkus.langfuse.username";
 
     /**
-     * The key for the password of the
+     * The key for the password
      */
-    String PASSWORD_KEY = "quarkus.docling.password";
+    String PASSWORD_KEY = "quarkus.langfuse.password";
 
     /**
-     * The default base url of where docling is
+     * The base URL of the Langfuse server
      */
     String baseUrl();
 
@@ -42,19 +42,19 @@ public interface LangfuseConfig {
     String password();
 
     /**
-     * Timeout for Docling calls
+     * Timeout for Langfuse calls
      */
     @WithDefault("1m")
     Duration timeout();
 
     /**
-     * Whether the Docling client should log requests
+     * Whether the Langfuse client should log requests
      */
     @WithDefault("false")
     Boolean logRequests();
 
     /**
-     * Whether the Docling client should log responses
+     * Whether the Langfuse client should log responses
      */
     @WithDefault("false")
     Boolean logResponses();

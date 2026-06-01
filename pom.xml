@@ -15,6 +15,7 @@
 
 	<modules>
 		<module>langfuse-client</module>
+		<module>langfuse-testcontainers</module>
 		<module>deployment</module>
 		<module>runtime</module>
 		<module>integration-tests</module>
@@ -40,6 +41,8 @@
 		<quarkus.version>3.33.2</quarkus.version>
 		<quarkus-openapi-generator.version>2.17.0-lts</quarkus-openapi-generator.version>
 		<quarkus-antora.version>3.25.0</quarkus-antora.version>
+		<quarkus-wiremock.version>1.6.3</quarkus-wiremock.version>
+		<testcontainers-redis.version>2.2.4</testcontainers-redis.version>
 	</properties>
 
 	<developers>
@@ -80,6 +83,11 @@
 				<groupId>io.quarkiverse.openapi.generator</groupId>
 				<artifactId>quarkus-openapi-generator-deployment</artifactId>
 				<version>${quarkus-openapi-generator.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.quarkiverse.wiremock</groupId>
+				<artifactId>quarkus-wiremock-test</artifactId>
+				<version>${quarkus-wiremock.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

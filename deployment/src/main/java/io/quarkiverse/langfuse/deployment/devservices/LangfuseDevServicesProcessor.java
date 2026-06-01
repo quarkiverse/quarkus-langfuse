@@ -32,7 +32,7 @@ public class LangfuseDevServicesProcessor {
     static final String DEV_SERVICE_LABEL = "quarkus-dev-service-langfuse";
 
     private static final ContainerLocator LANGFUSE_CONTAINER_LOCATOR = ContainerLocator
-            .locateContainerWithLabels(LangfuseContainer.DEFAULT_LANGFUSE_PORT, DEV_SERVICE_LABEL);
+            .locateContainerWithLabels(com.langfuse.testcontainers.config.LangfuseConfig.DEFAULT_PORT, DEV_SERVICE_LABEL);
 
     @BuildStep
     FeatureBuildItem feature() {
@@ -61,12 +61,15 @@ public class LangfuseDevServicesProcessor {
             LangfuseDevServicesConfig devServicesConfig,
             LaunchMode launchMode) {
 
+        var langfuseContainerConfig = devServicesConfig.toLangfuseContainerConfig();
+
         return LANGFUSE_CONTAINER_LOCATOR
                 .locateContainer(devServicesConfig.serviceName(), devServicesConfig.shared(), launchMode)
-                .or(() -> ComposeLocator.locateContainer(composeProjectBuildItem, List.of(devServicesConfig.image()),
-                        LangfuseContainer.DEFAULT_LANGFUSE_PORT, launchMode, false))
+                .or(() -> ComposeLocator.locateContainer(composeProjectBuildItem,
+                        List.of(devServicesConfig.langfuse().imageName()),
+                        com.langfuse.testcontainers.config.LangfuseConfig.DEFAULT_PORT, launchMode, false))
                 .map(containerAddress -> {
-                    var config = LangfuseContainer.getExposedConfig(devServicesConfig, containerAddress.getHost(),
+                    var config = QuarkusLangfuseContainer.getExposedConfig(devServicesConfig, containerAddress.getHost(),
                             containerAddress.getPort());
 
                     return DevServicesResultBuildItem.discovered()
@@ -80,10 +83,10 @@ public class LangfuseDevServicesProcessor {
                         .feature(FEATURE)
                         .description("Langfuse")
                         .serviceName(devServicesConfig.serviceName())
-                        .serviceConfig(devServicesConfig)
-                        .startable(() -> new LangfuseContainer(devServicesConfig))
+                        .serviceConfig(langfuseContainerConfig)
+                        .startable(() -> new QuarkusLangfuseContainer(devServicesConfig))
                         .postStartHook(LangfuseDevServicesProcessor::devServiceStarted)
-                        .configProvider(LangfuseContainer.getExposedConfig(devServicesConfig))
+                        .configProvider(QuarkusLangfuseContainer.getExposedConfig(devServicesConfig))
                         .build());
     }
 
@@ -91,7 +94,7 @@ public class LangfuseDevServicesProcessor {
             LangfuseDevServicesConfig devServicesConfig) {
         if (isLangfuseRunning()) {
             LOG.infof("Not starting Langfuse dev services container as it is already running on port %d",
-                    LangfuseContainer.DEFAULT_LANGFUSE_PORT);
+                    com.langfuse.testcontainers.config.LangfuseConfig.DEFAULT_PORT);
             return true;
         }
 
@@ -110,14 +113,14 @@ public class LangfuseDevServicesProcessor {
     }
 
     private static boolean isLangfuseRunning() {
-        try (var s = new Socket("localhost", LangfuseContainer.DEFAULT_LANGFUSE_PORT)) {
+        try (var s = new Socket("localhost", com.langfuse.testcontainers.config.LangfuseConfig.DEFAULT_PORT)) {
             return true;
         } catch (Exception e) {
             return false;
         }
     }
 
-    private static void devServiceStarted(LangfuseContainer container) {
+    private static void devServiceStarted(QuarkusLangfuseContainer container) {
         LOG.infof(
                 """
 

@@ -48,6 +48,30 @@
 			<artifactId>quarkus-langfuse</artifactId>
 			<version>${project.version}</version>
 		</dependency>
+		<!-- Temporary: the runtime module embeds langfuse-client classes via
+		     maven-dependency-plugin unpack, but that is invisible to IntelliJ's
+		     module dependency graph. This provided-scope dependency lets the IDE
+		     resolve com.langfuse.api.* types used by runtime classes.
+		     Remove once langfuse-client is published as a standalone artifact
+		     and the runtime module can declare it as a regular (non-optional)
+		     dependency. -->
+		<dependency>
+			<groupId>io.quarkiverse.langfuse</groupId>
+			<artifactId>quarkus-langfuse-client</artifactId>
+			<version>${project.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<!-- Temporary: local copy of langfuse-java-testcontainers until
+		     https://github.com/langfuse/langfuse-java/pull/36 is merged and released.
+		     Remove this dependency, the unpack plugin execution below, and the
+		     testcontainers module dependencies (postgresql, clickhouse, minio, redis)
+		     once com.langfuse:langfuse-java-testcontainers is available on Maven Central. -->
+		<dependency>
+			<groupId>io.quarkiverse.langfuse</groupId>
+			<artifactId>quarkus-langfuse-testcontainers</artifactId>
+			<version>${project.version}</version>
+			<optional>true</optional>
+		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
 			<artifactId>testcontainers</artifactId>
@@ -58,9 +82,33 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<!-- Temporary: required by the unpacked quarkus-langfuse-testcontainers classes.
+		     Remove when switching to the released com.langfuse:langfuse-java-testcontainers. -->
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-postgresql</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-clickhouse</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.testcontainers</groupId>
+			<artifactId>testcontainers-minio</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.redis</groupId>
+			<artifactId>testcontainers-redis</artifactId>
+			<version>${testcontainers-redis.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-junit-internal</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkiverse.wiremock</groupId>
+			<artifactId>quarkus-wiremock-test</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -72,6 +120,31 @@
 
 	<build>
 		<plugins>
+			<!-- Temporary: see quarkus-langfuse-testcontainers dependency comment above -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>unpack-langfuse-testcontainers</id>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<artifactItems>
+								<artifactItem>
+									<groupId>io.quarkiverse.langfuse</groupId>
+									<artifactId>quarkus-langfuse-testcontainers</artifactId>
+									<version>${project.version}</version>
+									<outputDirectory>${project.build.outputDirectory}</outputDirectory>
+									<excludes>META-INF/MANIFEST.MF,META-INF/maven/**</excludes>
+								</artifactItem>
+							</artifactItems>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<executions>

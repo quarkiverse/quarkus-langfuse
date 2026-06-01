@@ -4,13 +4,12 @@ import java.util.Map;
 
 import org.jboss.logging.Logger;
 
+import io.quarkiverse.langfuse.deployment.devservices.LangfuseDevServicesProcessor;
+import io.quarkiverse.langfuse.deployment.devservices.QuarkusLangfuseContainer;
 import io.quarkus.deployment.IsLocalDevelopment;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.devui.spi.page.CardPageBuildItem;
 import io.quarkus.devui.spi.page.Page;
-
-import io.quarkiverse.langfuse.deployment.devservices.LangfuseContainer;
-import io.quarkiverse.langfuse.deployment.devservices.LangfuseDevServicesProcessor;
 
 public class LangfuseDevUIProcessor {
     private static final Logger LOG = Logger.getLogger(LangfuseDevUIProcessor.class);
@@ -27,7 +26,7 @@ public class LangfuseDevUIProcessor {
                                 "devui-dev-services:devServicesConfig",
                                 Map.of(
                                         "name", LangfuseDevServicesProcessor.FEATURE,
-                                        "configKey", LangfuseContainer.CONFIG_LANGFUSE_UI))
+                                        "configKey", QuarkusLangfuseContainer.CONFIG_LANGFUSE_UI))
                         .isHtmlContent()
                         .doNotEmbed());
 

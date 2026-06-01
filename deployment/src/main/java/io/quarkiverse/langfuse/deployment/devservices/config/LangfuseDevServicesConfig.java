@@ -1,5 +1,7 @@
 package io.quarkiverse.langfuse.deployment.devservices.config;
 
+import com.langfuse.testcontainers.config.LangfuseContainerConfig;
+
 import io.quarkus.runtime.annotations.ConfigGroup;
 import io.smallrye.config.WithDefault;
 
@@ -44,12 +46,103 @@ public interface LangfuseDevServicesConfig {
     String serviceName();
 
     /**
-     * Retrieves the username used for authentication.
+     * Langfuse web server configuration.
      */
-    String username();
+    LangfuseServerDevServicesConfig langfuse();
 
     /**
-     * Retrieves the password used for authentication.
+     * PostgreSQL database configuration.
      */
-    String password();
+    PostgresDevServicesConfig postgres();
+
+    /**
+     * ClickHouse analytics database configuration.
+     */
+    ClickHouseDevServicesConfig clickhouse();
+
+    /**
+     * Redis cache configuration.
+     */
+    RedisDevServicesConfig redis();
+
+    /**
+     * MinIO object storage configuration.
+     */
+    MinIODevServicesConfig minio();
+
+    /**
+     * Langfuse worker configuration.
+     */
+    WorkerDevServicesConfig worker();
+
+    /**
+     * Converts this Quarkus configuration into a {@link LangfuseContainerConfig}
+     * for the upstream testcontainers library.
+     *
+     * @return a new {@link LangfuseContainerConfig} built from the current configuration
+     */
+    default LangfuseContainerConfig toLangfuseContainerConfig() {
+        var builder = LangfuseContainerConfig.builder();
+
+        var lf = langfuse();
+        var lfBuilder = builder.langfuse()
+                .image(lf.imageName())
+                .port(lf.port())
+                .startupTimeout(lf.startupTimeout())
+                .initProjectPublicKey(lf.username())
+                .initProjectSecretKey(lf.password())
+                .initOrgId(lf.initOrgId())
+                .initOrgName(lf.initOrgName())
+                .initProjectId(lf.initProjectId())
+                .initProjectName(lf.initProjectName())
+                .initUserEmail(lf.initUserEmail())
+                .initUserName(lf.initUserName())
+                .initUserPassword(lf.initUserPassword())
+                .enableExperimentalFeatures(lf.enableExperimentalFeatures())
+                .batchExportEnabled(lf.batchExportEnabled())
+                .containerEnv(lf.containerEnv());
+
+        lf.ingestionQueueDelay().ifPresent(lfBuilder::ingestionQueueDelay);
+        lf.ingestionClickhouseWriteInterval().ifPresent(lfBuilder::ingestionClickhouseWriteInterval);
+        lf.emailFromAddress().ifPresent(lfBuilder::emailFromAddress);
+        lf.smtpConnectionUrl().ifPresent(lfBuilder::smtpConnectionUrl);
+
+        var pg = postgres();
+        builder.postgres()
+                .image(pg.imageName())
+                .username(pg.username())
+                .password(pg.password())
+                .databaseName(pg.databaseName())
+                .containerEnv(pg.containerEnv());
+
+        var ch = clickhouse();
+        builder.clickhouse()
+                .image(ch.imageName())
+                .username(ch.username())
+                .password(ch.password())
+                .databaseName(ch.databaseName())
+                .containerEnv(ch.containerEnv());
+
+        var rd = redis();
+        builder.redis()
+                .image(rd.imageName())
+                .password(rd.password())
+                .tlsEnabled(rd.tlsEnabled())
+                .containerEnv(rd.containerEnv());
+
+        var mi = minio();
+        builder.minio()
+                .image(mi.imageName())
+                .rootUser(mi.rootUser())
+                .rootPassword(mi.rootPassword())
+                .bucketName(mi.bucketName())
+                .containerEnv(mi.containerEnv());
+
+        var wk = worker();
+        builder.worker()
+                .image(wk.imageName())
+                .containerEnv(wk.containerEnv());
+
+        return builder.build();
+    }
 }

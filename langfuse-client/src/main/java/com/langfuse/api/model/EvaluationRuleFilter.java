@@ -1,4 +1,4 @@
-package io.quarkiverse.langfuse.client.model;
+package com.langfuse.api.model;
 
 import java.util.List;
 

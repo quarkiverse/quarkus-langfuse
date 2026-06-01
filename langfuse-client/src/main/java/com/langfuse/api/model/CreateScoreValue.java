@@ -1,4 +1,4 @@
-package io.quarkiverse.langfuse.client.model;
+package com.langfuse.api.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;

@@ -78,47 +78,849 @@ endif::add-copy-button-to-env-var[]
 |string
 |`+++langfuse+++`
 
-a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-username]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-username[`+++quarkus.langfuse.devservices.username+++`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-image-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-image-name[`+++quarkus.langfuse.devservices.langfuse.image-name+++`]##
 ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langfuse.devservices.username+++[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.image-name+++[]
 endif::add-copy-button-to-config-props[]
 
 
 [.description]
 --
-Retrieves the username used for authentication.
+The container image name to use for the Langfuse web server.
 
 
 ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_USERNAME+++[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_IMAGE_NAME+++[]
 endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_USERNAME+++`
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_IMAGE_NAME+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|required icon:exclamation-circle[title=Configuration property is required]
+|`+++docker.io/langfuse/langfuse:3+++`
 
-a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-password[`+++quarkus.langfuse.devservices.password+++`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-port]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-port[`+++quarkus.langfuse.devservices.langfuse.port+++`]##
 ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langfuse.devservices.password+++[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.port+++[]
 endif::add-copy-button-to-config-props[]
 
 
 [.description]
 --
-Retrieves the password used for authentication.
+The port the Langfuse web server listens on inside the container.
 
 
 ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_PASSWORD+++[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_PORT+++[]
 endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_PASSWORD+++`
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_PORT+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|`+++3000+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-username]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-username[`+++quarkus.langfuse.devservices.langfuse.username+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.username+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The username used for authentication with the Langfuse API.
+
+This maps to the Langfuse project public key used to initialize the dev instance.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_USERNAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_USERNAME+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|required icon:exclamation-circle[title=Configuration property is required]
+|`+++quarkus+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-password[`+++quarkus.langfuse.devservices.langfuse.password+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.password+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The password used for authentication with the Langfuse API.
+
+This maps to the Langfuse project secret key used to initialize the dev instance.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_PASSWORD+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_PASSWORD+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkuslangfuse+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-startup-timeout]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-startup-timeout[`+++quarkus.langfuse.devservices.langfuse.startup-timeout+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.startup-timeout+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Maximum duration to wait for the Langfuse container to start up.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_STARTUP_TIMEOUT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_STARTUP_TIMEOUT+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-langfuse_quarkus-langfuse[icon:question-circle[title=More information about the Duration format]]
+|`+++${QUARKUS.DEVSERVICES.TIMEOUT:PT3M}+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-org-id]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-org-id[`+++quarkus.langfuse.devservices.langfuse.init-org-id+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.init-org-id+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The organization ID to initialize in the Langfuse instance.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_ORG_ID+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_ORG_ID+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-org-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-org-name[`+++quarkus.langfuse.devservices.langfuse.init-org-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.init-org-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The organization name to initialize in the Langfuse instance.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_ORG_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_ORG_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++Quarkus Dev Org+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-project-id]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-project-id[`+++quarkus.langfuse.devservices.langfuse.init-project-id+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.init-project-id+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The project ID to initialize in the Langfuse instance.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_PROJECT_ID+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_PROJECT_ID+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus-dev-project+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-project-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-project-name[`+++quarkus.langfuse.devservices.langfuse.init-project-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.init-project-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The project name to initialize in the Langfuse instance.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_PROJECT_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_PROJECT_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus-dev+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-user-email]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-user-email[`+++quarkus.langfuse.devservices.langfuse.init-user-email+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.init-user-email+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The user email to initialize in the Langfuse instance.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_USER_EMAIL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_USER_EMAIL+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus@quarkus.io+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-user-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-user-name[`+++quarkus.langfuse.devservices.langfuse.init-user-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.init-user-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The user name to initialize in the Langfuse instance.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_USER_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_USER_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-user-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-init-user-password[`+++quarkus.langfuse.devservices.langfuse.init-user-password+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.init-user-password+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The user password to initialize in the Langfuse instance.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_USER_PASSWORD+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INIT_USER_PASSWORD+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-enable-experimental-features]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-enable-experimental-features[`+++quarkus.langfuse.devservices.langfuse.enable-experimental-features+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.enable-experimental-features+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether to enable experimental features in Langfuse.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_ENABLE_EXPERIMENTAL_FEATURES+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-batch-export-enabled]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-batch-export-enabled[`+++quarkus.langfuse.devservices.langfuse.batch-export-enabled+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.batch-export-enabled+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether to enable batch export in Langfuse.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_BATCH_EXPORT_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_BATCH_EXPORT_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-ingestion-queue-delay]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-ingestion-queue-delay[`+++quarkus.langfuse.devservices.langfuse.ingestion-queue-delay+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.ingestion-queue-delay+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The delay between ingestion queue processing cycles.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INGESTION_QUEUE_DELAY+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INGESTION_QUEUE_DELAY+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-langfuse_quarkus-langfuse[icon:question-circle[title=More information about the Duration format]]
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-ingestion-clickhouse-write-interval]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-ingestion-clickhouse-write-interval[`+++quarkus.langfuse.devservices.langfuse.ingestion-clickhouse-write-interval+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.ingestion-clickhouse-write-interval+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The interval between ClickHouse write flushes for ingested events.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INGESTION_CLICKHOUSE_WRITE_INTERVAL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_INGESTION_CLICKHOUSE_WRITE_INTERVAL+++`
+endif::add-copy-button-to-env-var[]
+--
+|link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-langfuse_quarkus-langfuse[icon:question-circle[title=More information about the Duration format]]
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-email-from-address]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-email-from-address[`+++quarkus.langfuse.devservices.langfuse.email-from-address+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.email-from-address+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The email "from" address for Langfuse email notifications.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_EMAIL_FROM_ADDRESS+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_EMAIL_FROM_ADDRESS+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-smtp-connection-url]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-smtp-connection-url[`+++quarkus.langfuse.devservices.langfuse.smtp-connection-url+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.smtp-connection-url+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The SMTP connection URL for Langfuse email notifications.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_SMTP_CONNECTION_URL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_SMTP_CONNECTION_URL+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-container-env-container-env]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-container-env-container-env[`+++quarkus.langfuse.devservices.langfuse.container-env."container-env"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.container-env."container-env"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Environment variables that are passed to the Langfuse web server container.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_CONTAINER_ENV__CONTAINER_ENV_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_CONTAINER_ENV__CONTAINER_ENV_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-postgres-image-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-postgres-image-name[`+++quarkus.langfuse.devservices.postgres.image-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.postgres.image-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The container image name to use for the PostgreSQL database.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_POSTGRES_IMAGE_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_POSTGRES_IMAGE_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++postgres:17+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-postgres-username]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-postgres-username[`+++quarkus.langfuse.devservices.postgres.username+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.postgres.username+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The database username.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_POSTGRES_USERNAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_POSTGRES_USERNAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-postgres-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-postgres-password[`+++quarkus.langfuse.devservices.postgres.password+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.postgres.password+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The database password.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_POSTGRES_PASSWORD+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_POSTGRES_PASSWORD+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-postgres-database-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-postgres-database-name[`+++quarkus.langfuse.devservices.postgres.database-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.postgres.database-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The database name.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_POSTGRES_DATABASE_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_POSTGRES_DATABASE_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus-langfuse+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-postgres-container-env-container-env]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-postgres-container-env-container-env[`+++quarkus.langfuse.devservices.postgres.container-env."container-env"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.postgres.container-env."container-env"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Environment variables that are passed to the PostgreSQL container.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_POSTGRES_CONTAINER_ENV__CONTAINER_ENV_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_POSTGRES_CONTAINER_ENV__CONTAINER_ENV_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-image-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-image-name[`+++quarkus.langfuse.devservices.clickhouse.image-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.clickhouse.image-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The container image name to use for the ClickHouse analytics database.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_IMAGE_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_IMAGE_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++clickhouse/clickhouse-server+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-username]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-username[`+++quarkus.langfuse.devservices.clickhouse.username+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.clickhouse.username+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The database username.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_USERNAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_USERNAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-password[`+++quarkus.langfuse.devservices.clickhouse.password+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.clickhouse.password+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The database password.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_PASSWORD+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_PASSWORD+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-database-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-database-name[`+++quarkus.langfuse.devservices.clickhouse.database-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.clickhouse.database-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The database name.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_DATABASE_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_DATABASE_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkusclickhouse+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-container-env-container-env]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-container-env-container-env[`+++quarkus.langfuse.devservices.clickhouse.container-env."container-env"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.clickhouse.container-env."container-env"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Environment variables that are passed to the ClickHouse container.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_CONTAINER_ENV__CONTAINER_ENV_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_CONTAINER_ENV__CONTAINER_ENV_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-redis-image-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-redis-image-name[`+++quarkus.langfuse.devservices.redis.image-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.redis.image-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The container image name to use for the Redis cache.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_REDIS_IMAGE_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_REDIS_IMAGE_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++redis:7+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-redis-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-redis-password[`+++quarkus.langfuse.devservices.redis.password+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.redis.password+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The Redis password.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_REDIS_PASSWORD+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_REDIS_PASSWORD+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-redis-tls-enabled]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-redis-tls-enabled[`+++quarkus.langfuse.devservices.redis.tls-enabled+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.redis.tls-enabled+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether TLS is enabled for the Redis connection.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_REDIS_TLS_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_REDIS_TLS_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-redis-container-env-container-env]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-redis-container-env-container-env[`+++quarkus.langfuse.devservices.redis.container-env."container-env"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.redis.container-env."container-env"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Environment variables that are passed to the Redis container.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_REDIS_CONTAINER_ENV__CONTAINER_ENV_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_REDIS_CONTAINER_ENV__CONTAINER_ENV_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-minio-image-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-minio-image-name[`+++quarkus.langfuse.devservices.minio.image-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.minio.image-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The container image name to use for the MinIO object storage.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_IMAGE_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_IMAGE_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++cgr.dev/chainguard/minio+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-minio-root-user]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-minio-root-user[`+++quarkus.langfuse.devservices.minio.root-user+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.minio.root-user+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The MinIO root user.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_ROOT_USER+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_ROOT_USER+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-minio-root-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-minio-root-password[`+++quarkus.langfuse.devservices.minio.root-password+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.minio.root-password+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The MinIO root password.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_ROOT_PASSWORD+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_ROOT_PASSWORD+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus-minio+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-minio-bucket-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-minio-bucket-name[`+++quarkus.langfuse.devservices.minio.bucket-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.minio.bucket-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The name of the S3 bucket to create.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_BUCKET_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_BUCKET_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++quarkus-langfuse+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-minio-container-env-container-env]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-minio-container-env-container-env[`+++quarkus.langfuse.devservices.minio.container-env."container-env"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.minio.container-env."container-env"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Environment variables that are passed to the MinIO container.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_CONTAINER_ENV__CONTAINER_ENV_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_MINIO_CONTAINER_ENV__CONTAINER_ENV_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
+|
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-worker-image-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-worker-image-name[`+++quarkus.langfuse.devservices.worker.image-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.worker.image-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The container image name to use for the Langfuse worker.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_WORKER_IMAGE_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_WORKER_IMAGE_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++docker.io/langfuse/langfuse-worker:3+++`
+
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-worker-container-env-container-env]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-worker-container-env-container-env[`+++quarkus.langfuse.devservices.worker.container-env."container-env"+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.worker.container-env."container-env"+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Environment variables that are passed to the Langfuse worker container.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_WORKER_CONTAINER_ENV__CONTAINER_ENV_+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_WORKER_CONTAINER_ENV__CONTAINER_ENV_+++`
+endif::add-copy-button-to-env-var[]
+--
+|Map<String,String>
+|
 
 a| [[quarkus-langfuse_quarkus-langfuse-base-url]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-base-url[`+++quarkus.langfuse.base-url+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -128,7 +930,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The default base url of where docling is
+The base URL of the Langfuse server
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -191,7 +993,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Timeout for Docling calls
+Timeout for Langfuse calls
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -212,7 +1014,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Whether the Docling client should log requests
+Whether the Langfuse client should log requests
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -233,7 +1035,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Whether the Docling client should log responses
+Whether the Langfuse client should log responses
 
 
 ifdef::add-copy-button-to-env-var[]
