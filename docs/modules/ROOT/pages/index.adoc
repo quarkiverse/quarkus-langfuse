@@ -169,40 +169,6 @@ The `LangfuseApi` bean provides access to the full https://langfuse.com/docs[Lan
 | Manage LLM provider connections
 |===
 
-=== Example: Ingesting a Trace
-
-[source,java]
-----
-import java.util.List;
-import java.util.Map;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.inject.Inject;
-
-import com.langfuse.api.LangfuseApi;
-import com.langfuse.client.resources.ingestion.types.IngestionEvent;
-import com.langfuse.client.resources.ingestion.types.TraceBody;
-
-@ApplicationScoped
-public class TracingService {
-
-    @Inject
-    LangfuseApi langfuseApi;
-
-    public void recordTrace(String traceId, String traceName, Map<String, Object> input) {
-        var traceEvent = IngestionEvent.traceCreate(
-            TraceBody.builder()
-                .id(traceId)
-                .name(traceName)
-                .input(input)
-                .build()
-        );
-
-        langfuseApi.ingestion().ingestionBatch(List.of(traceEvent));
-    }
-}
-----
-
 === Example: Listing Prompts
 
 [source,java]
@@ -262,6 +228,33 @@ When both `quarkus-opentelemetry` and `quarkus-langchain4j` are on the classpath
 This means prompt content, LLM responses, tool arguments, and tool results are all included in the OpenTelemetry spans emitted by LangChain4j -- and therefore visible in Langfuse traces -- without any manual configuration.
 
 These defaults are set at a low priority, so you can override any of them in `application.properties` or via environment variables if needed.
+
+==== Example
+
+With a simple AI Service
+
+[source,java]
+----
+import jakarta.enterprise.context.ApplicationScoped;
+
+import dev.langchain4j.service.SystemMessage;
+import dev.langchain4j.service.UserMessage;
+
+import io.quarkiverse.langchain4j.RegisterAiService;
+
+@RegisterAiService
+@ApplicationScoped
+public interface ChatService {
+    @SystemMessage("You are a helpful assistant.")
+    String chat(@UserMessage String prompt);
+}
+----
+
+It will automatically send traces to Langfuse:
+
+image::trace-1.png[Trace Dashboard,2035,489]
+
+image::trace-2.png[Trace Details,1232,1080]
 
 === Zero-Config with DevServices
 

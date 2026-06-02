@@ -17,13 +17,6 @@ import jakarta.ws.rs.core.Response.Status;
 
 import org.junit.jupiter.api.Test;
 
-import io.quarkus.test.common.http.TestHTTPEndpoint;
-import io.quarkus.test.common.http.TestHTTPResource;
-import io.quarkus.test.junit.QuarkusTest;
-
-import io.quarkiverse.langfuse.rest.ChatResource;
-import io.restassured.http.ContentType;
-
 import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api.APILegacyObservationsV1GetManyRequest;
 import com.langfuse.api.model.LegacyObservationsViews;
@@ -31,6 +24,12 @@ import com.langfuse.api.model.ObservationsView;
 import com.langfuse.api.model.TraceWithDetails;
 import com.langfuse.api.model.Traces;
 import com.langfuse.api.trace.TraceApi.APITraceListRequest;
+
+import io.quarkiverse.langfuse.rest.ChatResource;
+import io.quarkus.test.common.http.TestHTTPEndpoint;
+import io.quarkus.test.common.http.TestHTTPResource;
+import io.quarkus.test.junit.QuarkusTest;
+import io.restassured.http.ContentType;
 
 @QuarkusTest
 public class LangfuseOtelTests {
