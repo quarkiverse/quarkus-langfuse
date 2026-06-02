@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>io.quarkiverse.langfuse</groupId>
 		<artifactId>quarkus-langfuse-parent</artifactId>
-		<version>999-SNAPSHOT</version>
+		<version>0.1.1</version>
 	</parent>
 	<artifactId>quarkus-langfuse-client</artifactId>
 	<name>Quarkus Langfuse - Client</name>
@@ -211,19 +211,19 @@
 							<target>
 								<!-- Map<String, Integer>.class → Map.class -->
 								<replaceregexp match="(\w+)&lt;[^&gt;]*&gt;\.class" replace="\1.class" flags="g" byline="true">
-									<fileset dir="${project.build.directory}/generated-sources" includes="**/*.java"/>
+									<fileset dir="${project.build.directory}/generated-sources" includes="**/*.java" />
 								</replaceregexp>
 								<!-- getMap<String, Integer>() → getMap() -->
 								<replaceregexp match="(get\w+)&lt;[^&gt;]*&gt;\(" replace="\1(" flags="g" byline="true">
-									<fileset dir="${project.build.directory}/generated-sources" includes="**/*.java"/>
+									<fileset dir="${project.build.directory}/generated-sources" includes="**/*.java" />
 								</replaceregexp>
 								<!-- instanceof List<String> → instanceof List -->
 								<replaceregexp match="instanceof (\w+)&lt;[^&gt;]*&gt;" replace="instanceof \1" flags="g" byline="true">
-									<fileset dir="${project.build.directory}/generated-sources" includes="**/*.java"/>
+									<fileset dir="${project.build.directory}/generated-sources" includes="**/*.java" />
 								</replaceregexp>
 								<!-- getActualInstance().get( → ((Map)getActualInstance()).get( -->
 								<replaceregexp match="getActualInstance\(\)\.get\(" replace="((java.util.Map)getActualInstance()).get(" flags="g" byline="true">
-									<fileset dir="${project.build.directory}/generated-sources" includes="**/*.java"/>
+									<fileset dir="${project.build.directory}/generated-sources" includes="**/*.java" />
 								</replaceregexp>
 							</target>
 						</configuration>
