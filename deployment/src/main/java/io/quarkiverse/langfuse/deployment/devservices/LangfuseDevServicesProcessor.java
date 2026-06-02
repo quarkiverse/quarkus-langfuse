@@ -5,6 +5,8 @@ import java.util.List;
 
 import org.jboss.logging.Logger;
 
+import com.langfuse.testcontainers.config.LangfuseContainerConfig;
+
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkiverse.langfuse.deployment.config.LangfuseBuildTimeConfig;
 import io.quarkiverse.langfuse.deployment.devservices.config.LangfuseDevServicesConfig;
@@ -85,7 +87,7 @@ public class LangfuseDevServicesProcessor {
                         .serviceName(devServicesConfig.serviceName())
                         .serviceConfig(langfuseContainerConfig)
                         .startable(() -> new QuarkusLangfuseContainer(devServicesConfig))
-                        .postStartHook(LangfuseDevServicesProcessor::devServiceStarted)
+                        .postStartHook(container -> devServiceStarted(container, langfuseContainerConfig))
                         .configProvider(QuarkusLangfuseContainer.getExposedConfig(devServicesConfig))
                         .build());
     }
@@ -120,14 +122,18 @@ public class LangfuseDevServicesProcessor {
         }
     }
 
-    private static void devServiceStarted(QuarkusLangfuseContainer container) {
+    private static void devServiceStarted(QuarkusLangfuseContainer container, LangfuseContainerConfig config) {
         LOG.infof(
                 """
 
                         Dev Services for Langfuse started.
                           Other applications in dev mode will find it automatically.
-                          For Quarkus applications in production mode, you can connect to this instance by starting you application with -D%s=%s
+                          For Quarkus applications in production mode, you can connect to this instance by starting you application with -D%s=%s.
+                          Log in with:
+                            Email: %s
+                            Password: %s
                         """,
-                LangfuseConfig.BASE_URL_KEY, container.getConnectionInfo());
+                LangfuseConfig.BASE_URL_KEY, container.getConnectionInfo(), config.langfuse().initUserEmail(),
+                config.langfuse().initUserPassword());
     }
 }

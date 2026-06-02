@@ -22,13 +22,13 @@ public class LangfuseDevUIProcessor {
 
         card.addPage(
                 Page.externalPageBuilder("Langfuse UI")
+                        .isHtmlContent()
+                        .doNotEmbed()
                         .dynamicUrlJsonRPCMethodName(
                                 "devui-dev-services:devServicesConfig",
                                 Map.of(
                                         "name", LangfuseDevServicesProcessor.FEATURE,
-                                        "configKey", QuarkusLangfuseContainer.CONFIG_LANGFUSE_UI))
-                        .isHtmlContent()
-                        .doNotEmbed());
+                                        "configKey", QuarkusLangfuseContainer.CONFIG_LANGFUSE_UI)));
 
         return card;
     }
