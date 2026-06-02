@@ -36,14 +36,6 @@
 			<artifactId>quarkus-devui-deployment-spi</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.quarkiverse.openapi.generator</groupId>
-			<artifactId>quarkus-openapi-generator-deployment</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-qute-deployment</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>io.quarkiverse.langfuse</groupId>
 			<artifactId>quarkus-langfuse</artifactId>
 			<version>${project.version}</version>

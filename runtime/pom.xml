@@ -27,10 +27,6 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
-			<groupId>io.quarkiverse.openapi.generator</groupId>
-			<artifactId>quarkus-openapi-generator</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-rest-client-jackson</artifactId>
 		</dependency>

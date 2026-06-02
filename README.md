@@ -1,4 +1,4 @@
-[![Version](https://img.shields.io/maven-central/v/io.quarkiverse.langfuse/quarkus-langfuse?logo=apache-maven&style=flat-square)](https://central.sonatype.com/artifact/io.quarkiverse.langfuse/quarkus-langfuse-parent)
+[![Version](https://img.shields.io/maven-central/v/io.quarkiverse.langfuse/quarkus-langfuse?logo=apache-maven&style=flat-square)](https://central.sonatype.com/artifact/io.quarkiverse/langfuse/quarkus-langfuse-parent)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
@@ -6,9 +6,160 @@
 
 # Quarkus Langfuse
 
-Still under construction, but will become a Quarkus extension for [Langfuse](https://langfuse.com), providing a client (based on the [Langfuse Java Client](https://github.com/langfuse/langfuse-java)), a devservice, and Dev UI capabilities.
+A Quarkus extension for [Langfuse](https://langfuse.com), the open-source LLM engineering platform. This extension provides a type-safe REST client (based on the [Langfuse Java SDK](https://github.com/langfuse/langfuse-java)), DevServices for zero-config local development, and a Dev UI card for quick access to the Langfuse dashboard.
 
-Until https://github.com/langfuse/langfuse-java/pull/36 is merged, released, and available, this extension will have its own client.
+[Langfuse](https://langfuse.com) helps you ship AI Agents and Products from prototype to production and beyond. It provides observability (traces, sessions, scores), prompt management (versioning, deployment, A/B testing), and evaluation (datasets, experiments, LLM-as-a-judge) for LLM-powered applications.
+
+## Features
+
+- **Type-safe Langfuse API client** - Synchronous and asynchronous clients covering the full [Langfuse public API](https://langfuse.com/docs) (traces, ingestion, prompts, scores, datasets, observations, sessions, and more), built on the Quarkus REST Client Reactive.
+- **CDI integration** - Inject `LangfuseApi` directly into your beans. No Quarkus-specific types needed.
+- **DevServices** - Automatically starts a complete Langfuse stack (Langfuse server, PostgreSQL, ClickHouse, Redis, MinIO, and Worker) in dev and test mode using Testcontainers. No manual setup required.
+- **Dev UI** - Provides a Dev UI card with a direct link to the Langfuse dashboard running in your local DevServices instance.
+- **Native image support** - Compatible with GraalVM native image compilation.
+
+## Installation
+
+Add the extension dependency to your project:
+
+### Maven
+
+```xml
+<dependency>
+    <groupId>io.quarkiverse.langfuse</groupId>
+    <artifactId>quarkus-langfuse</artifactId>
+    <version>${quarkus-langfuse.version}</version>
+</dependency>
+```
+
+### Gradle
+
+```groovy
+implementation 'io.quarkiverse.langfuse:quarkus-langfuse:${quarkus-langfuse.version}'
+```
+
+## Configuration
+
+Configure your Langfuse connection in `application.properties`:
+
+```properties
+quarkus.langfuse.base-url=https://cloud.langfuse.com
+quarkus.langfuse.username=pk-lf-...
+quarkus.langfuse.password=sk-lf-...
+```
+
+> **Note:** When DevServices is enabled (the default in dev/test mode), `base-url`, `username`, and `password` are automatically configured for you. You only need to set these properties when connecting to an external Langfuse instance or in production.
+
+### Configuration Reference
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `quarkus.langfuse.base-url` | `String` | _required_ | Base URL of the Langfuse server |
+| `quarkus.langfuse.username` | `String` | _required_ | Langfuse project public key |
+| `quarkus.langfuse.password` | `String` | _required_ | Langfuse project secret key |
+| `quarkus.langfuse.timeout` | `Duration` | `1m` | Default timeout for Langfuse API calls |
+| `quarkus.langfuse.connect-timeout` | `Duration` | `${quarkus.langfuse.timeout}` | Timeout to establish a connection |
+| `quarkus.langfuse.read-timeout` | `Duration` | `${quarkus.langfuse.timeout}` | Timeout for receiving a response |
+| `quarkus.langfuse.log-requests` | `boolean` | `false` | Log outgoing requests |
+| `quarkus.langfuse.log-responses` | `boolean` | `false` | Log incoming responses |
+| `quarkus.langfuse.pretty-print` | `boolean` | `false` | Pretty-print JSON bodies in logs |
+
+## Usage
+
+Simply inject `LangfuseApi` into your CDI beans. The extension automatically configures and provides the implementation:
+
+```java
+import com.langfuse.api.LangfuseApi;
+
+@ApplicationScoped
+public class MyService {
+
+    @Inject
+    LangfuseApi langfuseApi;
+
+    public void listTraces() {
+        // Synchronous call
+        var traces = langfuseApi.trace().traceList(/* parameters */);
+
+        // Asynchronous call
+        var asyncTraces = langfuseApi.asyncTrace().traceList(/* parameters */);
+    }
+
+    public void listPrompts() {
+        var prompts = langfuseApi.prompts().promptsList(/* parameters */);
+    }
+
+    public void checkHealth() {
+        var health = langfuseApi.health().healthHealth();
+    }
+}
+```
+
+### Available API Groups
+
+The `LangfuseApi` bean provides access to the full [Langfuse public API](https://langfuse.com/docs). Each API group is available as a method, with both synchronous and asynchronous variants (e.g., `trace()` / `asyncTrace()`):
+
+| API Group | Description |
+|---|---|
+| `health()` | Health check endpoints |
+| `trace()` | Create, list, and manage traces |
+| `observations()` | Query observations (spans and generations) |
+| `ingestion()` | Batch ingest traces, spans, generations, scores, and events |
+| `prompts()` | Manage, version, and retrieve prompts |
+| `promptVersion()` | Manage individual prompt versions |
+| `scores()` | Create and query evaluation scores |
+| `scoreConfigs()` | Manage score configurations |
+| `sessions()` | List and query sessions |
+| `datasets()` | Create and manage datasets |
+| `datasetItems()` | Manage dataset items |
+| `datasetRunItems()` | Manage dataset run items |
+| `models()` | Manage model definitions and pricing |
+| `projects()` | Query projects |
+| `organizations()` | Query organizations |
+| `comments()` | Manage comments on traces |
+| `media()` | Upload and manage media attachments |
+| `metrics()` | Query usage metrics (cost, token counts, latency) |
+| `opentelemetry()` | OpenTelemetry trace ingestion |
+| `annotationQueues()` | Manage annotation queues for human review |
+| `llmConnections()` | Manage LLM provider connections |
+
+## DevServices
+
+In dev and test mode, the extension automatically starts a complete Langfuse stack using Testcontainers:
+
+- **Langfuse server** - The main Langfuse application
+- **PostgreSQL** - Primary database
+- **ClickHouse** - Analytics database
+- **Redis** - Cache
+- **MinIO** - Object storage (for media/blob storage)
+- **Worker** - Background job processing
+
+No configuration is needed - just add the extension and run `quarkus dev`. The extension automatically configures `quarkus.langfuse.base-url`, `quarkus.langfuse.username`, and `quarkus.langfuse.password` to point to the DevServices instance.
+
+### DevServices Configuration
+
+DevServices can be customized under `quarkus.langfuse.devservices`:
+
+| Property | Type | Default | Description |
+|---|---|---|---|
+| `quarkus.langfuse.devservices.enabled` | `boolean` | `true` | Enable/disable DevServices |
+| `quarkus.langfuse.devservices.shared` | `boolean` | `true` | Share containers across applications |
+| `quarkus.langfuse.devservices.service-name` | `String` | `langfuse` | Label for container discovery |
+| `quarkus.langfuse.devservices.langfuse.image-name` | `String` | _(Langfuse default)_ | Langfuse server container image |
+| `quarkus.langfuse.devservices.langfuse.port` | `int` | `8080` | Langfuse server port |
+| `quarkus.langfuse.devservices.langfuse.username` | `String` | `quarkus` | Project public key |
+| `quarkus.langfuse.devservices.langfuse.password` | `String` | `quarkuslangfuse` | Project secret key |
+| `quarkus.langfuse.devservices.langfuse.startup-timeout` | `Duration` | `PT3M` | Container startup timeout |
+
+The Langfuse server also has properties to configure the initial organization, project, and user. See the [full configuration reference](https://docs.quarkiverse.io/quarkus-langfuse/dev/index.html) for details.
+
+## Dev UI
+
+When running in dev mode (`quarkus dev`), the extension adds a **Langfuse** card to the Quarkus Dev UI. The card includes a link to the Langfuse web dashboard running in your DevServices container, allowing you to browse traces, manage prompts, view scores, and more directly from your development environment.
+
+## Documentation
+
+The full documentation is available at [https://docs.quarkiverse.io/quarkus-langfuse/dev/index.html](https://docs.quarkiverse.io/quarkus-langfuse/dev/index.html).
 
 ## Contributors ✨
 
