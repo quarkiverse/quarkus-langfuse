@@ -13,4 +13,9 @@ public interface LangfuseBuildTimeConfig {
      * Dev services configuration.
      */
     LangfuseDevServicesConfig devservices();
+
+    /**
+     * OpenTelemetry integration configuration.
+     */
+    LangfuseOtelBuildTimeConfig otel();
 }

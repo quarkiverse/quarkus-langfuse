@@ -41,6 +41,7 @@
 		<quarkus.version>3.33.2</quarkus.version>
 		<quarkus-antora.version>3.25.0</quarkus-antora.version>
 		<quarkus-wiremock.version>1.6.3</quarkus-wiremock.version>
+		<quarkus-langchain4j.version>1.10.0</quarkus-langchain4j.version>
 		<testcontainers-redis.version>2.2.4</testcontainers-redis.version>
 	</properties>
 
@@ -69,9 +70,21 @@
 				<scope>import</scope>
 			</dependency>
 			<dependency>
+				<groupId>io.quarkiverse.langchain4j</groupId>
+				<artifactId>quarkus-langchain4j-bom</artifactId>
+				<version>${quarkus-langchain4j.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+			<dependency>
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
 				<version>${assertj.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>io.quarkiverse.wiremock</groupId>
+				<artifactId>quarkus-wiremock</artifactId>
+				<version>${quarkus-wiremock.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>io.quarkiverse.wiremock</groupId>

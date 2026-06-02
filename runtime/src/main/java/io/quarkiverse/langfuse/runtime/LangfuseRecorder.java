@@ -10,6 +10,7 @@ import io.quarkiverse.langfuse.client.LangfuseClientBuilder;
 import io.quarkiverse.langfuse.client.QuarkusLangfuseAsyncClient;
 import io.quarkiverse.langfuse.client.QuarkusLangfuseClient;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
+import io.quarkiverse.langfuse.runtime.otel.LangfuseSpanProcessor;
 import io.quarkus.arc.SyntheticCreationalContext;
 import io.quarkus.runtime.RuntimeValue;
 import io.quarkus.runtime.annotations.Recorder;
@@ -36,6 +37,15 @@ public class LangfuseRecorder {
             @Override
             public QuarkusLangfuseAsyncClient get() {
                 return new LangfuseClientBuilder<>(config.getValue(), QuarkusLangfuseAsyncClient.class).build();
+            }
+        };
+    }
+
+    public Supplier<LangfuseSpanProcessor> langfuseSpanProcessor() {
+        return new Supplier<LangfuseSpanProcessor>() {
+            @Override
+            public LangfuseSpanProcessor get() {
+                return new LangfuseSpanProcessor(config.getValue());
             }
         };
     }

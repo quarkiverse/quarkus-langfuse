@@ -6,12 +6,11 @@ import java.util.function.Function;
 
 import org.jboss.logging.Logger;
 
-import io.quarkus.deployment.builditem.Startable;
+import com.langfuse.testcontainers.LangfuseContainer;
 
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkiverse.langfuse.deployment.devservices.config.LangfuseDevServicesConfig;
-
-import com.langfuse.testcontainers.LangfuseContainer;
+import io.quarkus.deployment.builditem.Startable;
 
 public class QuarkusLangfuseContainer extends LangfuseContainer implements Startable {
     private static final Logger LOG = Logger.getLogger(QuarkusLangfuseContainer.class);

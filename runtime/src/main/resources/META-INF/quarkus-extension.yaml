@@ -2,6 +2,8 @@ name: Quarkus Langfuse
 artifact: ${project.groupId}:${project.artifactId}:${project.version}
 description: Langfuse helps you ship AI Agents/Products from prototype to production and beyond.
 guide: "https://docs.quarkiverse.io/quarkus-langfuse/dev/index.html"
+provides:
+  - io.quarkiverse.langfuse
 metadata:
   keywords:
     - langfuse

@@ -32,12 +32,14 @@ public interface LangfuseConfig {
     String baseUrl();
 
     /**
-     * Retrieves the username used for authentication.
+     * Langfuse project public key, used for API authentication.
+     * Found in the Langfuse dashboard under Settings &gt; API Keys.
      */
     String username();
 
     /**
-     * Retrieves the password used for authentication.
+     * Langfuse project secret key, used for API authentication.
+     * Found in the Langfuse dashboard under Settings &gt; API Keys.
      */
     String password();
 
@@ -83,4 +85,9 @@ public interface LangfuseConfig {
      */
     @WithDefault("${quarkus.langfuse.timeout}")
     Duration readTimeout();
+
+    /**
+     * Provides the configuration related to OpenTelemetry for Langfuse integration.
+     */
+    LangfuseOtelConfig otel();
 }

@@ -922,6 +922,29 @@ endif::add-copy-button-to-env-var[]
 |Map<String,String>
 |
 
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-otel-enabled]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-enabled[`+++quarkus.langfuse.otel.enabled+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.otel.enabled+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether to automatically configure the OpenTelemetry OTLP exporter to send traces to Langfuse when the `quarkus-opentelemetry` extension is present.
+
+Defaults to the value of `quarkus.otel.enabled`, falling back to `true` if that property is not set.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_OTEL_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_OTEL_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++${quarkus.otel.enabled:true}+++`
+
 a| [[quarkus-langfuse_quarkus-langfuse-base-url]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-base-url[`+++quarkus.langfuse.base-url+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.langfuse.base-url+++[]
@@ -951,7 +974,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Retrieves the username used for authentication.
+Langfuse project public key, used for API authentication. Found in the Langfuse dashboard under Settings > API Keys.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -972,7 +995,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-Retrieves the password used for authentication.
+Langfuse project secret key, used for API authentication. Found in the Langfuse dashboard under Settings > API Keys.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -1114,6 +1137,48 @@ endif::add-copy-button-to-env-var[]
 --
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-langfuse_quarkus-langfuse[icon:question-circle[title=More information about the Duration format]]
 |`+++${QUARKUS.LANGFUSE.TIMEOUT}+++`
+
+a| [[quarkus-langfuse_quarkus-langfuse-otel-trace-ingestion-url]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-trace-ingestion-url[`+++quarkus.langfuse.otel.trace-ingestion-url+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.otel.trace-ingestion-url+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The URL used for ingesting traces in the OpenTelemetry integration for Langfuse. The URL points to the endpoint where trace data is exported.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_OTEL_TRACE_INGESTION_URL+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_OTEL_TRACE_INGESTION_URL+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++${quarkus.langfuse.base-url}/api/public/otel/v1/traces+++`
+
+a| [[quarkus-langfuse_quarkus-langfuse-otel-span-filter]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-span-filter[`+++quarkus.langfuse.otel.span-filter+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.otel.span-filter+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Retrieves the configured span filter type used for OpenTelemetry integration within Langfuse. The span filter determines which spans are included based on their context or relevance to specific operations, such as AI-related activities.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_OTEL_SPAN_FILTER+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_OTEL_SPAN_FILTER+++`
+endif::add-copy-button-to-env-var[]
+--
+a|`all`, `ai-only`
+|`+++ai-only+++`
 
 |===
 

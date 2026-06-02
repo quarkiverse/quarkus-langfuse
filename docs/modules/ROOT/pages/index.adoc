@@ -21,6 +21,7 @@ This extension integrates Langfuse into the Quarkus ecosystem with the following
 * **DevServices** - Automatically starts a complete Langfuse stack (Langfuse server, PostgreSQL, ClickHouse, Redis, MinIO, and Worker) in dev and test mode using Testcontainers. No manual setup required.
 * **Dev UI** - Provides a Dev UI card with a direct link to the Langfuse dashboard running in your local DevServices instance.
 * **Native image support** - Compatible with GraalVM native image compilation.
+* **OpenTelemetry integration** - When `quarkus-opentelemetry` is on the classpath, automatically exports AI-related spans to Langfuse via OTLP. Zero configuration needed with <<devservices,DevServices>>.
 
 == Installation
 
@@ -59,57 +60,7 @@ TIP: When <<devservices,DevServices>> is enabled (the default in dev/test mode),
 
 The `username` and `password` properties correspond to the Langfuse **project public key** and **project secret key**, respectively. You can find these in the Langfuse dashboard under **Settings > API Keys**.
 
-=== Configuration Reference
-
-[cols="3,1,1,3",options="header"]
-|===
-| Property | Type | Default | Description
-
-| `quarkus.langfuse.base-url`
-| `String`
-| _required_
-| Base URL of the Langfuse server
-
-| `quarkus.langfuse.username`
-| `String`
-| _required_
-| Langfuse project public key
-
-| `quarkus.langfuse.password`
-| `String`
-| _required_
-| Langfuse project secret key
-
-| `quarkus.langfuse.timeout`
-| `Duration`
-| `1m`
-| Default timeout for Langfuse API calls
-
-| `quarkus.langfuse.connect-timeout`
-| `Duration`
-| `${quarkus.langfuse.timeout}`
-| Timeout to establish a connection to the Langfuse server
-
-| `quarkus.langfuse.read-timeout`
-| `Duration`
-| `${quarkus.langfuse.timeout}`
-| Timeout for receiving a response from the Langfuse server
-
-| `quarkus.langfuse.log-requests`
-| `boolean`
-| `false`
-| Whether the Langfuse client should log outgoing requests
-
-| `quarkus.langfuse.log-responses`
-| `boolean`
-| `false`
-| Whether the Langfuse client should log incoming responses
-
-| `quarkus.langfuse.pretty-print`
-| `boolean`
-| `false`
-| Pretty-print JSON bodies in logs (only applies when logging is enabled)
-|===
+For a complete list of configuration properties, see the <<extension-configuration-reference,Extension Configuration Reference>>.
 
 == Usage
 
@@ -268,13 +219,7 @@ public class PromptService {
     LangfuseApi langfuseApi;
 
     public void listAllPrompts() {
-        var prompts = langfuseApi.prompts().promptsList(
-            null,  // name
-            null,  // label
-            null,  // tag
-            null,  // page
-            null   // limit
-        );
+        var prompts = langfuseApi.prompts().promptsList(APIPromptsListRequest.newBuilder().build());
 
         prompts.getData().forEach(prompt ->
             System.out.println(prompt.getName() + " (v" + prompt.getVersion() + ")")
@@ -282,6 +227,58 @@ public class PromptService {
     }
 }
 ----
+
+[[opentelemetry]]
+== OpenTelemetry Integration
+
+When the `quarkus-opentelemetry` extension is present in your project, the Langfuse extension automatically registers a span processor that exports OpenTelemetry span data to Langfuse via OTLP HTTP. No additional configuration is needed -- the extension uses your existing `quarkus.langfuse.username` and `quarkus.langfuse.password` for authentication.
+
+This integration works alongside any other OpenTelemetry exporters you may have configured. The Langfuse span processor operates independently, so you can continue sending spans to Jaeger, Zipkin, or any other collector at the same time.
+
+=== AI Span Filtering
+
+By default, only AI-related spans and their ancestor spans are exported to Langfuse. A span is considered AI-related if it carries any `gen_ai.*` https://opentelemetry.io/docs/specs/semconv/gen-ai/[OpenTelemetry Semantic Convention] attributes (such as `gen_ai.system`, `gen_ai.request.model`, `gen_ai.response.finish_reasons`, etc.). Ancestor spans -- the parent chain leading up to an AI span -- are included to preserve trace structure.
+
+This filtering prevents infrastructure noise (HTTP server spans, database queries, framework internals) from cluttering your Langfuse dashboard while still giving you full context around AI operations.
+
+Additionally, the `gen_ai.prompt` and `gen_ai.completion` attributes are automatically mapped to the Langfuse trace input and output fields, so you get immediate visibility into what was sent to and received from the LLM.
+
+To export all spans instead of only AI-related ones:
+
+[source,properties]
+----
+quarkus.langfuse.otel.span-filter=ALL
+----
+
+=== Quarkus LangChain4j Integration
+
+When both `quarkus-opentelemetry` and `quarkus-langchain4j` are on the classpath, the extension automatically enables https://docs.quarkiverse.io/quarkus-langchain4j/dev/observability.html#_configure_langchain4j_prompt_tracing[LangChain4j prompt tracing] by setting the following properties to `true`:
+
+* `quarkus.langchain4j.tracing.include-prompt`
+* `quarkus.langchain4j.tracing.include-completion`
+* `quarkus.langchain4j.tracing.include-tool-arguments`
+* `quarkus.langchain4j.tracing.include-tool-result`
+
+This means prompt content, LLM responses, tool arguments, and tool results are all included in the OpenTelemetry spans emitted by LangChain4j -- and therefore visible in Langfuse traces -- without any manual configuration.
+
+These defaults are set at a low priority, so you can override any of them in `application.properties` or via environment variables if needed.
+
+=== Zero-Config with DevServices
+
+When <<devservices,DevServices>> is running, the OpenTelemetry integration works out of the box with no configuration at all. The Langfuse base URL, public key, and secret key are all provided automatically by DevServices, and the span processor uses those values to connect to the local Langfuse instance.
+
+=== Disabling the Integration
+
+To disable the automatic OpenTelemetry integration (for example, if you want to manage your own OTel exporters or send spans to a different backend):
+
+[source,properties]
+----
+quarkus.langfuse.otel.enabled=false
+----
+
+TIP: When `quarkus-opentelemetry` is not on the classpath, the integration is automatically skipped regardless of this setting.
+
+For the full list of OpenTelemetry configuration properties, see the <<extension-configuration-reference,Extension Configuration Reference>>.
 
 [[devservices]]
 == DevServices
@@ -331,134 +328,7 @@ To disable sharing or use separate containers per application:
 quarkus.langfuse.devservices.shared=false
 ----
 
-=== DevServices Configuration
-
-DevServices can be customized under the `quarkus.langfuse.devservices` prefix:
-
-[cols="3,1,1,3",options="header"]
-|===
-| Property | Type | Default | Description
-
-| `quarkus.langfuse.devservices.enabled`
-| `boolean`
-| `true`
-| Enable/disable DevServices
-
-| `quarkus.langfuse.devservices.shared`
-| `boolean`
-| `true`
-| Share containers across applications in dev mode
-
-| `quarkus.langfuse.devservices.service-name`
-| `String`
-| `langfuse`
-| Label value for container discovery when sharing
-
-| `quarkus.langfuse.devservices.langfuse.image-name`
-| `String`
-| _(Langfuse default)_
-| Custom Langfuse server container image
-
-| `quarkus.langfuse.devservices.langfuse.port`
-| `int`
-| `8080`
-| Internal Langfuse server port
-
-| `quarkus.langfuse.devservices.langfuse.username`
-| `String`
-| `quarkus`
-| Project public key for the DevServices instance
-
-| `quarkus.langfuse.devservices.langfuse.password`
-| `String`
-| `quarkuslangfuse`
-| Project secret key for the DevServices instance
-
-| `quarkus.langfuse.devservices.langfuse.startup-timeout`
-| `Duration`
-| `PT3M`
-| Maximum time to wait for the Langfuse container to start
-|===
-
-==== Initial Organization and Project Settings
-
-DevServices automatically creates an organization, project, and user for local development:
-
-[cols="3,1,1,3",options="header"]
-|===
-| Property | Type | Default | Description
-
-| `quarkus.langfuse.devservices.langfuse.init-org-id`
-| `String`
-| `quarkus`
-| Initial organization ID
-
-| `quarkus.langfuse.devservices.langfuse.init-org-name`
-| `String`
-| `Quarkus Dev Org`
-| Initial organization name
-
-| `quarkus.langfuse.devservices.langfuse.init-project-id`
-| `String`
-| `quarkus-dev-project`
-| Initial project ID
-
-| `quarkus.langfuse.devservices.langfuse.init-project-name`
-| `String`
-| `quarkus-dev`
-| Initial project name
-
-| `quarkus.langfuse.devservices.langfuse.init-user-email`
-| `String`
-| `quarkus@quarkus.io`
-| Initial user email (for logging into the Langfuse UI)
-
-| `quarkus.langfuse.devservices.langfuse.init-user-name`
-| `String`
-| `quarkus`
-| Initial user name
-
-| `quarkus.langfuse.devservices.langfuse.init-user-password`
-| `String`
-| `quarkuslangfuse`
-| Initial user password (for logging into the Langfuse UI)
-|===
-
-==== Additional Langfuse Server Settings
-
-[cols="3,1,1,3",options="header"]
-|===
-| Property | Type | Default | Description
-
-| `quarkus.langfuse.devservices.langfuse.enable-experimental-features`
-| `boolean`
-| `false`
-| Enable Langfuse experimental features
-
-| `quarkus.langfuse.devservices.langfuse.batch-export-enabled`
-| `boolean`
-| `false`
-| Enable batch export functionality
-
-| `quarkus.langfuse.devservices.langfuse.container-env`
-| `Map<String, String>`
-| _(empty)_
-| Additional environment variables for the Langfuse container
-
-| `quarkus.langfuse.devservices.langfuse.ingestion-queue-delay`
-| `Duration`
-| _(not set)_
-| Ingestion queue processing delay
-
-| `quarkus.langfuse.devservices.langfuse.ingestion-clickhouse-write-interval`
-| `Duration`
-| _(not set)_
-| ClickHouse write flush interval
-|===
-
-==== Infrastructure Services
-
-Each infrastructure service (PostgreSQL, ClickHouse, Redis, MinIO, Worker) can also be customized with its own image name, credentials, and container environment variables under the `quarkus.langfuse.devservices.<service>` prefix. See the xref:all-config.adoc[full configuration reference] for details.
+DevServices can be customized under the `quarkus.langfuse.devservices` prefix. DevServices automatically creates an organization, project, and user for local development. Each infrastructure service (PostgreSQL, ClickHouse, Redis, MinIO, Worker) can also be customized with its own image name, credentials, and container environment variables. For a complete list of DevServices configuration properties, see the <<extension-configuration-reference,Extension Configuration Reference>>.
 
 == Dev UI
 

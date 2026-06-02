@@ -24,6 +24,10 @@
 		      <artifactId>quarkus-antora</artifactId>
 		      <version>${quarkus-antora.version}</version>
 	      </dependency>
+	      <dependency>
+		      <groupId>io.quarkus</groupId>
+		      <artifactId>quarkus-opentelemetry</artifactId>
+	      </dependency>
 
         <!-- Make sure the doc is built after the other artifacts -->
         <dependency>

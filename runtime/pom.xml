@@ -21,6 +21,21 @@
 			<artifactId>quarkus-devservices</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-opentelemetry</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkiverse.langchain4j</groupId>
+			<artifactId>quarkus-langchain4j-core</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-qute</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
 			<groupId>io.quarkiverse.langfuse</groupId>
 			<artifactId>quarkus-langfuse-client</artifactId>
 			<version>${project.version}</version>

@@ -1,0 +1,48 @@
+{
+  "mappings": [
+    {
+      "request": {
+        "urlPath": "/v1/chat/completions",
+        "method": "POST",
+        "headers": {
+          "Accept": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Content-Type": {
+            "equalTo": "application/json",
+            "caseInsensitive": true
+          },
+          "Authorization": {
+            "matches": "Bearer .+"
+          }
+        },
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.model",
+              "matches": "gpt-.+"
+            }
+          },
+          {
+            "matchesJsonPath": "$[?(@.messages.size() == 2)]"
+          },
+          {
+            "matchesJsonPath": "$.messages[?((@.role == 'system') && (@.content == 'You are a helpful assistant.'))]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "body": "{\n  \"id\": \"chatcmpl-8Uy1UC7ZFUXtjhYcY5VFj7eYGu6jX\",\n  \"object\": \"chat.completion\",\n  \"created\": 1702391260,\n  \"model\": \"gpt-4o-mini-2024-07-18\",\n  \"choices\": [\n    {\n      \"index\": 0,\n      \"message\": {\n        \"role\": \"assistant\",\n        \"content\": \"I'll be glad to help!\"\n      },\n      \"finish_reason\": \"stop\"\n    }\n  ],\n  \"usage\": {\n    \"prompt_tokens\": 232,\n    \"completion_tokens\": 280,\n    \"total_tokens\": 512\n  },\n  \"system_fingerprint\": null\n}\n",
+        "headers": {
+          "Content-Type": "application/json",
+          "openai-model": "gpt-4o-mini-2024-07-18",
+          "openai-organization": "my-org-1234",
+          "openai-version": "2020-10-01",
+          "openai-processing-ms": "15000"
+        }
+      }
+    }
+  ]
+}

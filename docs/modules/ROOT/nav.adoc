@@ -1,3 +1,2 @@
 * xref:index.adoc[About Langfuse]
-* xref:getting-started.adoc[Getting started]
 * xref:all-config.adoc[All Configuration Options]

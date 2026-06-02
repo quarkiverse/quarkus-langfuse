@@ -17,6 +17,7 @@ A Quarkus extension for [Langfuse](https://langfuse.com), the open-source LLM en
 - **DevServices** - Automatically starts a complete Langfuse stack (Langfuse server, PostgreSQL, ClickHouse, Redis, MinIO, and Worker) in dev and test mode using Testcontainers. No manual setup required.
 - **Dev UI** - Provides a Dev UI card with a direct link to the Langfuse dashboard running in your local DevServices instance.
 - **Native image support** - Compatible with GraalVM native image compilation.
+- **OpenTelemetry integration** - When `quarkus-opentelemetry` is on the classpath, automatically exports AI-related spans to Langfuse. Zero configuration needed with DevServices.
 
 ## Installation
 
@@ -63,6 +64,9 @@ quarkus.langfuse.password=sk-lf-...
 | `quarkus.langfuse.log-requests` | `boolean` | `false` | Log outgoing requests |
 | `quarkus.langfuse.log-responses` | `boolean` | `false` | Log incoming responses |
 | `quarkus.langfuse.pretty-print` | `boolean` | `false` | Pretty-print JSON bodies in logs |
+| `quarkus.langfuse.otel.enabled` | `boolean` | `true` | Enable/disable OpenTelemetry integration (build time, defaults to `quarkus.otel.enabled`) |
+| `quarkus.langfuse.otel.trace-ingestion-url` | `String` | `<base-url>/api/public/otel/v1/traces` | Override the OTLP trace ingestion endpoint |
+| `quarkus.langfuse.otel.span-filter` | `String` | `AI_ONLY` | Span filter: `AI_ONLY` (AI spans + ancestors) or `ALL` |
 
 ## Usage
 
@@ -122,6 +126,42 @@ The `LangfuseApi` bean provides access to the full [Langfuse public API](https:/
 | `opentelemetry()` | OpenTelemetry trace ingestion |
 | `annotationQueues()` | Manage annotation queues for human review |
 | `llmConnections()` | Manage LLM provider connections |
+
+## OpenTelemetry Integration
+
+When the `quarkus-opentelemetry` extension is on the classpath, the Langfuse extension automatically registers a span processor that exports OpenTelemetry span data to Langfuse via OTLP HTTP. No additional configuration is needed -- authentication is derived from your existing `quarkus.langfuse.username` and `quarkus.langfuse.password` settings.
+
+### AI Span Filtering
+
+By default, only AI-related spans -- those carrying `gen_ai.*` [OpenTelemetry Semantic Convention](https://opentelemetry.io/docs/specs/semconv/gen-ai/) attributes -- and their ancestor spans are exported to Langfuse. This avoids cluttering your Langfuse dashboard with HTTP, database, or other infrastructure spans.
+
+The `gen_ai.prompt` and `gen_ai.completion` attributes are automatically mapped to the Langfuse trace input and output, giving you immediate visibility into what was sent to and received from the LLM.
+
+To export all spans instead, set:
+
+```properties
+quarkus.langfuse.otel.span-filter=ALL
+```
+
+### Quarkus LangChain4j Integration
+
+When both `quarkus-opentelemetry` and `quarkus-langchain4j` are on the classpath, the extension automatically enables [LangChain4j prompt tracing](https://docs.quarkiverse.io/quarkus-langchain4j/dev/observability.html#_configure_langchain4j_prompt_tracing). Prompt content, LLM responses, tool arguments, and tool results are all included in the OpenTelemetry spans emitted by LangChain4j -- and therefore visible in Langfuse traces -- without any manual configuration.
+
+These defaults are set at a low priority, so you can override any of them in `application.properties` or via environment variables.
+
+### Zero-Config with DevServices
+
+When DevServices is running, the OTel integration works out of the box with no configuration at all. The Langfuse base URL, public key, and secret key are all provided automatically.
+
+### Disabling the Integration
+
+To disable the OpenTelemetry integration entirely (for example, if you want to manage your own OTel exporters):
+
+```properties
+quarkus.langfuse.otel.enabled=false
+```
+
+When `quarkus-opentelemetry` is not on the classpath, the integration is automatically skipped.
 
 ## DevServices
 
