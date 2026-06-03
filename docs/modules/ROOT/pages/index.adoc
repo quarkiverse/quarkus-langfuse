@@ -197,13 +197,25 @@ public class PromptService {
 [[opentelemetry]]
 == OpenTelemetry Integration
 
-When the `quarkus-opentelemetry` extension is present in your project, the Langfuse extension automatically registers a span processor that exports OpenTelemetry span data to Langfuse via OTLP HTTP. No additional configuration is needed -- the extension uses your existing `quarkus.langfuse.username` and `quarkus.langfuse.password` for authentication.
+When the `quarkus-opentelemetry` extension is present in your project, the Langfuse extension automatically exports OpenTelemetry span data to Langfuse. No additional configuration is needed -- the extension uses your existing `quarkus.langfuse.username` and `quarkus.langfuse.password` for authentication.
 
-This integration works alongside any other OpenTelemetry exporters you may have configured. The Langfuse span processor operates independently, so you can continue sending spans to Jaeger, Zipkin, or any other collector at the same time.
+=== Export Target
 
+The `quarkus.langfuse.otel.export-target` property (build time) controls how spans are exported:
+
+* **`ALL`** (default) -- The extension registers a dedicated Langfuse span processor that runs alongside any other OpenTelemetry exporters you have configured. Spans are exported to both Langfuse and your standard OTLP backend (Jaeger, Zipkin, or any other collector). In this mode, only AI-related spans are sent to Langfuse by default (see <<ai-span-filtering>> below), and the `gen_ai.prompt` / `gen_ai.completion` attributes are automatically mapped to the Langfuse trace input and output.
+
+* **`LANGFUSE_ONLY`** -- The standard OpenTelemetry OTLP exporter is configured to send directly to Langfuse. No separate span processor is registered and no additional OTLP backend receives spans. All spans are exported to Langfuse without filtering. This is equivalent to the https://docs.quarkiverse.io/quarkus-langchain4j/dev/observability.html#_manual_configuration_without_quarkus_langfuse[manual configuration described in the Quarkus LangChain4j docs], but handled automatically by the extension.
+
+[source,properties]
+----
+quarkus.langfuse.otel.export-target=LANGFUSE_ONLY
+----
+
+[[ai-span-filtering]]
 === AI Span Filtering
 
-By default, only AI-related spans and their ancestor spans are exported to Langfuse. A span is considered AI-related if it carries any `gen_ai.*` https://opentelemetry.io/docs/specs/semconv/gen-ai/[OpenTelemetry Semantic Convention] attributes (such as `gen_ai.system`, `gen_ai.request.model`, `gen_ai.response.finish_reasons`, etc.). Ancestor spans -- the parent chain leading up to an AI span -- are included to preserve trace structure.
+When `export-target=ALL` (the default), only AI-related spans and their ancestor spans are exported to Langfuse. A span is considered AI-related if it carries any `gen_ai.*` https://opentelemetry.io/docs/specs/semconv/gen-ai/[OpenTelemetry Semantic Convention] attributes (such as `gen_ai.system`, `gen_ai.request.model`, `gen_ai.response.finish_reasons`, etc.). Ancestor spans -- the parent chain leading up to an AI span -- are included to preserve trace structure.
 
 This filtering prevents infrastructure noise (HTTP server spans, database queries, framework internals) from cluttering your Langfuse dashboard while still giving you full context around AI operations.
 

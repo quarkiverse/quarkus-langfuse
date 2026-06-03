@@ -19,4 +19,32 @@ public interface LangfuseOtelBuildTimeConfig {
      */
     @WithDefault("${quarkus.otel.enabled:true}")
     boolean enabled();
+
+    /**
+     * Specifies the target destination for exporting telemetry data in the OpenTelemetry integration configuration.
+     * The default value is "ALL", which directs telemetry data to both the regular OTLP-configured target
+     * and Langfuse.
+     *
+     * @return the export target, which can be {@code ExportTarget.ALL} for multiple destinations or
+     *         {@code ExportTarget.LANGFUSE_ONLY} to export only to Langfuse.
+     */
+    @WithDefault("ALL")
+    ExportTarget exportTarget();
+
+    /**
+     * Represents the target destination for exporting telemetry data in the
+     * OpenTelemetry integration configuration.
+     */
+    enum ExportTarget {
+        /**
+         * Exports to the regular OTLP-configured target, which may be Langfuse or another OTLP ingestion endpoint, as well as
+         * to Langfuse.
+         */
+        ALL,
+
+        /**
+         * Exports only to Langfuse as the single OTLP exporter.
+         */
+        LANGFUSE_ONLY;
+    }
 }

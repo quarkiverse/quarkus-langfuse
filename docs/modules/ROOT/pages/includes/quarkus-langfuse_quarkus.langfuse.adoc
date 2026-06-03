@@ -945,6 +945,27 @@ endif::add-copy-button-to-env-var[]
 |boolean
 |`+++${quarkus.otel.enabled:true}+++`
 
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-otel-export-target]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-export-target[`+++quarkus.langfuse.otel.export-target+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.otel.export-target+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Specifies the target destination for exporting telemetry data in the OpenTelemetry integration configuration. The default value is "ALL", which directs telemetry data to both the regular OTLP-configured target and Langfuse.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_OTEL_EXPORT_TARGET+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_OTEL_EXPORT_TARGET+++`
+endif::add-copy-button-to-env-var[]
+--
+a|`all`, `langfuse-only`
+|`+++all+++`
+
 a| [[quarkus-langfuse_quarkus-langfuse-base-url]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-base-url[`+++quarkus.langfuse.base-url+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.langfuse.base-url+++[]

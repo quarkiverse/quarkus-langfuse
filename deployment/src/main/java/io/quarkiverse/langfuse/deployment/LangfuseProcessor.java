@@ -10,8 +10,10 @@ import com.langfuse.api.spi.LangfuseApiBuilderFactory;
 
 import io.quarkiverse.langfuse.client.QuarkusLangfuseApiBuilderFactory;
 import io.quarkiverse.langfuse.deployment.config.LangfuseBuildTimeConfig;
+import io.quarkiverse.langfuse.deployment.config.LangfuseOtelBuildTimeConfig.ExportTarget;
 import io.quarkiverse.langfuse.runtime.LangfuseRecorder;
 import io.quarkiverse.langfuse.runtime.langchain4j.LangfuseLangchain4jConfigBuilder;
+import io.quarkiverse.langfuse.runtime.otel.LangfuseOtelConfigBuilder;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.deployment.Capabilities;
 import io.quarkus.deployment.Capability;
@@ -73,12 +75,25 @@ class LangfuseProcessor {
     }
 
     @BuildStep
+    void exportOtelToLangfuseOnly(
+            Capabilities capabilities,
+            LangfuseBuildTimeConfig buildTimeConfig,
+            BuildProducer<RunTimeConfigBuilderBuildItem> runTimeConfigBuilder) {
+
+        if (isOtelAvailableAndEnabled(capabilities, buildTimeConfig)
+                && (buildTimeConfig.otel().exportTarget() == ExportTarget.LANGFUSE_ONLY)) {
+            runTimeConfigBuilder.produce(new RunTimeConfigBuilderBuildItem(LangfuseOtelConfigBuilder.class));
+        }
+    }
+
+    @BuildStep
     @Record(ExecutionTime.RUNTIME_INIT)
-    void registerOtelCapabilities(Capabilities capabilities, LangfuseBuildTimeConfig buildTimeConfig,
+    void exportOtelToMultipleOtlpBackends(Capabilities capabilities, LangfuseBuildTimeConfig buildTimeConfig,
             LangfuseRecorder recorder,
             BuildProducer<SyntheticBeanBuildItem> beanProducer) {
 
-        if (isOtelAvailableAndEnabled(capabilities, buildTimeConfig)) {
+        if (isOtelAvailableAndEnabled(capabilities, buildTimeConfig)
+                && (buildTimeConfig.otel().exportTarget() == ExportTarget.ALL)) {
             beanProducer.produce(
                     SyntheticBeanBuildItem
                             .configure(DotNames.LANGFUSE_SPAN_PROCESSOR)
