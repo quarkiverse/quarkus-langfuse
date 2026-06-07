@@ -18,3 +18,8 @@ metadata:
   status: "experimental"
   scm:
     url: "https://github.com/langfuse/langfuse-java"
+  config:
+    - "quarkus.langfuse."
+  capabilities:
+    provides:
+      - "io.quarkiverse.langfuse"
