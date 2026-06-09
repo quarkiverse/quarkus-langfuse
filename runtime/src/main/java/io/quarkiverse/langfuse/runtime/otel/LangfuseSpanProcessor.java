@@ -32,47 +32,34 @@ import io.quarkiverse.langfuse.config.LangfuseOtelConfig.SpanFilterType;
  */
 public class LangfuseSpanProcessor implements SpanProcessor {
     private static final Logger LOG = Logger.getLogger(LangfuseSpanProcessor.class);
-    private static final String LANGFUSE_TRACE_INPUT_ATTRIBUTE_KEY = "langfuse.trace.input";
-    private static final String LANGFUSE_TRACE_OUTPUT_ATTRIBUTE_KEY = "langfuse.trace.output";
-    private static final String LANGFUSE_ENVIRONMENT_ATTRIBUTE_KEY = "langfuse.environment";
 
-    private final LangfuseConfig langfuseConfig;
     private final SpanProcessor delegate;
 
     public LangfuseSpanProcessor(LangfuseConfig langfuseConfig) {
-        this.langfuseConfig = langfuseConfig;
-
         LOG.debug("Initializing Langfuse OTLP Span Processor");
-        var credentials = "%s:%s".formatted(this.langfuseConfig.username(), this.langfuseConfig.password());
+        var credentials = "%s:%s".formatted(langfuseConfig.username(), langfuseConfig.password());
         var authHeader = "Basic %s".formatted(Base64.getEncoder().encodeToString(credentials.getBytes()));
 
         var exporter = OtlpHttpSpanExporter.builder()
-                .setEndpoint(this.langfuseConfig.otel().traceIngestionUrl())
+                .setEndpoint(langfuseConfig.otel().traceIngestionUrl())
                 .addHeader("Authorization", authHeader)
                 .addHeader("x-langfuse-ingestion-version", "1")
                 .build();
 
-        var actualExporter = switch (this.langfuseConfig.otel().spanFilter()) {
+        var filteredExporter = switch (langfuseConfig.otel().spanFilter()) {
             case ALL -> exporter;
             case AI_ONLY -> new FilteringAISpanExporter(exporter);
         };
 
+        var enrichingExporter = new LangfuseAttributeEnrichingSpanExporter(filteredExporter, langfuseConfig);
+
         this.delegate = BatchSpanProcessor
-                .builder(actualExporter)
+                .builder(enrichingExporter)
                 .build();
     }
 
     @Override
     public void onStart(Context parentContext, ReadWriteSpan span) {
-        Optional.ofNullable(span.getAttribute(GenAiIncubatingAttributes.GEN_AI_PROMPT))
-                .ifPresent(v -> span.setAttribute(LANGFUSE_TRACE_INPUT_ATTRIBUTE_KEY, v));
-
-        Optional.ofNullable(span.getAttribute(GenAiIncubatingAttributes.GEN_AI_COMPLETION))
-                .ifPresent(v -> span.setAttribute(LANGFUSE_TRACE_OUTPUT_ATTRIBUTE_KEY, v));
-
-        span.setAttribute(LANGFUSE_ENVIRONMENT_ATTRIBUTE_KEY, langfuseConfig.environment());
-
-        // Propagate GenAI conversation ID from baggage
         Optional.ofNullable(
                 Baggage.fromContext(parentContext).getEntryValue(GenAiIncubatingAttributes.GEN_AI_CONVERSATION_ID.getKey()))
                 .ifPresent(
@@ -83,7 +70,7 @@ public class LangfuseSpanProcessor implements SpanProcessor {
 
     @Override
     public boolean isStartRequired() {
-        return this.delegate.isStartRequired();
+        return true;
     }
 
     @Override
