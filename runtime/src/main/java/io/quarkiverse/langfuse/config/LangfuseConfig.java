@@ -87,6 +87,16 @@ public interface LangfuseConfig {
     Duration readTimeout();
 
     /**
+     * Retrieves the configured environment for the Langfuse client. This setting is used to
+     * determine the operational environment in which the Langfuse client is running.
+     *
+     * @return The environment setting as a {@code String}, which defaults to {@code "prod"}
+     *         if not explicitly configured.
+     */
+    @WithDefault("prod")
+    String environment();
+
+    /**
      * Provides the configuration related to OpenTelemetry for Langfuse integration.
      */
     LangfuseOtelConfig otel();

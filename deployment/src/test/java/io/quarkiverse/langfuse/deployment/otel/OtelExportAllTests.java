@@ -11,10 +11,9 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import io.quarkus.test.QuarkusUnitTest;
-
 import io.quarkiverse.langfuse.runtime.otel.LangfuseOtelConfigSourceFactory;
 import io.quarkiverse.langfuse.runtime.otel.LangfuseSpanProcessor;
+import io.quarkus.test.QuarkusUnitTest;
 
 /**
  * Verifies that when {@code quarkus.langfuse.otel.enabled} is set to {@code false},

@@ -1159,6 +1159,27 @@ endif::add-copy-button-to-env-var[]
 |link:https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html[Duration] link:#duration-note-anchor-quarkus-langfuse_quarkus-langfuse[icon:question-circle[title=More information about the Duration format]]
 |`+++${QUARKUS.LANGFUSE.TIMEOUT}+++`
 
+a| [[quarkus-langfuse_quarkus-langfuse-environment]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-environment[`+++quarkus.langfuse.environment+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.environment+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Retrieves the configured environment for the Langfuse client. This setting is used to determine the operational environment in which the Langfuse client is running.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_ENVIRONMENT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_ENVIRONMENT+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++prod+++`
+
 a| [[quarkus-langfuse_quarkus-langfuse-otel-trace-ingestion-url]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-trace-ingestion-url[`+++quarkus.langfuse.otel.trace-ingestion-url+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.langfuse.otel.trace-ingestion-url+++[]
