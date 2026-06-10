@@ -59,7 +59,7 @@ class LangfuseAttributeEnrichingSpanExporterTests {
     }
 
     @Test
-    void nonAiSpanPassedThrough() {
+    void nonAiSpanGetsEnvironmentOnly() {
         var attributes = Attributes.builder()
                 .put("http.method", "GET")
                 .build();
@@ -71,7 +71,8 @@ class LangfuseAttributeEnrichingSpanExporterTests {
         assertThat(exported).hasSize(1);
 
         var exportedAttributes = exported.iterator().next().getAttributes();
-        assertThat(exportedAttributes.get(LangfuseAttributeEnrichingSpanExporter.LANGFUSE_ENVIRONMENT)).isNull();
+        assertThat(exportedAttributes.get(LangfuseAttributeEnrichingSpanExporter.LANGFUSE_ENVIRONMENT))
+                .isEqualTo(ENVIRONMENT);
         assertThat(exportedAttributes.get(LangfuseAttributeEnrichingSpanExporter.LANGFUSE_TRACE_INPUT)).isNull();
         assertThat(exportedAttributes.get(LangfuseAttributeEnrichingSpanExporter.LANGFUSE_TRACE_OUTPUT)).isNull();
     }
