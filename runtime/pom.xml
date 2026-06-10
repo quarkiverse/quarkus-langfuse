@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>io.quarkiverse.langfuse</groupId>
 		<artifactId>quarkus-langfuse-parent</artifactId>
-		<version>0.1.3</version>
+		<version>999-SNAPSHOT</version>
 	</parent>
 	<artifactId>quarkus-langfuse</artifactId>
 	<name>Quarkus Langfuse - Runtime</name>
