@@ -26,8 +26,8 @@ public class QuarkusLangfuseApiAvailableTests extends RequestResponseLoggingTest
     static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
-            .overrideRuntimeConfigKey("quarkus.langfuse.username", "quarkus")
-            .overrideRuntimeConfigKey("quarkus.langfuse.password", "quarkus")
+            .overrideRuntimeConfigKey("quarkus.langfuse.public-key", "quarkus")
+            .overrideRuntimeConfigKey("quarkus.langfuse.secret-key", "quarkus")
             .overrideRuntimeConfigKey(LangfuseConfig.BASE_URL_KEY, wiremockUrlForConfig());
 
     @Inject

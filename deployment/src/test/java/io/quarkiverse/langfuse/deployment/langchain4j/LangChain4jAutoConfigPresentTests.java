@@ -27,8 +27,8 @@ public class LangChain4jAutoConfigPresentTests {
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideRuntimeConfigKey("quarkus.langfuse.base-url", "http://localhost:3000")
-            .overrideRuntimeConfigKey("quarkus.langfuse.username", "pk-lf-test")
-            .overrideRuntimeConfigKey("quarkus.langfuse.password", "sk-lf-test");
+            .overrideRuntimeConfigKey("quarkus.langfuse.public-key", "pk-lf-test")
+            .overrideRuntimeConfigKey("quarkus.langfuse.secret-key", "sk-lf-test");
 
     @Test
     void langchain4jConfigAutoSet() {

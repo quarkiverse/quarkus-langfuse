@@ -20,7 +20,7 @@ public class NoLangfuseUsernameSetTests {
                     .isNotNull()
                     .hasMessageContaining("Configuration validation failed")
                     .hasMessageContaining(
-                            "The config property quarkus.langfuse.username is required but it could not be found"));
+                            "The config property quarkus.langfuse.public-key is required but it could not be found"));
 
     @Test
     void test() {

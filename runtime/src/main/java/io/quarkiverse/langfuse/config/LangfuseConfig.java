@@ -17,14 +17,14 @@ public interface LangfuseConfig {
     String BASE_URL_KEY = "quarkus.langfuse.base-url";
 
     /**
-     * The key for the username
+     * The key for the publicKey
      */
-    String USERNAME_KEY = "quarkus.langfuse.username";
+    String PUBLIC_KEY = "quarkus.langfuse.public-key";
 
     /**
-     * The key for the password
+     * The key for the secretKey
      */
-    String PASSWORD_KEY = "quarkus.langfuse.password";
+    String SECRET_KEY = "quarkus.langfuse.secret-key";
 
     /**
      * The base URL of the Langfuse server
@@ -35,13 +35,13 @@ public interface LangfuseConfig {
      * Langfuse project public key, used for API authentication.
      * Found in the Langfuse dashboard under Settings &gt; API Keys.
      */
-    String username();
+    String publicKey();
 
     /**
      * Langfuse project secret key, used for API authentication.
      * Found in the Langfuse dashboard under Settings &gt; API Keys.
      */
-    String password();
+    String secretKey();
 
     /**
      * Timeout for Langfuse calls

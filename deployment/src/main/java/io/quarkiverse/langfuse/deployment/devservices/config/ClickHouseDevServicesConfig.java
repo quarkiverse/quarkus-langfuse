@@ -16,13 +16,13 @@ public interface ClickHouseDevServicesConfig {
     String imageName();
 
     /**
-     * The database username.
+     * The database publicKey.
      */
     @WithDefault("quarkus")
     String username();
 
     /**
-     * The database password.
+     * The database secretKey.
      */
     @WithDefault("quarkusclickhouse")
     String password();

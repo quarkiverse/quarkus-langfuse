@@ -37,7 +37,7 @@ public class LangfuseSpanProcessor implements SpanProcessor {
 
     public LangfuseSpanProcessor(LangfuseConfig langfuseConfig) {
         LOG.debug("Initializing Langfuse OTLP Span Processor");
-        var credentials = "%s:%s".formatted(langfuseConfig.username(), langfuseConfig.password());
+        var credentials = "%s:%s".formatted(langfuseConfig.publicKey(), langfuseConfig.secretKey());
         var authHeader = "Basic %s".formatted(Base64.getEncoder().encodeToString(credentials.getBytes()));
 
         var exporter = OtlpHttpSpanExporter.builder()

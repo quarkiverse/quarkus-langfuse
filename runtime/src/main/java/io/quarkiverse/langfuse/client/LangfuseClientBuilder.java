@@ -23,8 +23,8 @@ public final class LangfuseClientBuilder<T> {
 
     public LangfuseClientBuilder(LangfuseConfig config, Class<T> clientTypeToBuild) {
         checkValidValue(config.baseUrl(), LangfuseConfig.BASE_URL_KEY);
-        checkValidValue(config.username(), LangfuseConfig.USERNAME_KEY);
-        checkValidValue(config.password(), LangfuseConfig.PASSWORD_KEY);
+        checkValidValue(config.publicKey(), LangfuseConfig.PUBLIC_KEY);
+        checkValidValue(config.secretKey(), LangfuseConfig.SECRET_KEY);
 
         this.clientTypeToBuild = clientTypeToBuild;
 

@@ -19,8 +19,8 @@ import io.smallrye.config.PropertiesConfigSource;
 
 /**
  * A {@link ConfigSourceFactory} that derives OpenTelemetry OTLP exporter configuration from
- * existing Langfuse connection properties ({@code quarkus.langfuse.base-url}, {@code username},
- * and {@code password}).
+ * existing Langfuse connection properties ({@code quarkus.langfuse.base-url}, {@code publicKey},
+ * and {@code secretKey}).
  * <p>
  * When all three Langfuse properties are present, this factory produces a {@link ConfigSource}
  * that sets the OTel OTLP endpoint, authorization headers, and traces protocol so that
@@ -76,20 +76,20 @@ public class LangfuseOtelConfigSourceFactory implements ConfigSourceFactory {
     public static final String OTEL_PATH = "/api/public/otel";
 
     /**
-     * Reads {@code quarkus.langfuse.base-url}, {@code quarkus.langfuse.username}, and
-     * {@code quarkus.langfuse.password} from the config context and, if all three are
+     * Reads {@code quarkus.langfuse.base-url}, {@code quarkus.langfuse.public-key}, and
+     * {@code quarkus.langfuse.secret-key} from the config context and, if all three are
      * present and non-blank, returns a single {@link ConfigSource} that provides the
      * derived OTel OTLP exporter properties. Returns an empty iterable otherwise.
      */
     @Override
     public Iterable<ConfigSource> getConfigSources(ConfigSourceContext context) {
         var baseUrl = resolveValue(context, LangfuseConfig.BASE_URL_KEY);
-        var username = resolveValue(context, LangfuseConfig.USERNAME_KEY);
-        var password = resolveValue(context, LangfuseConfig.PASSWORD_KEY);
+        var username = resolveValue(context, LangfuseConfig.PUBLIC_KEY);
+        var password = resolveValue(context, LangfuseConfig.SECRET_KEY);
 
         if (baseUrl.isEmpty() || username.isEmpty() || password.isEmpty()) {
             LOG.debug(
-                    "Langfuse OTel auto-configuration skipped: one or more of quarkus.langfuse.base-url, username, or password is not set");
+                    "Langfuse OTel auto-configuration skipped: one or more of quarkus.langfuse.base-url, publicKey, or secretKey is not set");
             return Collections.emptyList();
         }
 

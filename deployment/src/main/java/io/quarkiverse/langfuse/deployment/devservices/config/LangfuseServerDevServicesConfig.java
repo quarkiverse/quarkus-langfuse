@@ -24,7 +24,7 @@ public interface LangfuseServerDevServicesConfig {
     int port();
 
     /**
-     * The username used for authentication with the Langfuse API.
+     * The publicKey used for authentication with the Langfuse API.
      * <p>
      * This maps to the Langfuse project public key used to initialize the dev instance.
      * </p>
@@ -33,7 +33,7 @@ public interface LangfuseServerDevServicesConfig {
     String username();
 
     /**
-     * The password used for authentication with the Langfuse API.
+     * The secretKey used for authentication with the Langfuse API.
      * <p>
      * This maps to the Langfuse project secret key used to initialize the dev instance.
      * </p>
@@ -84,7 +84,7 @@ public interface LangfuseServerDevServicesConfig {
     String initUserName();
 
     /**
-     * The user password to initialize in the Langfuse instance.
+     * The user secretKey to initialize in the Langfuse instance.
      */
     @WithDefault("quarkuslangfuse")
     String initUserPassword();

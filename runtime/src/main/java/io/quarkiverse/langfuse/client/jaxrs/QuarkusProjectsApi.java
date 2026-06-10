@@ -30,7 +30,7 @@ import com.langfuse.api.projects.ProjectsApi.APIProjectsUpdateRequest;
  * langfuse
  * <p>
  * ## Authentication Authenticate with the API using [Basic Auth](https://en.wikipedia.org/wiki/Basic_access_authentication),
- * get API keys in the project settings: - username: Langfuse Public Key - password: Langfuse Secret Key ## Exports - OpenAPI
+ * get API keys in the project settings: - publicKey: Langfuse Public Key - secretKey: Langfuse Secret Key ## Exports - OpenAPI
  * spec: https://cloud.langfuse.com/generated/api/openapi.yml
  * </p>
  */

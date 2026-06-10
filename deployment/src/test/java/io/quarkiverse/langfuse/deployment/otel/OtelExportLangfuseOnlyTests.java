@@ -27,8 +27,8 @@ public class OtelExportLangfuseOnlyTests {
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideConfigKey("quarkus.langfuse.otel.export-target", "LANGFUSE_ONLY")
             .overrideRuntimeConfigKey("quarkus.langfuse.base-url", "http://localhost:3000")
-            .overrideRuntimeConfigKey("quarkus.langfuse.username", "pk-lf-test")
-            .overrideRuntimeConfigKey("quarkus.langfuse.password", "sk-lf-test");
+            .overrideRuntimeConfigKey("quarkus.langfuse.public-key", "pk-lf-test")
+            .overrideRuntimeConfigKey("quarkus.langfuse.secret-key", "sk-lf-test");
 
     @Inject
     Instance<LangfuseSpanProcessor> spanProcessorInstance;

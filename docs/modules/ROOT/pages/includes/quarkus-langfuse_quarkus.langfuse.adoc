@@ -128,7 +128,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The username used for authentication with the Langfuse API.
+The publicKey used for authentication with the Langfuse API.
 
 This maps to the Langfuse project public key used to initialize the dev instance.
 
@@ -151,7 +151,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The password used for authentication with the Langfuse API.
+The secretKey used for authentication with the Langfuse API.
 
 This maps to the Langfuse project secret key used to initialize the dev instance.
 
@@ -321,7 +321,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The user password to initialize in the Langfuse instance.
+The user secretKey to initialize in the Langfuse instance.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -510,7 +510,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The database username.
+The database publicKey.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -531,7 +531,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The database password.
+The database secretKey.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -615,7 +615,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The database username.
+The database publicKey.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -636,7 +636,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The database password.
+The database secretKey.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -720,7 +720,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The Redis password.
+The Redis secretKey.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -825,7 +825,7 @@ endif::add-copy-button-to-config-props[]
 
 [.description]
 --
-The MinIO root password.
+The MinIO root secretKey.
 
 
 ifdef::add-copy-button-to-env-var[]
@@ -987,9 +987,9 @@ endif::add-copy-button-to-env-var[]
 |string
 |required icon:exclamation-circle[title=Configuration property is required]
 
-a| [[quarkus-langfuse_quarkus-langfuse-username]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-username[`+++quarkus.langfuse.username+++`]##
+a| [[quarkus-langfuse_quarkus-langfuse-public-key]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-public-key[`+++quarkus.langfuse.public-key+++`]##
 ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langfuse.username+++[]
+config_property_copy_button:+++quarkus.langfuse.public-key+++[]
 endif::add-copy-button-to-config-props[]
 
 
@@ -999,18 +999,18 @@ Langfuse project public key, used for API authentication. Found in the Langfuse 
 
 
 ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_USERNAME+++[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_PUBLIC_KEY+++[]
 endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGFUSE_USERNAME+++`
+Environment variable: `+++QUARKUS_LANGFUSE_PUBLIC_KEY+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
 |required icon:exclamation-circle[title=Configuration property is required]
 
-a| [[quarkus-langfuse_quarkus-langfuse-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-password[`+++quarkus.langfuse.password+++`]##
+a| [[quarkus-langfuse_quarkus-langfuse-secret-key]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-secret-key[`+++quarkus.langfuse.secret-key+++`]##
 ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langfuse.password+++[]
+config_property_copy_button:+++quarkus.langfuse.secret-key+++[]
 endif::add-copy-button-to-config-props[]
 
 
@@ -1020,10 +1020,10 @@ Langfuse project secret key, used for API authentication. Found in the Langfuse 
 
 
 ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_PASSWORD+++[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_SECRET_KEY+++[]
 endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGFUSE_PASSWORD+++`
+Environment variable: `+++QUARKUS_LANGFUSE_SECRET_KEY+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
