@@ -27,6 +27,7 @@ import com.langfuse.api.model.IngestionEventOneOf2;
 import com.langfuse.api.model.ObservationsView;
 import com.langfuse.api.model.TraceBody;
 
+import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**
@@ -39,6 +40,9 @@ class ObservationsApiTest {
 
     @Inject
     LangfuseApi client;
+
+    @Inject
+    LangfuseConfig config;
 
     private static final String TRACE_ID = UUID.randomUUID().toString();
     private static final String SPAN_ID = UUID.randomUUID().toString();
@@ -58,6 +62,7 @@ class ObservationsApiTest {
                                                 .body(TraceBody.builder()
                                                         .id(TRACE_ID)
                                                         .name("observations-test-trace")
+                                                        .environment(config.environment())
                                                         .build())
                                                 .build()),
                                         new IngestionEvent(IngestionEventOneOf2.builder()

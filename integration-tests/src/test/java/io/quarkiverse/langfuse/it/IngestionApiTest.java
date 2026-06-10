@@ -18,6 +18,7 @@ import com.langfuse.api.model.IngestionEventOneOf;
 import com.langfuse.api.model.IngestionSuccess;
 import com.langfuse.api.model.TraceBody;
 
+import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**
@@ -30,6 +31,9 @@ class IngestionApiTest {
     @Inject
     LangfuseApi client;
 
+    @Inject
+    LangfuseConfig config;
+
     @Test
     void ingestSingleTrace() {
         var eventId = UUID.randomUUID().toString();
@@ -41,6 +45,7 @@ class IngestionApiTest {
                 .body(TraceBody.builder()
                         .id(UUID.randomUUID().toString())
                         .name("test-trace")
+                        .environment(config.environment())
                         .build())
                 .build();
 
@@ -73,6 +78,7 @@ class IngestionApiTest {
                         .body(TraceBody.builder()
                                 .id(UUID.randomUUID().toString())
                                 .name("batch-trace-1")
+                                .environment(config.environment())
                                 .build())
                         .build()),
                 new IngestionEvent(IngestionEventOneOf.builder()
@@ -82,6 +88,7 @@ class IngestionApiTest {
                         .body(TraceBody.builder()
                                 .id(UUID.randomUUID().toString())
                                 .name("batch-trace-2")
+                                .environment(config.environment())
                                 .build())
                         .build()));
 

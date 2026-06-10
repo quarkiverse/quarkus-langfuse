@@ -25,6 +25,7 @@ import com.langfuse.api.model.TraceBody;
 import com.langfuse.api.model.TraceWithFullDetails;
 import com.langfuse.api.trace.TraceApi;
 
+import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**
@@ -37,6 +38,9 @@ class TraceApiTest {
 
     @Inject
     LangfuseApi client;
+
+    @Inject
+    LangfuseConfig config;
 
     private static final String TRACE_ID = UUID.randomUUID().toString();
     private static final String TRACE_NAME = "trace-api-test-" + UUID.randomUUID();
@@ -55,6 +59,7 @@ class TraceApiTest {
                                                 .id(TRACE_ID)
                                                 .name(TRACE_NAME)
                                                 .userId("test-user")
+                                                .environment(config.environment())
                                                 .build())
                                         .build())))
                                 .build())

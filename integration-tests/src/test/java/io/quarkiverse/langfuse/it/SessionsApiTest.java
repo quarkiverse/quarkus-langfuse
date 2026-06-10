@@ -24,6 +24,7 @@ import com.langfuse.api.model.IngestionEventOneOf;
 import com.langfuse.api.model.TraceBody;
 import com.langfuse.api.sessions.SessionsApi;
 
+import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**
@@ -36,6 +37,9 @@ class SessionsApiTest {
 
     @Inject
     LangfuseApi client;
+
+    @Inject
+    LangfuseConfig config;
 
     private static final String SESSION_ID = "test-session-" + UUID.randomUUID();
 
@@ -53,6 +57,7 @@ class SessionsApiTest {
                                                 .id(UUID.randomUUID().toString())
                                                 .name("sessions-test-trace")
                                                 .sessionId(SESSION_ID)
+                                                .environment(config.environment())
                                                 .build())
                                         .build())))
                                 .build())

@@ -29,6 +29,7 @@ import com.langfuse.api.model.ScoreDataType;
 import com.langfuse.api.model.TraceBody;
 import com.langfuse.api.scores.ScoresApi;
 
+import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**
@@ -41,6 +42,9 @@ class ScoresApiAsyncTest {
 
     @Inject
     LangfuseApi client;
+
+    @Inject
+    LangfuseConfig config;
 
     private static final String TRACE_ID = UUID.randomUUID().toString();
     private static final String SCORE_NAME = "async-test-score";
@@ -55,6 +59,7 @@ class ScoresApiAsyncTest {
                 .body(TraceBody.builder()
                         .id(TRACE_ID)
                         .name("async-score-test-trace")
+                        .environment(config.environment())
                         .build())
                 .build();
 
@@ -79,7 +84,7 @@ class ScoresApiAsyncTest {
                                 .value(new CreateScoreValue(0.85))
                                 .dataType(ScoreDataType.NUMERIC)
                                 .source(LegacyCreateScoreSource.API)
-                                .environment("default")
+                                .environment(config.environment())
                                 .build())
                         .build()))
                 .succeedsWithin(Duration.ofSeconds(5))

@@ -26,6 +26,7 @@ import com.langfuse.api.model.IngestionEventOneOf;
 import com.langfuse.api.model.IngestionEventOneOf2;
 import com.langfuse.api.model.TraceBody;
 
+import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**
@@ -38,6 +39,9 @@ class ObservationsApiAsyncTest {
 
     @Inject
     LangfuseApi client;
+
+    @Inject
+    LangfuseConfig config;
 
     private static final String TRACE_ID = UUID.randomUUID().toString();
     private static final String SPAN_NAME = "async-observations-test-span-" + UUID.randomUUID();
@@ -52,6 +56,7 @@ class ObservationsApiAsyncTest {
                 .body(TraceBody.builder()
                         .id(TRACE_ID)
                         .name("async-observations-test-trace")
+                        .environment(config.environment())
                         .build())
                 .build();
 

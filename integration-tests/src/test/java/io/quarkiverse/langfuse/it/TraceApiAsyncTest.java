@@ -26,6 +26,7 @@ import com.langfuse.api.model.IngestionEventOneOf;
 import com.langfuse.api.model.TraceBody;
 import com.langfuse.api.model.TraceWithFullDetails;
 
+import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**
@@ -38,6 +39,9 @@ class TraceApiAsyncTest {
 
     @Inject
     LangfuseApi client;
+
+    @Inject
+    LangfuseConfig config;
 
     private static final String TRACE_ID = UUID.randomUUID().toString();
     private static final String TRACE_NAME = "async-trace-api-test-" + UUID.randomUUID();
@@ -53,6 +57,7 @@ class TraceApiAsyncTest {
                         .id(TRACE_ID)
                         .name(TRACE_NAME)
                         .userId("async-test-user")
+                        .environment(config.environment())
                         .build())
                 .build();
 

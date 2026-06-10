@@ -29,6 +29,7 @@ import com.langfuse.api.model.ScoreDataType;
 import com.langfuse.api.model.TraceBody;
 import com.langfuse.api.scores.ScoresApi;
 
+import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**
@@ -41,6 +42,9 @@ class ScoresApiTest {
 
     @Inject
     LangfuseApi client;
+
+    @Inject
+    LangfuseConfig config;
 
     private static final String TRACE_ID = UUID.randomUUID().toString();
     private static final String SCORE_NAME = "test-score";
@@ -58,6 +62,7 @@ class ScoresApiTest {
                                         .body(TraceBody.builder()
                                                 .id(TRACE_ID)
                                                 .name("score-test-trace")
+                                                .environment(config.environment())
                                                 .build())
                                         .build())))
                                 .build())
@@ -79,7 +84,7 @@ class ScoresApiTest {
                                 .value(new CreateScoreValue(0.95))
                                 .dataType(ScoreDataType.NUMERIC)
                                 .source(LegacyCreateScoreSource.API)
-                                .environment("default")
+                                .environment(config.environment())
                                 .build())
                         .build()))
                 .satisfies(response -> assertThat(response.getId()).isNotBlank());
@@ -95,6 +100,7 @@ class ScoresApiTest {
                         ScoresApi.APIScoresGetManyRequest.newBuilder()
                                 .name(SCORE_NAME)
                                 .traceId(TRACE_ID)
+                                .environment(List.of(config.environment()))
                                 .build()))
                         .satisfies(scores -> {
                             assertThat(scores.getData()).isNotEmpty();

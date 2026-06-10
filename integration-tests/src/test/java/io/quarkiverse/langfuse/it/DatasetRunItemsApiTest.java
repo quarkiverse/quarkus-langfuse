@@ -28,6 +28,7 @@ import com.langfuse.api.model.IngestionEvent;
 import com.langfuse.api.model.IngestionEventOneOf;
 import com.langfuse.api.model.TraceBody;
 
+import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
 /**
@@ -40,6 +41,9 @@ class DatasetRunItemsApiTest {
 
     @Inject
     LangfuseApi client;
+
+    @Inject
+    LangfuseConfig config;
 
     private static final String DATASET_NAME = "test-run-items-dataset-" + UUID.randomUUID();
     private static final String RUN_NAME = "test-run-" + UUID.randomUUID().toString().substring(0, 8);
@@ -78,6 +82,7 @@ class DatasetRunItemsApiTest {
                                         .body(TraceBody.builder()
                                                 .id(TRACE_ID)
                                                 .name("run-items-test-trace")
+                                                .environment(config.environment())
                                                 .build())
                                         .build())))
                                 .build())

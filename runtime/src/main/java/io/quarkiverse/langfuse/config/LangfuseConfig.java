@@ -90,10 +90,10 @@ public interface LangfuseConfig {
      * Retrieves the configured environment for the Langfuse client. This setting is used to
      * determine the operational environment in which the Langfuse client is running.
      *
-     * @return The environment setting as a {@code String}, which defaults to {@code "prod"}
+     * @return The environment setting as a {@code String}, which defaults to {@code default}
      *         if not explicitly configured.
      */
-    @WithDefault("prod")
+    @WithDefault("default")
     String environment();
 
     /**

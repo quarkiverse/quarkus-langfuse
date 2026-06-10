@@ -1178,7 +1178,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_ENVIRONMENT+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++prod+++`
+|`+++default+++`
 
 a| [[quarkus-langfuse_quarkus-langfuse-otel-trace-ingestion-url]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-trace-ingestion-url[`+++quarkus.langfuse.otel.trace-ingestion-url+++`]##
 ifdef::add-copy-button-to-config-props[]
