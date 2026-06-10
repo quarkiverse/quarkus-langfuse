@@ -1,12 +1,10 @@
 package io.quarkiverse.langfuse.runtime.otel;
 
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -34,12 +32,11 @@ import io.opentelemetry.semconv.incubating.GenAiIncubatingAttributes;
  * to spans with specific attributes indicating the end of an AI operation.
  * - Delegation of the filtered spans to the provided delegate SpanExporter.
  */
-public class FilteringAISpanExporter implements SpanExporter {
+final class FilteringAISpanExporter extends DelegatingSpanExporter {
     private static final Logger LOG = Logger.getLogger(FilteringAISpanExporter.class);
-    private final SpanExporter delegate;
 
-    public FilteringAISpanExporter(SpanExporter delegate) {
-        this.delegate = delegate;
+    FilteringAISpanExporter(SpanExporter delegate) {
+        super(delegate);
     }
 
     @Override
@@ -47,17 +44,12 @@ public class FilteringAISpanExporter implements SpanExporter {
         LOG.debug("Exporting spans to Langfuse");
         var exportMap = filterAiSpansWithAncestors(spans);
 
-        return exportMap.isEmpty() ? CompletableResultCode.ofSuccess() : this.delegate.export(exportMap.values());
-    }
-
-    private static Optional<SpanData> findFirstCompletedGenAiSpan(Collection<SpanData> llmSpans) {
-        return llmSpans.stream()
-                .filter(span -> isGenAiSpan(span) && isCompletionSpan(span))
-                .min(Comparator.comparingLong(SpanData::getStartEpochNanos));
+        return exportMap.isEmpty() ? CompletableResultCode.ofSuccess() : super.export(exportMap.values());
     }
 
     private static Map<String, SpanData> filterAiSpansWithAncestors(Collection<SpanData> spans) {
-        var spansById = spans.stream().collect(Collectors.toUnmodifiableMap(SpanData::getSpanId, Function.identity()));
+        var spansById = spans.stream()
+                .collect(Collectors.toUnmodifiableMap(SpanData::getSpanId, Function.identity()));
 
         var seen = new HashSet<String>();
         var result = new HashMap<String, SpanData>();
@@ -71,32 +63,11 @@ public class FilteringAISpanExporter implements SpanExporter {
         return result;
     }
 
-    @Override
-    public CompletableResultCode flush() {
-        return this.delegate.flush();
-    }
-
-    @Override
-    public CompletableResultCode shutdown() {
-        return this.delegate.shutdown();
-    }
-
-    @Override
-    public void close() {
-        this.delegate.close();
-    }
-
     private static boolean isGenAiSpan(SpanData span) {
         return spanAttributeKeysMatchCriteria(
                 span,
                 key -> !GenAiIncubatingAttributes.GEN_AI_CONVERSATION_ID.getKey().equalsIgnoreCase(key.getKey())
                         && key.getKey().startsWith("gen_ai."));
-    }
-
-    private static boolean isCompletionSpan(SpanData span) {
-        var finishReasons = span.getAttributes().get(AttributeKey.stringKey("gen_ai.response.finish_reasons"));
-
-        return (finishReasons != null) && finishReasons.toUpperCase().contains("STOP");
     }
 
     private static boolean spanAttributeKeysMatchCriteria(SpanData span, Predicate<AttributeKey> predicate) {
