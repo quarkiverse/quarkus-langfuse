@@ -22,7 +22,7 @@ public interface MinIODevServicesConfig {
     String rootUser();
 
     /**
-     * The MinIO root password.
+     * The MinIO root secretKey.
      */
     @WithDefault("quarkusminio")
     String rootPassword();

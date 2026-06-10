@@ -16,7 +16,7 @@ public interface RedisDevServicesConfig {
     String imageName();
 
     /**
-     * The Redis password.
+     * The Redis secretKey.
      */
     @WithDefault("quarkusredis")
     String password();

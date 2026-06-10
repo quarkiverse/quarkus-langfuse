@@ -15,11 +15,12 @@ import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
-import com.langfuse.api.LangfuseApi;
-import com.langfuse.api.model.HealthResponse;
+import io.quarkus.test.QuarkusUnitTest;
 
 import io.quarkiverse.langfuse.config.LangfuseConfig;
-import io.quarkus.test.QuarkusUnitTest;
+
+import com.langfuse.api.LangfuseApi;
+import com.langfuse.api.model.HealthResponse;
 
 class QuarkusLangfuseApiLogRequestsTests extends RequestResponseLoggingTests {
     @RegisterExtension
@@ -28,8 +29,8 @@ class QuarkusLangfuseApiLogRequestsTests extends RequestResponseLoggingTests {
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideRuntimeConfigKey(LangfuseConfig.BASE_URL_KEY, wiremockUrlForConfig())
             .overrideRuntimeConfigKey("quarkus.langfuse.log-requests", "true")
-            .overrideRuntimeConfigKey("quarkus.langfuse.username", "quarkus")
-            .overrideRuntimeConfigKey("quarkus.langfuse.password", "quarkus");
+            .overrideRuntimeConfigKey("quarkus.langfuse.public-key", "quarkus")
+            .overrideRuntimeConfigKey("quarkus.langfuse.secret-key", "quarkus");
 
     @Inject
     LangfuseApi langfuseApi;

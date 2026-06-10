@@ -39,7 +39,7 @@ import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.rest.client.reactive.ClientBasicAuth;
 
 @Path("/")
-@ClientBasicAuth(username = "${" + LangfuseConfig.USERNAME_KEY + "}", password = "${" + LangfuseConfig.PASSWORD_KEY + "}")
+@ClientBasicAuth(username = "${" + LangfuseConfig.PUBLIC_KEY + "}", password = "${" + LangfuseConfig.SECRET_KEY + "}")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public interface QuarkusLangfuseClient extends LangfuseApis,

@@ -28,18 +28,18 @@ class LangfuseRecorderTests {
         var recorder = new LangfuseRecorder(new RuntimeValue<>(config));
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> recorder.quarkusLangfuseClient().get())
-                .withFailMessage("'quarkus.langfuse.username' cannot be null or empty");
+                .withFailMessage("'quarkus.langfuse.public-key' cannot be null or empty");
     }
 
     @Test
     void noPasswordSet() {
         var config = mock(LangfuseConfig.class);
         when(config.baseUrl()).thenReturn("http://localhost:8080");
-        when(config.username()).thenReturn("username");
+        when(config.publicKey()).thenReturn("publicKey");
 
         var recorder = new LangfuseRecorder(new RuntimeValue<>(config));
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> recorder.quarkusLangfuseClient().get())
-                .withFailMessage("'quarkus.langfuse.password' cannot be null or empty");
+                .withFailMessage("'quarkus.langfuse.secret-key' cannot be null or empty");
     }
 }

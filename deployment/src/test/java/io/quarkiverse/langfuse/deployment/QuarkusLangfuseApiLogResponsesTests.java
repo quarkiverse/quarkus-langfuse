@@ -27,8 +27,8 @@ class QuarkusLangfuseApiLogResponsesTests extends RequestResponseLoggingTests {
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideRuntimeConfigKey(LangfuseConfig.BASE_URL_KEY, wiremockUrlForConfig())
             .overrideRuntimeConfigKey("quarkus.langfuse.log-responses", "true")
-            .overrideRuntimeConfigKey("quarkus.langfuse.username", "quarkus")
-            .overrideRuntimeConfigKey("quarkus.langfuse.password", "quarkus");
+            .overrideRuntimeConfigKey("quarkus.langfuse.public-key", "quarkus")
+            .overrideRuntimeConfigKey("quarkus.langfuse.secret-key", "quarkus");
 
     @Inject
     LangfuseApi langfuseApi;
