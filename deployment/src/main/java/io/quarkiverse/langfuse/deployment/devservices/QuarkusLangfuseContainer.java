@@ -82,8 +82,8 @@ public class QuarkusLangfuseContainer extends LangfuseContainer implements Start
                 CONFIG_LANGFUSE_UI_EMAIL, config.langfuse().initUserEmail(),
                 CONFIG_LANGFUSE_UI_PASSWORD, config.langfuse().initUserPassword(),
                 LangfuseConfig.BASE_URL_KEY, apiEndpoint,
-                LangfuseConfig.PUBLIC_KEY, config.langfuse().username(),
-                LangfuseConfig.SECRET_KEY, config.langfuse().password());
+                LangfuseConfig.PUBLIC_KEY, config.langfuse().publicKey(),
+                LangfuseConfig.SECRET_KEY, config.langfuse().secretKey());
     }
 
     public static Map<String, Function<QuarkusLangfuseContainer, String>> getExposedConfig(LangfuseDevServicesConfig config) {
@@ -97,7 +97,7 @@ public class QuarkusLangfuseContainer extends LangfuseContainer implements Start
                 CONFIG_LANGFUSE_UI_EMAIL, c -> config.langfuse().initUserEmail(),
                 CONFIG_LANGFUSE_UI_PASSWORD, c -> config.langfuse().initUserPassword(),
                 LangfuseConfig.BASE_URL_KEY, apiEndpointFunction,
-                LangfuseConfig.PUBLIC_KEY, c -> config.langfuse().username(),
-                LangfuseConfig.SECRET_KEY, c -> config.langfuse().password());
+                LangfuseConfig.PUBLIC_KEY, c -> config.langfuse().publicKey(),
+                LangfuseConfig.SECRET_KEY, c -> config.langfuse().secretKey());
     }
 }

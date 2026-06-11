@@ -30,7 +30,7 @@ public interface LangfuseServerDevServicesConfig {
      * </p>
      */
     @WithDefault("quarkus")
-    String username();
+    String publicKey();
 
     /**
      * The secretKey used for authentication with the Langfuse API.
@@ -39,7 +39,7 @@ public interface LangfuseServerDevServicesConfig {
      * </p>
      */
     @WithDefault("quarkuslangfuse")
-    String password();
+    String secretKey();
 
     /**
      * Maximum duration to wait for the Langfuse container to start up.

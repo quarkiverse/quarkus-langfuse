@@ -56,9 +56,9 @@ quarkus.langfuse.public-key=pk-lf-...
 quarkus.langfuse.private-key=sk-lf-...
 ----
 
-TIP: When <<devservices,DevServices>> is enabled (the default in dev/test mode), `base-url`, `username`, and `password` are automatically configured for you. You only need to set these properties when connecting to an external Langfuse instance or in production.
+TIP: When <<devservices,DevServices>> is enabled (the default in dev/test mode), `base-url`, `public-key`, and `secret-key` are automatically configured for you. You only need to set these properties when connecting to an external Langfuse instance or in production.
 
-The `username` and `password` properties correspond to the Langfuse **project public key** and **project secret key**, respectively. You can find these in the Langfuse dashboard under **Settings > API Keys**.
+The `public-key` and `secret-key` properties correspond to the Langfuse **project public key** and **project secret key**, respectively. You can find these in the Langfuse dashboard under **Settings > API Keys**.
 
 For a complete list of configuration properties, see the <<extension-configuration-reference,Extension Configuration Reference>>.
 
@@ -197,7 +197,7 @@ public class PromptService {
 [[opentelemetry]]
 == OpenTelemetry Integration
 
-When the `quarkus-opentelemetry` extension is present in your project, the Langfuse extension automatically exports OpenTelemetry span data to Langfuse. No additional configuration is needed -- the extension uses your existing `quarkus.langfuse.username` and `quarkus.langfuse.password` for authentication.
+When the `quarkus-opentelemetry` extension is present in your project, the Langfuse extension automatically exports OpenTelemetry span data to Langfuse. No additional configuration is needed -- the extension uses your existing `quarkus.langfuse.public-key` and `quarkus.langfuse.secret-key` for authentication.
 
 === Export Target
 
@@ -320,7 +320,7 @@ The DevServices stack includes:
 | Background job processing
 |===
 
-The extension automatically configures the `quarkus.langfuse.base-url`, `quarkus.langfuse.username`, and `quarkus.langfuse.password` properties to point to the DevServices instance.
+The extension automatically configures the `quarkus.langfuse.base-url`, `quarkus.langfuse.public-key`, and `quarkus.langfuse.secret-key` properties to point to the DevServices instance.
 
 === Container Sharing
 
@@ -353,7 +353,7 @@ From the Langfuse dashboard you can:
 The default credentials for logging into the DevServices Langfuse UI are:
 
 * **Email:** `quarkus@quarkus.io`
-* **Password:** `quarkuslangfuse`
+* **secret-key:** `quarkuslangfuse`
 
 == Debugging and Logging
 
