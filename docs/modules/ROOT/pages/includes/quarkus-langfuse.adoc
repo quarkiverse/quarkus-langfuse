@@ -120,9 +120,9 @@ endif::add-copy-button-to-env-var[]
 |int
 |`+++3000+++`
 
-a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-username]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-username[`+++quarkus.langfuse.devservices.langfuse.username+++`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-public-key]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-public-key[`+++quarkus.langfuse.devservices.langfuse.public-key+++`]##
 ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.username+++[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.public-key+++[]
 endif::add-copy-button-to-config-props[]
 
 
@@ -134,18 +134,18 @@ This maps to the Langfuse project public key used to initialize the dev instance
 
 
 ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_USERNAME+++[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_PUBLIC_KEY+++[]
 endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_USERNAME+++`
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_PUBLIC_KEY+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
 |`+++quarkus+++`
 
-a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-password[`+++quarkus.langfuse.devservices.langfuse.password+++`]##
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-secret-key]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-secret-key[`+++quarkus.langfuse.devservices.langfuse.secret-key+++`]##
 ifdef::add-copy-button-to-config-props[]
-config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.password+++[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.secret-key+++[]
 endif::add-copy-button-to-config-props[]
 
 
@@ -157,10 +157,10 @@ This maps to the Langfuse project secret key used to initialize the dev instance
 
 
 ifdef::add-copy-button-to-env-var[]
-Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_PASSWORD+++[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_SECRET_KEY+++[]
 endif::add-copy-button-to-env-var[]
 ifndef::add-copy-button-to-env-var[]
-Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_PASSWORD+++`
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_SECRET_KEY+++`
 endif::add-copy-button-to-env-var[]
 --
 |string

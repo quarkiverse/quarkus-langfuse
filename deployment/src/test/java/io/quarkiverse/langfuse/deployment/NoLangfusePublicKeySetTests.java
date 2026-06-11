@@ -10,18 +10,17 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.quarkus.test.QuarkusUnitTest;
 
-public class NoLangfusePasswordSetTests {
+public class NoLangfusePublicKeySetTests {
     @RegisterExtension
     static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideRuntimeConfigKey("quarkus.langfuse.base-url", "http://localhost:8080")
-            .overrideRuntimeConfigKey("quarkus.langfuse.public-key", "test-user")
             .assertException(t -> assertThat(t)
                     .isNotNull()
                     .hasMessageContaining("Configuration validation failed")
                     .hasMessageContaining(
-                            "The config property quarkus.langfuse.secret-key is required but it could not be found"));
+                            "The config property quarkus.langfuse.public-key is required but it could not be found"));
 
     @Test
     void test() {
