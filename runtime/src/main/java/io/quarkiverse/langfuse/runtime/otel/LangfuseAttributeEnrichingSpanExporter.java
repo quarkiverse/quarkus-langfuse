@@ -2,8 +2,6 @@ package io.quarkiverse.langfuse.runtime.otel;
 
 import java.util.Collection;
 
-import io.quarkus.logging.Log;
-
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.common.CompletableResultCode;
@@ -12,6 +10,7 @@ import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.opentelemetry.semconv.incubating.GenAiIncubatingAttributes;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
+import io.quarkus.logging.Log;
 
 /**
  * A wrapping {@link SpanExporter} that enriches spans with Langfuse-specific attributes

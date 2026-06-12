@@ -12,13 +12,12 @@ import java.util.stream.Stream;
 
 import org.jboss.logging.Logger;
 
-import io.quarkus.logging.Log;
-
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.opentelemetry.semconv.incubating.GenAiIncubatingAttributes;
+import io.quarkus.logging.Log;
 
 /**
  * An implementation of the SpanExporter interface designed to filter and export spans
