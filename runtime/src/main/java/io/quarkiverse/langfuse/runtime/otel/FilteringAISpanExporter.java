@@ -12,6 +12,8 @@ import java.util.stream.Stream;
 
 import org.jboss.logging.Logger;
 
+import io.quarkus.logging.Log;
+
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.sdk.common.CompletableResultCode;
 import io.opentelemetry.sdk.trace.data.SpanData;
@@ -44,6 +46,11 @@ final class FilteringAISpanExporter extends DelegatingSpanExporter {
         LOG.debug("Exporting spans to Langfuse");
         var exportMap = filterAiSpansWithAncestors(spans);
 
+        if (Log.isDebugEnabled()) {
+            Log.debugf("Exporting %d spans to Langfuse", exportMap.size());
+            exportMap.forEach((k, v) -> Log.debugf("Exporting span id %s (name = %s):\n%s\n", k, v.getName(), v));
+        }
+
         return exportMap.isEmpty() ? CompletableResultCode.ofSuccess() : super.export(exportMap.values());
     }
 
@@ -64,10 +71,16 @@ final class FilteringAISpanExporter extends DelegatingSpanExporter {
     }
 
     private static boolean isGenAiSpan(SpanData span) {
-        return spanAttributeKeysMatchCriteria(
+        var isGenAiSpen = spanAttributeKeysMatchCriteria(
                 span,
                 key -> !GenAiIncubatingAttributes.GEN_AI_CONVERSATION_ID.getKey().equalsIgnoreCase(key.getKey())
                         && key.getKey().startsWith("gen_ai."));
+
+        Log.debugf(
+                "Span %s: isGenAiSpen = %s (span does NOT have the '%s' attribute AND does NOT have any attribute starting with 'gen_ai.')",
+                span.getName(), isGenAiSpen, GenAiIncubatingAttributes.GEN_AI_CONVERSATION_ID.getKey());
+
+        return isGenAiSpen;
     }
 
     private static boolean spanAttributeKeysMatchCriteria(SpanData span, Predicate<AttributeKey> predicate) {

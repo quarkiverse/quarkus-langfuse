@@ -2,6 +2,8 @@ package io.quarkiverse.langfuse.runtime.otel;
 
 import java.util.Collection;
 
+import io.quarkus.logging.Log;
+
 import io.opentelemetry.api.common.AttributeKey;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.common.CompletableResultCode;
@@ -41,6 +43,7 @@ final class LangfuseAttributeEnrichingSpanExporter extends DelegatingSpanExporte
 
     @Override
     public CompletableResultCode export(Collection<SpanData> spans) {
+        Log.debug("Enriching exported spans to Langfuse");
         var enriched = spans.stream()
                 .map(this::enrich)
                 .toList();
@@ -49,6 +52,7 @@ final class LangfuseAttributeEnrichingSpanExporter extends DelegatingSpanExporte
     }
 
     private SpanData enrich(SpanData span) {
+        Log.debugf("Enriching span %s", span);
         var builder = span.getAttributes()
                 .toBuilder()
                 .put(LANGFUSE_ENVIRONMENT, this.config.environment());
@@ -56,10 +60,14 @@ final class LangfuseAttributeEnrichingSpanExporter extends DelegatingSpanExporte
         var prompt = span.getAttributes().get(GenAiIncubatingAttributes.GEN_AI_PROMPT);
 
         if (prompt != null) {
+            Log.debugf("Found prompt attribute '%s' on span '%s'. Copying value to '%s' attribute", prompt, span.getName(),
+                    LANGFUSE_TRACE_INPUT);
             builder.put(LANGFUSE_TRACE_INPUT, prompt);
 
             var completion = span.getAttributes().get(GenAiIncubatingAttributes.GEN_AI_COMPLETION);
             if (completion != null) {
+                Log.debugf("Found completion attribute '%s' on span '%s'. Copying value to '%s' attribute", completion,
+                        span.getName(), LANGFUSE_TRACE_OUTPUT);
                 builder.put(LANGFUSE_TRACE_OUTPUT, completion);
             }
         }
