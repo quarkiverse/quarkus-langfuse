@@ -17,9 +17,9 @@ abstract class BaseOtelDisabledTests {
 
     @Test
     void otelConfigNotAutoSet() {
-      assertThat(ConfigProvider.getConfig()
-                               .getOptionalValue(LangfuseOtelConfigSourceFactory.OTEL_ENDPOINT_KEY, String.class)
-                               .filter(v -> v.contains("/api/public/otel")))
+        assertThat(ConfigProvider.getConfig()
+                .getOptionalValue(LangfuseOtelConfigSourceFactory.OTEL_ENDPOINT_KEY, String.class)
+                .filter(v -> v.contains("/api/public/otel")))
                 .as("OTel endpoint should not be auto-configured to Langfuse")
                 .isEmpty();
     }
