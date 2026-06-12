@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>io.quarkiverse.langfuse</groupId>
 		<artifactId>quarkus-langfuse-parent</artifactId>
-		<version>0.2.1</version>
+		<version>999-SNAPSHOT</version>
 	</parent>
 	<artifactId>quarkus-langfuse-testcontainers</artifactId>
 	<name>Quarkus Langfuse - Testcontainers</name>
