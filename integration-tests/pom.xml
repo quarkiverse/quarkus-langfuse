@@ -116,5 +116,16 @@
 				<quarkus.native.enabled>true</quarkus.native.enabled>
 			</properties>
 		</profile>
+		<profile>
+			<id>otel-public-api-tests</id>
+			<activation>
+				<property>
+					<name>otel-public-api-tests</name>
+				</property>
+			</activation>
+			<modules>
+				<module>langfuse-otel-public-api-tests</module>
+			</modules>
+		</profile>
 	</profiles>
 </project>

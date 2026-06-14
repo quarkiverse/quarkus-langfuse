@@ -43,15 +43,16 @@ public class LangfuseRecorder {
         };
     }
 
-    public Supplier<LangfuseSpanProcessor> langfuseSpanProcessor(Optional<RuntimeValue<Boolean>> otelSdkEnabled,
-            Supplier<Vertx> vertx) {
+    public Supplier<LangfuseSpanProcessor> langfuseSpanProcessor(String exporterFactoryClassName,
+            Optional<RuntimeValue<Boolean>> otelSdkEnabled, Supplier<Vertx> vertx) {
         return otelSdkEnabled
                 .filter(RuntimeValue::getValue)
                 .<Supplier<LangfuseSpanProcessor>> map(
                         ignored -> new Supplier<LangfuseSpanProcessor>() {
                             @Override
                             public LangfuseSpanProcessor get() {
-                                return new LangfuseSpanProcessor(config.getValue(), vertx.get());
+                                return LangfuseSpanProcessor.create(config.getValue(), vertx.get(),
+                                        exporterFactoryClassName);
                             }
                         })
                 .orElseGet(new Supplier<Supplier<LangfuseSpanProcessor>>() {
