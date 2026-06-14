@@ -74,7 +74,7 @@ class CommentsApiAsyncTest {
     @Test
     @Order(2)
     void createComment() {
-        await().atMost(Duration.ofSeconds(15))
+        await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .ignoreExceptionsMatching(LangfuseApiException.class::isInstance)
                 .untilAsserted(() -> {

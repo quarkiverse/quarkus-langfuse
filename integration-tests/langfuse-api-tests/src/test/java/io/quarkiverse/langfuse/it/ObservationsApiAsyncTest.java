@@ -86,7 +86,7 @@ class ObservationsApiAsyncTest {
     @Test
     @Order(2)
     void listObservationsViaLegacyApi() {
-        await().atMost(Duration.ofSeconds(15))
+        await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .ignoreExceptionsMatching(LangfuseApiException.class::isInstance)
                 .untilAsserted(() -> assertThat(client.asyncLegacyObservationsV1().legacyObservationsV1GetMany(

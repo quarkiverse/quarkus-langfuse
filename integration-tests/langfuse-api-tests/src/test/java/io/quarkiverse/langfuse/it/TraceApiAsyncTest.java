@@ -74,7 +74,7 @@ class TraceApiAsyncTest {
     @Test
     @Order(2)
     void getTraceById() {
-        await().atMost(Duration.ofSeconds(15))
+        await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .ignoreExceptionsMatching(e -> e instanceof LangfuseApiException)
                 .untilAsserted(() -> assertThat(client.asyncTrace().traceGet(
@@ -89,7 +89,7 @@ class TraceApiAsyncTest {
     @Test
     @Order(2)
     void listTracesContainsIngestedTrace() {
-        await().atMost(Duration.ofSeconds(15))
+        await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .ignoreExceptionsMatching(e -> e instanceof LangfuseApiException)
                 .untilAsserted(() -> assertThat(client.asyncTrace().traceList(

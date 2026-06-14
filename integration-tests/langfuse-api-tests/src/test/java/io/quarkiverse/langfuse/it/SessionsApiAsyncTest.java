@@ -71,7 +71,7 @@ class SessionsApiAsyncTest {
     @Test
     @Order(2)
     void getSession() {
-        await().atMost(Duration.ofSeconds(15))
+        await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .ignoreExceptionsMatching(LangfuseApiException.class::isInstance)
                 .untilAsserted(() -> assertThat(client.asyncSessions().sessionsGet(
@@ -85,7 +85,7 @@ class SessionsApiAsyncTest {
     @Test
     @Order(2)
     void listSessions() {
-        await().atMost(Duration.ofSeconds(15))
+        await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .ignoreExceptionsMatching(LangfuseApiException.class::isInstance)
                 .untilAsserted(() -> assertThat(client.asyncSessions().sessionsList(

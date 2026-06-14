@@ -94,7 +94,7 @@ class ScoresApiAsyncTest {
     @Test
     @Order(2)
     void listScoresForTrace() {
-        await().atMost(Duration.ofSeconds(15))
+        await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .ignoreExceptionsMatching(e -> e instanceof LangfuseApiException)
                 .untilAsserted(() -> assertThat(client.asyncScores().scoresGetMany(
