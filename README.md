@@ -56,7 +56,7 @@ quarkus.langfuse.secret-key=sk-lf-...
 | Property | Type | Default | Description |
 |---|---|---|---|
 | `quarkus.langfuse.base-url` | `String` | _required_ | Base URL of the Langfuse server |
-| `quarkus.langfuse.piblic-key` | `String` | _required_ | Langfuse project public key |
+| `quarkus.langfuse.public-key` | `String` | _required_ | Langfuse project public key |
 | `quarkus.langfuse.secret-key` | `String` | _required_ | Langfuse project secret key |
 | `quarkus.langfuse.timeout` | `Duration` | `1m` | Default timeout for Langfuse API calls |
 | `quarkus.langfuse.connect-timeout` | `Duration` | `${quarkus.langfuse.timeout}` | Timeout to establish a connection |
