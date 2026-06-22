@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>io.quarkiverse.langfuse</groupId>
+		<artifactId>quarkus-langfuse-integration-tests</artifactId>
+		<version>999-SNAPSHOT</version>
+	</parent>
+	<artifactId>quarkus-langfuse-integration-tests-langfuse-otel-public-api</artifactId>
+	<name>Quarkus Langfuse - Integration Tests - Langfuse OTel Public API</name>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.quarkus</groupId>
+				<artifactId>quarkus-bom</artifactId>
+				<version>${quarkus-otel-public-api.version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>io.quarkiverse.langfuse</groupId>
+			<artifactId>quarkus-langfuse</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-opentelemetry</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkiverse.langfuse</groupId>
+			<artifactId>quarkus-langfuse-otel-public-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>io.quarkus</groupId>
+				<artifactId>quarkus-maven-plugin</artifactId>
+				<version>${quarkus-otel-public-api.version}</version>
+			</plugin>
+			<plugin>
+				<artifactId>maven-compiler-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<artifactId>maven-failsafe-plugin</artifactId>
+			</plugin>
+		</plugins>
+	</build>
+</project>

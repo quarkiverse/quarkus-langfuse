@@ -18,6 +18,7 @@ import io.quarkiverse.langfuse.runtime.langchain4j.LangfuseLangchain4jConfigBuil
 import io.quarkiverse.langfuse.runtime.otel.LangfuseOtelConfigBuilder;
 import io.quarkus.arc.deployment.OpenTelemetrySdkBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
+import io.quarkus.bootstrap.classloading.QuarkusClassLoader;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
@@ -26,6 +27,7 @@ import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.RunTimeConfigBuilderBuildItem;
+import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ServiceProviderBuildItem;
 import io.quarkus.vertx.core.deployment.CoreVertxBuildItem;
 
@@ -77,6 +79,25 @@ class LangfuseProcessor {
     }
 
     @BuildStep
+    void registerOtelExporterFactory(
+            LangfuseBuildTimeConfig buildTimeConfig,
+            Optional<OpenTelemetrySdkBuildItem> openTelemetrySdkBuildItem,
+            BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
+
+        if (isOtelAvailableAndEnabled(buildTimeConfig, openTelemetrySdkBuildItem)) {
+            reflectiveClass
+                    .produce(ReflectiveClassBuildItem.builder(detectExporterFactoryClass()).constructors().build());
+        }
+    }
+
+    private static String detectExporterFactoryClass() {
+        if (QuarkusClassLoader.isClassPresentAtRuntime("io.opentelemetry.sdk.common.internal.ComponentId")) {
+            return "io.quarkiverse.langfuse.runtime.otel.LangfuseSpanExporterFactoryPublicApi";
+        }
+        return "io.quarkiverse.langfuse.runtime.otel.LangfuseSpanExporterFactoryInternalApi";
+    }
+
+    @BuildStep
     void exportOtelToLangfuseOnly(
             LangfuseBuildTimeConfig buildTimeConfig,
             Optional<OpenTelemetrySdkBuildItem> openTelemetrySdkBuildItem,
@@ -106,6 +127,7 @@ class LangfuseProcessor {
                             .setRuntimeInit()
                             .scope(Singleton.class)
                             .supplier(recorder.langfuseSpanProcessor(
+                                    detectExporterFactoryClass(),
                                     OpenTelemetrySdkBuildItem.isOtelSdkEnabled(openTelemetrySdkBuildItem),
                                     vertxBuildItem.getVertx()))
                             .unremovable()

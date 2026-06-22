@@ -1,22 +1,16 @@
 package io.quarkiverse.langfuse.runtime.otel;
 
 import java.net.URI;
-import java.time.Duration;
 import java.util.Base64;
-import java.util.Map;
 import java.util.Optional;
 
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.jboss.logging.Logger;
 
 import io.opentelemetry.api.baggage.Baggage;
-import io.opentelemetry.api.metrics.MeterProvider;
 import io.opentelemetry.context.Context;
-import io.opentelemetry.exporter.internal.http.HttpExporter;
-import io.opentelemetry.exporter.internal.otlp.traces.TraceRequestMarshaler;
 import io.opentelemetry.sdk.common.CompletableResultCode;
-import io.opentelemetry.sdk.common.InternalTelemetryVersion;
-import io.opentelemetry.sdk.internal.ComponentId;
-import io.opentelemetry.sdk.internal.StandardComponentId;
+import io.opentelemetry.sdk.common.export.MemoryMode;
 import io.opentelemetry.sdk.trace.ReadWriteSpan;
 import io.opentelemetry.sdk.trace.ReadableSpan;
 import io.opentelemetry.sdk.trace.SpanProcessor;
@@ -25,8 +19,6 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.opentelemetry.semconv.incubating.GenAiIncubatingAttributes;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkiverse.langfuse.config.LangfuseOtelConfig.SpanFilterType;
-import io.quarkus.opentelemetry.runtime.exporter.otlp.sender.VertxHttpSender;
-import io.quarkus.opentelemetry.runtime.exporter.otlp.tracing.VertxHttpSpanExporter;
 import io.vertx.core.Vertx;
 
 /**
@@ -47,35 +39,47 @@ public class LangfuseSpanProcessor implements SpanProcessor {
 
     private final SpanProcessor delegate;
 
-    public LangfuseSpanProcessor(LangfuseConfig langfuseConfig, Vertx vertx) {
+    public LangfuseSpanProcessor(LangfuseConfig langfuseConfig, Vertx vertx, LangfuseSpanExporterFactory exporterFactory) {
         super();
-        this.delegate = BatchSpanProcessor.builder(createActualExporter(langfuseConfig, vertx)).build();
+        this.delegate = BatchSpanProcessor
+                .builder(createActualExporter(langfuseConfig, vertx, exporterFactory))
+                .build();
     }
 
     private LangfuseSpanProcessor() {
         this.delegate = null;
     }
 
+    public static LangfuseSpanProcessor create(LangfuseConfig langfuseConfig, Vertx vertx,
+            String exporterFactoryClassName) {
+        var factory = loadExporterFactory(exporterFactoryClassName);
+        return new LangfuseSpanProcessor(langfuseConfig, vertx, factory);
+    }
+
     public static LangfuseSpanProcessor noop() {
         return new LangfuseSpanProcessor();
+    }
+
+    private static LangfuseSpanExporterFactory loadExporterFactory(String className) {
+        try {
+            return (LangfuseSpanExporterFactory) Thread.currentThread()
+                    .getContextClassLoader()
+                    .loadClass(className)
+                    .getDeclaredConstructor()
+                    .newInstance();
+        } catch (ReflectiveOperationException e) {
+            throw new IllegalStateException("Failed to instantiate LangfuseSpanExporterFactory: " + className, e);
+        }
     }
 
     public boolean isNoop() {
         return this.delegate == null;
     }
 
-    private static SpanExporter createActualExporter(LangfuseConfig langfuseConfig, Vertx vertx) {
+    private static SpanExporter createActualExporter(LangfuseConfig langfuseConfig, Vertx vertx,
+            LangfuseSpanExporterFactory exporterFactory) {
         LOG.debug("Initializing Langfuse OTLP Span Processor");
-        var exporter = createUnderlyingExporter(langfuseConfig, vertx);
-        var filteredExporter = switch (langfuseConfig.otel().spanFilter()) {
-            case ALL -> exporter;
-            case AI_ONLY -> new FilteringAISpanExporter(exporter);
-        };
 
-        return new LangfuseAttributeEnrichingSpanExporter(filteredExporter, langfuseConfig);
-    }
-
-    private static SpanExporter createUnderlyingExporter(LangfuseConfig langfuseConfig, Vertx vertx) {
         var credentials = "%s:%s".formatted(langfuseConfig.publicKey(), langfuseConfig.secretKey());
         var authHeader = "Basic %s".formatted(Base64.getEncoder().encodeToString(credentials.getBytes()));
         var baseUri = URI.create(langfuseConfig.baseUrl());
@@ -85,25 +89,26 @@ public class LangfuseSpanProcessor implements SpanProcessor {
             signalPath = "/" + signalPath;
         }
 
-        var sender = new VertxHttpSender(
-                baseUri,
-                signalPath,
-                false,
-                Duration.ofSeconds(10),
-                Map.of("Authorization", authHeader, "x-langfuse-ingestion-version", "1"),
-                "application/x-protobuf",
-                options -> {
-                },
-                vertx);
+        var memoryMode = ConfigProvider.getConfig()
+                .getOptionalValue("quarkus.otel.exporter.otlp.memory-mode", MemoryMode.class)
+                .orElse(MemoryMode.IMMUTABLE_DATA);
 
-        var httpExporter = new HttpExporter<TraceRequestMarshaler>(
-                ComponentId.generateLazy(StandardComponentId.ExporterType.OTLP_HTTP_SPAN_EXPORTER),
-                sender,
-                MeterProvider::noop,
-                InternalTelemetryVersion.LATEST,
-                langfuseConfig.otel().traceIngestionUrl());
+        var exporterConfig = LangfuseSpanExporterConfig.builder()
+                .baseUri(baseUri)
+                .signalPath(signalPath)
+                .authHeader(authHeader)
+                .traceIngestionUrl(langfuseConfig.otel().traceIngestionUrl())
+                .vertx(vertx)
+                .memoryMode(memoryMode)
+                .build();
 
-        return new VertxHttpSpanExporter(httpExporter);
+        var exporter = exporterFactory.createExporter(exporterConfig);
+        var filteredExporter = switch (langfuseConfig.otel().spanFilter()) {
+            case ALL -> exporter;
+            case AI_ONLY -> new FilteringAISpanExporter(exporter);
+        };
+
+        return new LangfuseAttributeEnrichingSpanExporter(filteredExporter, langfuseConfig);
     }
 
     @Override

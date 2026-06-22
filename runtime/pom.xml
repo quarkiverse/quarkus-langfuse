@@ -26,6 +26,21 @@
 			<optional>true</optional>
 		</dependency>
 		<dependency>
+			<groupId>io.quarkiverse.langfuse</groupId>
+			<artifactId>quarkus-langfuse-otel-spi</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkiverse.langfuse</groupId>
+			<artifactId>quarkus-langfuse-otel-internal-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.quarkiverse.langfuse</groupId>
+			<artifactId>quarkus-langfuse-otel-public-api</artifactId>
+			<version>${project.version}</version>
+		</dependency>
+		<dependency>
 			<groupId>io.quarkiverse.langchain4j</groupId>
 			<artifactId>quarkus-langchain4j-core</artifactId>
 			<optional>true</optional>

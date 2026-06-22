@@ -15,10 +15,6 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
-import io.quarkus.test.junit.QuarkusTest;
-
-import io.quarkiverse.langfuse.config.LangfuseConfig;
-
 import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.LangfuseApiException;
 import com.langfuse.api.ingestion.IngestionApi;
@@ -28,6 +24,9 @@ import com.langfuse.api.model.IngestionEventOneOf;
 import com.langfuse.api.model.TraceBody;
 import com.langfuse.api.model.TraceWithFullDetails;
 import com.langfuse.api.trace.TraceApi;
+
+import io.quarkiverse.langfuse.config.LangfuseConfig;
+import io.quarkus.test.junit.QuarkusTest;
 
 /**
  * Integration tests for the Trace API.
