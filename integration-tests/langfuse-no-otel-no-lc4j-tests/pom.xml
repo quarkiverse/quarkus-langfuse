@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>io.quarkiverse.langfuse</groupId>
 		<artifactId>quarkus-langfuse-integration-tests</artifactId>
-		<version>0.3.1</version>
+		<version>999-SNAPSHOT</version>
 	</parent>
 	<artifactId>quarkus-langfuse-integration-tests-langfuse-no-otel-no-lc4j</artifactId>
 	<name>Quarkus Langfuse - Integration Tests - Langfuse No OTel No LC4J</name>
