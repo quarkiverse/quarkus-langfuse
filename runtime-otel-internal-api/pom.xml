@@ -11,6 +11,18 @@
 	<name>Quarkus Langfuse - OTel Internal API</name>
 	<description>Span exporter factory for the OTel internal API (Quarkus 3.33-3.34).</description>
 
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>io.quarkus</groupId>
+				<artifactId>quarkus-bom</artifactId>
+				<version>${quarkus.baseline.version}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
 	<dependencies>
 		<dependency>
 			<groupId>io.quarkiverse.langfuse</groupId>

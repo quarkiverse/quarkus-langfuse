@@ -42,8 +42,9 @@
 		<maven.compiler.release>17</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<quarkus.version>3.33.2</quarkus.version>
-		<quarkus-otel-public-api.version>3.36.2</quarkus-otel-public-api.version>
+		<quarkus.version>${quarkus.baseline.version}</quarkus.version>
+		<quarkus.baseline.version>3.33.2</quarkus.baseline.version>
+		<quarkus-otel-public-api.version>3.36.3</quarkus-otel-public-api.version>
 		<quarkus-antora.version>3.33.0</quarkus-antora.version>
 		<quarkus-wiremock.version>1.6.3</quarkus-wiremock.version>
 		<quarkus-langchain4j.version>1.11.2</quarkus-langchain4j.version>
