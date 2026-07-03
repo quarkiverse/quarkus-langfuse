@@ -16,7 +16,7 @@
 		<jackson.version>2.22.0</jackson.version>
 		<jackson3.version>3.2.0</jackson3.version>
 		<openapi-generator.version>7.23.0</openapi-generator.version>
-		<junit.version>6.1.0</junit.version>
+		<junit.version>6.1.1</junit.version>
 	</properties>
 
 	<dependencies>
