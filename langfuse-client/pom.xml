@@ -15,7 +15,7 @@
 		<maven.deploy.skip>true</maven.deploy.skip>
 		<jackson.version>2.22.1</jackson.version>
 		<jackson3.version>3.2.1</jackson3.version>
-		<openapi-generator.version>7.23.0</openapi-generator.version>
+		<openapi-generator.version>7.24.0</openapi-generator.version>
 		<junit.version>6.1.2</junit.version>
 	</properties>
 
