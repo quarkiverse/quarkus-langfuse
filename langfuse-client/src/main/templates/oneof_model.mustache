@@ -1,40 +1,21 @@
-{{^useJackson3}}
 import java.io.IOException;
-{{/useJackson3}}
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 
-{{^useJackson3}}
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.SerializerProvider;
-{{/useJackson3}}
-{{#useJackson3}}
-import tools.jackson.core.JacksonException;
-import tools.jackson.databind.DatabindException;
-import tools.jackson.databind.SerializationContext;
-{{/useJackson3}}
-import {{jacksonPackage}}.core.JsonGenerator;
-import {{jacksonPackage}}.core.JsonParser;
-import {{jacksonPackage}}.core.JsonToken;
-import {{jacksonPackage}}.databind.DeserializationContext;
-import {{jacksonPackage}}.databind.JsonNode;
-import {{jacksonPackage}}.databind.annotation.JsonDeserialize;
-import {{jacksonPackage}}.databind.annotation.JsonSerialize;
-import {{jacksonPackage}}.databind.deser.std.StdDeserializer;
-import {{jacksonPackage}}.databind.ser.std.StdSerializer;
-
 {{>additionalModelTypeAnnotations}}{{>generatedAnnotation}}{{>xmlAnnotation}}
-@JsonDeserialize(using = {{classname}}.{{classname}}Deserializer.class)
-@JsonSerialize(using = {{classname}}.{{classname}}Serializer.class)
+@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = {{classname}}.{{classname}}Deserializer.class)
+@com.fasterxml.jackson.databind.annotation.JsonSerialize(using = {{classname}}.{{classname}}Serializer.class)
+@tools.jackson.databind.annotation.JsonDeserialize(using = {{classname}}.{{classname}}Jackson3Deserializer.class)
+@tools.jackson.databind.annotation.JsonSerialize(using = {{classname}}.{{classname}}Jackson3Serializer.class)
 public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-implements}} implements {{{.}}}{{^-last}}, {{/-last}}{{/vendorExtensions.x-implements}} {
     private static final Logger log = Logger.getLogger({{classname}}.class.getName());
 
-    public static class {{classname}}Serializer extends StdSerializer<{{classname}}> {
+    // ---- Jackson 2 serializer ----
+
+    public static class {{classname}}Serializer extends com.fasterxml.jackson.databind.ser.std.StdSerializer<{{classname}}> {
         public {{classname}}Serializer(Class<{{classname}}> t) {
             super(t);
         }
@@ -44,17 +25,27 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
         }
 
         @Override
-        public void serialize({{classname}} value, JsonGenerator jgen, {{^useJackson3}}SerializerProvider provider{{/useJackson3}}{{#useJackson3}}SerializationContext serializationContext{{/useJackson3}}) throws {{^useJackson3}}IOException, JsonProcessingException{{/useJackson3}}{{#useJackson3}}JacksonException{{/useJackson3}} {
-{{^useJackson3}}
+        public void serialize({{classname}} value, com.fasterxml.jackson.core.JsonGenerator jgen, com.fasterxml.jackson.databind.SerializerProvider provider) throws IOException, com.fasterxml.jackson.core.JsonProcessingException {
             jgen.writeObject(value.getActualInstance());
-{{/useJackson3}}
-{{#useJackson3}}
-            serializationContext.writeValue(jgen, value.getActualInstance());
-{{/useJackson3}}
         }
     }
 
-    public static class {{classname}}Deserializer extends StdDeserializer<{{classname}}> {
+    // ---- Jackson 3 serializer ----
+
+    public static class {{classname}}Jackson3Serializer extends tools.jackson.databind.ser.std.StdSerializer<{{classname}}> {
+        public {{classname}}Jackson3Serializer() {
+            super({{classname}}.class);
+        }
+
+        @Override
+        public void serialize({{classname}} value, tools.jackson.core.JsonGenerator jgen, tools.jackson.databind.SerializationContext serializationContext) throws tools.jackson.core.JacksonException {
+            serializationContext.writeValue(jgen, value.getActualInstance());
+        }
+    }
+
+    // ---- Jackson 2 deserializer ----
+
+    public static class {{classname}}Deserializer extends com.fasterxml.jackson.databind.deser.std.StdDeserializer<{{classname}}> {
         public {{classname}}Deserializer() {
             this({{classname}}.class);
         }
@@ -64,28 +55,18 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
         }
 
         @Override
-        public {{classname}} deserialize(JsonParser jp, DeserializationContext ctxt) throws {{^useJackson3}}IOException, JsonProcessingException{{/useJackson3}}{{#useJackson3}}JacksonException{{/useJackson3}} {
-            JsonNode tree = ctxt.readTree(jp);
+        public {{classname}} deserialize(com.fasterxml.jackson.core.JsonParser jp, com.fasterxml.jackson.databind.DeserializationContext ctxt) throws IOException, com.fasterxml.jackson.core.JsonProcessingException {
+            com.fasterxml.jackson.databind.JsonNode tree = ctxt.readTree(jp);
             Object deserialized = null;
             {{#useOneOfDiscriminatorLookup}}
             {{#discriminator}}
             {{classname}} new{{classname}} = new {{classname}}();
-{{^useJackson3}}
-            Map<String,Object> result2 = tree.traverse(jp.getCodec()).readValueAs(new TypeReference<Map<String, Object>>() {});
+            Map<String,Object> result2 = tree.traverse(jp.getCodec()).readValueAs(new com.fasterxml.jackson.core.type.TypeReference<Map<String, Object>>() {});
             String discriminatorValue = (String)result2.get("{{{propertyBaseName}}}");
-{{/useJackson3}}
-{{#useJackson3}}
-            String discriminatorValue = tree.path("{{{propertyBaseName}}}").asText(null);
-{{/useJackson3}}
             switch (discriminatorValue) {
             {{#mappedModels}}
                 case "{{{mappingName}}}":
-{{^useJackson3}}
                     deserialized = tree.traverse(jp.getCodec()).readValueAs({{{modelName}}}.class);
-{{/useJackson3}}
-{{#useJackson3}}
-                    deserialized = ctxt.readTreeAsValue(tree, {{{modelName}}}.class);
-{{/useJackson3}}
                     new{{classname}}.setActualInstance(deserialized);
                     return new{{classname}};
             {{/mappedModels}}
@@ -95,88 +76,126 @@ public class {{classname}} extends AbstractOpenApiSchema{{#vendorExtensions.x-im
 
             {{/discriminator}}
             {{/useOneOfDiscriminatorLookup}}
-{{^useJackson3}}
-            boolean typeCoercion = ctxt.isEnabled(MapperFeature.ALLOW_COERCION_OF_SCALARS);
-{{/useJackson3}}
-{{#useJackson3}}
-            boolean typeCoercion = false; // MapperFeature.ALLOW_COERCION_OF_SCALARS was removed in Jackson 3
-{{/useJackson3}}
+            boolean typeCoercion = ctxt.isEnabled(com.fasterxml.jackson.databind.MapperFeature.ALLOW_COERCION_OF_SCALARS);
             int match = 0;
-{{^useJackson3}}
-            JsonToken token = tree.traverse(jp.getCodec()).nextToken();
-{{/useJackson3}}
-{{#useJackson3}}
-            JsonToken token = tree.asToken();
-{{/useJackson3}}
+            com.fasterxml.jackson.core.JsonToken token = tree.traverse(jp.getCodec()).nextToken();
             {{#oneOf}}
             // deserialize {{{.}}}
             try {
                 boolean attemptParsing = true;
-                // ensure that we respect type coercion as set on the client ObjectMapper
                 if ({{{.}}}.class.equals(Integer.class) || {{{.}}}.class.equals(Long.class) || {{{.}}}.class.equals(Float.class) || {{{.}}}.class.equals(Double.class) || {{{.}}}.class.equals(Boolean.class) || {{{.}}}.class.equals(String.class)) {
                     attemptParsing = typeCoercion;
                     if (!attemptParsing) {
-                        attemptParsing |= (({{{.}}}.class.equals(Integer.class) || {{{.}}}.class.equals(Long.class)) && token == JsonToken.VALUE_NUMBER_INT);
-                        attemptParsing |= (({{{.}}}.class.equals(Float.class) || {{{.}}}.class.equals(Double.class)) && token == JsonToken.VALUE_NUMBER_FLOAT);
-                        attemptParsing |= ({{{.}}}.class.equals(Boolean.class) && (token == JsonToken.VALUE_FALSE || token == JsonToken.VALUE_TRUE));
-                        attemptParsing |= ({{{.}}}.class.equals(String.class) && token == JsonToken.VALUE_STRING);
+                        attemptParsing |= (({{{.}}}.class.equals(Integer.class) || {{{.}}}.class.equals(Long.class)) && token == com.fasterxml.jackson.core.JsonToken.VALUE_NUMBER_INT);
+                        attemptParsing |= (({{{.}}}.class.equals(Float.class) || {{{.}}}.class.equals(Double.class)) && token == com.fasterxml.jackson.core.JsonToken.VALUE_NUMBER_FLOAT);
+                        attemptParsing |= ({{{.}}}.class.equals(Boolean.class) && (token == com.fasterxml.jackson.core.JsonToken.VALUE_FALSE || token == com.fasterxml.jackson.core.JsonToken.VALUE_TRUE));
+                        attemptParsing |= ({{{.}}}.class.equals(String.class) && token == com.fasterxml.jackson.core.JsonToken.VALUE_STRING);
                         {{#isNullable}}
-                        attemptParsing |= (token == JsonToken.VALUE_NULL);
+                        attemptParsing |= (token == com.fasterxml.jackson.core.JsonToken.VALUE_NULL);
                         {{/isNullable}}
                     }
                 }
                 if (attemptParsing) {
-{{^useJackson3}}
                     deserialized = tree.traverse(jp.getCodec()).readValueAs({{{.}}}.class);
-{{/useJackson3}}
-{{#useJackson3}}
-                    deserialized = ctxt.readTreeAsValue(tree, {{{.}}}.class);
-{{/useJackson3}}
-                    // TODO: there is no validation against JSON schema constraints
-                    // (min, max, enum, pattern...), this does not perform a strict JSON
-                    // validation, which means the 'match' count may be higher than it should be.
                     match++;
                     log.log(Level.FINER, "Input data matches schema '{{{.}}}'");
                 }
             } catch (Exception e) {
-                // deserialization failed, continue
                 log.log(Level.FINER, "Input data does not match schema '{{{.}}}'", e);
             }
 
             {{/oneOf}}
-            if (match == 1) {
+            if (match >= 1) {
                 {{classname}} ret = new {{classname}}();
                 ret.setActualInstance(deserialized);
                 return ret;
             }
-{{^useJackson3}}
             throw new IOException(String.format(java.util.Locale.ROOT, "Failed deserialization for {{classname}}: %d classes match result, expected 1", match));
-{{/useJackson3}}
-{{#useJackson3}}
-            throw DatabindException.from(jp, String.format(java.util.Locale.ROOT, "Failed deserialization for {{classname}}: %d classes match result, expected 1", match));
-{{/useJackson3}}
         }
 
-        /**
-         * Handle deserialization of the 'null' value.
-         */
         @Override
-{{^useJackson3}}
-        public {{classname}} getNullValue(DeserializationContext ctxt) throws JsonMappingException {
-{{/useJackson3}}
-{{#useJackson3}}
-        public {{classname}} getNullValue(DeserializationContext ctxt) {
-{{/useJackson3}}
+        public {{classname}} getNullValue(com.fasterxml.jackson.databind.DeserializationContext ctxt) throws com.fasterxml.jackson.databind.JsonMappingException {
         {{#isNullable}}
             return null;
         {{/isNullable}}
         {{^isNullable}}
-{{^useJackson3}}
-            throw new JsonMappingException(ctxt.getParser(), "{{classname}} cannot be null");
-{{/useJackson3}}
-{{#useJackson3}}
-            throw DatabindException.from(ctxt.getParser(), "{{classname}} cannot be null");
-{{/useJackson3}}
+            throw new com.fasterxml.jackson.databind.JsonMappingException(ctxt.getParser(), "{{classname}} cannot be null");
+        {{/isNullable}}
+        }
+    }
+
+    // ---- Jackson 3 deserializer ----
+
+    public static class {{classname}}Jackson3Deserializer extends tools.jackson.databind.deser.std.StdDeserializer<{{classname}}> {
+        public {{classname}}Jackson3Deserializer() {
+            super({{classname}}.class);
+        }
+
+        @Override
+        public {{classname}} deserialize(tools.jackson.core.JsonParser jp, tools.jackson.databind.DeserializationContext ctxt) throws tools.jackson.core.JacksonException {
+            tools.jackson.databind.JsonNode tree = ctxt.readTree(jp);
+            Object deserialized = null;
+            {{#useOneOfDiscriminatorLookup}}
+            {{#discriminator}}
+            {{classname}} new{{classname}} = new {{classname}}();
+            String discriminatorValue = tree.path("{{{propertyBaseName}}}").asText(null);
+            switch (discriminatorValue) {
+            {{#mappedModels}}
+                case "{{{mappingName}}}":
+                    deserialized = ctxt.readTreeAsValue(tree, {{{modelName}}}.class);
+                    new{{classname}}.setActualInstance(deserialized);
+                    return new{{classname}};
+            {{/mappedModels}}
+                default:
+                    log.log(Level.WARNING, String.format(java.util.Locale.ROOT, "Failed to lookup discriminator value `%s` for {{classname}}. Possible values:{{#mappedModels}} {{{mappingName}}}{{/mappedModels}}", discriminatorValue));
+            }
+
+            {{/discriminator}}
+            {{/useOneOfDiscriminatorLookup}}
+            boolean typeCoercion = false;
+            int match = 0;
+            tools.jackson.core.JsonToken token = tree.asToken();
+            {{#oneOf}}
+            // deserialize {{{.}}}
+            try {
+                boolean attemptParsing = true;
+                if ({{{.}}}.class.equals(Integer.class) || {{{.}}}.class.equals(Long.class) || {{{.}}}.class.equals(Float.class) || {{{.}}}.class.equals(Double.class) || {{{.}}}.class.equals(Boolean.class) || {{{.}}}.class.equals(String.class)) {
+                    attemptParsing = typeCoercion;
+                    if (!attemptParsing) {
+                        attemptParsing |= (({{{.}}}.class.equals(Integer.class) || {{{.}}}.class.equals(Long.class)) && token == tools.jackson.core.JsonToken.VALUE_NUMBER_INT);
+                        attemptParsing |= (({{{.}}}.class.equals(Float.class) || {{{.}}}.class.equals(Double.class)) && token == tools.jackson.core.JsonToken.VALUE_NUMBER_FLOAT);
+                        attemptParsing |= ({{{.}}}.class.equals(Boolean.class) && (token == tools.jackson.core.JsonToken.VALUE_FALSE || token == tools.jackson.core.JsonToken.VALUE_TRUE));
+                        attemptParsing |= ({{{.}}}.class.equals(String.class) && token == tools.jackson.core.JsonToken.VALUE_STRING);
+                        {{#isNullable}}
+                        attemptParsing |= (token == tools.jackson.core.JsonToken.VALUE_NULL);
+                        {{/isNullable}}
+                    }
+                }
+                if (attemptParsing) {
+                    deserialized = ctxt.readTreeAsValue(tree, {{{.}}}.class);
+                    match++;
+                    log.log(Level.FINER, "Input data matches schema '{{{.}}}'");
+                }
+            } catch (Exception e) {
+                log.log(Level.FINER, "Input data does not match schema '{{{.}}}'", e);
+            }
+
+            {{/oneOf}}
+            if (match >= 1) {
+                {{classname}} ret = new {{classname}}();
+                ret.setActualInstance(deserialized);
+                return ret;
+            }
+            throw tools.jackson.databind.DatabindException.from(jp, String.format(java.util.Locale.ROOT, "Failed deserialization for {{classname}}: %d classes match result, expected 1", match));
+        }
+
+        @Override
+        public {{classname}} getNullValue(tools.jackson.databind.DeserializationContext ctxt) {
+        {{#isNullable}}
+            return null;
+        {{/isNullable}}
+        {{^isNullable}}
+            throw tools.jackson.databind.DatabindException.from(ctxt.getParser(), "{{classname}} cannot be null");
         {{/isNullable}}
         }
     }
