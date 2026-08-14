@@ -24,6 +24,10 @@ open module com.langfuse.api {
     exports com.langfuse.api.datasetRunItems.async;
     exports com.langfuse.api.datasets;
     exports com.langfuse.api.datasets.async;
+    exports com.langfuse.api.experiments;
+    exports com.langfuse.api.experiments.async;
+    exports com.langfuse.api.feedback;
+    exports com.langfuse.api.feedback.async;
     exports com.langfuse.api.health;
     exports com.langfuse.api.health.async;
     exports com.langfuse.api.ingestion;
@@ -60,10 +64,16 @@ open module com.langfuse.api {
     exports com.langfuse.api.scoreConfigs.async;
     exports com.langfuse.api.scores;
     exports com.langfuse.api.scores.async;
+    exports com.langfuse.api.scoresV3;
+    exports com.langfuse.api.scoresV3.async;
     exports com.langfuse.api.sessions;
     exports com.langfuse.api.sessions.async;
     exports com.langfuse.api.trace;
     exports com.langfuse.api.trace.async;
+    exports com.langfuse.api.unstableDashboardWidgets;
+    exports com.langfuse.api.unstableDashboardWidgets.async;
+    exports com.langfuse.api.unstableDashboards;
+    exports com.langfuse.api.unstableDashboards.async;
     exports com.langfuse.api.unstableEvaluationRules;
     exports com.langfuse.api.unstableEvaluationRules.async;
     exports com.langfuse.api.unstableEvaluators;

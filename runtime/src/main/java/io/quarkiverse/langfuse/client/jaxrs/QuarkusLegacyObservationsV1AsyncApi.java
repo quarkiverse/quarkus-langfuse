@@ -15,7 +15,7 @@ import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api.APILegacyOb
 import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api.APILegacyObservationsV1GetRequest;
 import com.langfuse.api.model.LegacyObservationsViews;
 import com.langfuse.api.model.ObservationLevel;
-import com.langfuse.api.model.ObservationsView;
+import com.langfuse.api.model.ObservationsViewSingle;
 
 /**
  * Langfuse LegacyObservationsV1 Async API
@@ -29,14 +29,14 @@ public interface QuarkusLegacyObservationsV1AsyncApi
     @GET
     @Path("/api/public/observations/{observationId}")
     @Produces(MediaType.APPLICATION_JSON)
-    CompletionStage<ObservationsView> legacyObservationsV1Get(
+    CompletionStage<ObservationsViewSingle> legacyObservationsV1Get(
             @PathParam("observationId") String observationId);
 
     /**
      * Get a observation
      */
     @Override
-    default CompletionStage<ObservationsView> legacyObservationsV1Get(APILegacyObservationsV1GetRequest apiRequest) {
+    default CompletionStage<ObservationsViewSingle> legacyObservationsV1Get(APILegacyObservationsV1GetRequest apiRequest) {
         return legacyObservationsV1Get(apiRequest.observationId());
     }
 

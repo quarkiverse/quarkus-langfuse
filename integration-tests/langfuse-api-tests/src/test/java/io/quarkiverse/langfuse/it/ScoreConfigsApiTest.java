@@ -15,6 +15,7 @@ import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.model.CreateScoreConfigRequest;
 import com.langfuse.api.model.ScoreConfig;
 import com.langfuse.api.model.ScoreConfigDataType;
+import com.langfuse.api.model.UpdateScoreConfigRequest;
 import com.langfuse.api.scoreConfigs.ScoreConfigsApi;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -27,11 +28,11 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class ScoreConfigsApiTest {
 
-    @Inject
-    LangfuseApi client;
-
     private static final String CONFIG_NAME = "test-config-" + UUID.randomUUID().toString().substring(0, 8);
     private static String configId;
+
+    @Inject
+    LangfuseApi client;
 
     @Test
     @Order(1)
@@ -80,6 +81,24 @@ class ScoreConfigsApiTest {
                             .isNotEmpty()
                             .anyMatch(c -> CONFIG_NAME.equals(c.getName()));
                     assertThat(configs.getMeta().getTotalItems()).isGreaterThan(0);
+                });
+    }
+
+    @Test
+    @Order(3)
+    void updateScoreConfig() {
+        assertThat(client.scoreConfigs().scoreConfigsUpdate(
+                ScoreConfigsApi.APIScoreConfigsUpdateRequest.newBuilder()
+                        .configId(configId)
+                        .updateScoreConfigRequest(UpdateScoreConfigRequest.builder()
+                                .description("Updated description")
+                                .isArchived(true)
+                                .build())
+                        .build()))
+                .satisfies(config -> {
+                    assertThat(config.getId()).isEqualTo(configId);
+                    assertThat(config.getDescription()).isEqualTo("Updated description");
+                    assertThat(config.getIsArchived()).isTrue();
                 });
     }
 }

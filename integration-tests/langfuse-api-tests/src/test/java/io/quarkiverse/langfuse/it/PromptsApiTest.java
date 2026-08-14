@@ -32,11 +32,11 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class PromptsApiTest {
 
-    @Inject
-    LangfuseApi client;
-
     private static final String TEXT_PROMPT_NAME = "test-text-prompt-" + UUID.randomUUID();
     private static final String CHAT_PROMPT_NAME = "test-chat-prompt-" + UUID.randomUUID();
+
+    @Inject
+    LangfuseApi client;
 
     @Test
     @Order(1)
@@ -122,5 +122,14 @@ class PromptsApiTest {
         assertThat(prompts.getData())
                 .anyMatch(p -> TEXT_PROMPT_NAME.equals(p.getName()))
                 .anyMatch(p -> CHAT_PROMPT_NAME.equals(p.getName()));
+    }
+
+    @Test
+    @Order(3)
+    void deletePrompt() {
+        client.prompts().promptsDelete(
+                PromptsApi.APIPromptsDeleteRequest.newBuilder()
+                        .promptName(TEXT_PROMPT_NAME)
+                        .build());
     }
 }

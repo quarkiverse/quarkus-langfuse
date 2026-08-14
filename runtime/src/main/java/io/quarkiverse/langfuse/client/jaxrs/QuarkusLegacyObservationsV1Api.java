@@ -10,11 +10,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
-import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api.APILegacyObservationsV1GetManyRequest;
-import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api.APILegacyObservationsV1GetRequest;
 import com.langfuse.api.model.LegacyObservationsViews;
 import com.langfuse.api.model.ObservationLevel;
-import com.langfuse.api.model.ObservationsView;
+import com.langfuse.api.model.ObservationsViewSingle;
 
 /**
  * Langfuse LegacyObservationsV1 API
@@ -27,14 +25,14 @@ public interface QuarkusLegacyObservationsV1Api extends com.langfuse.api.legacyO
     @GET
     @Path("/api/public/observations/{observationId}")
     @Produces(MediaType.APPLICATION_JSON)
-    ObservationsView legacyObservationsV1Get(
+    ObservationsViewSingle legacyObservationsV1Get(
             @PathParam("observationId") String observationId);
 
     /**
      * Get a observation
      */
     @Override
-    default ObservationsView legacyObservationsV1Get(APILegacyObservationsV1GetRequest apiRequest) {
+    default ObservationsViewSingle legacyObservationsV1Get(APILegacyObservationsV1GetRequest apiRequest) {
         return legacyObservationsV1Get(apiRequest.observationId());
     }
 

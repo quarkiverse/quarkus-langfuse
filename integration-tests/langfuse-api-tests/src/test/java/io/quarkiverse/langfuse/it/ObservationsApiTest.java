@@ -1,11 +1,10 @@
 package io.quarkiverse.langfuse.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 
 import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
@@ -17,81 +16,39 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.LangfuseApiException;
-import com.langfuse.api.ingestion.IngestionApi;
-import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api;
-import com.langfuse.api.model.CreateSpanBody;
-import com.langfuse.api.model.IngestionBatchRequest;
-import com.langfuse.api.model.IngestionEvent;
-import com.langfuse.api.model.IngestionEventOneOf;
-import com.langfuse.api.model.IngestionEventOneOf2;
-import com.langfuse.api.model.ObservationsView;
-import com.langfuse.api.model.TraceBody;
+import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api.APILegacyObservationsV1GetManyRequest;
+import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api.APILegacyObservationsV1GetRequest;
+import com.langfuse.api.model.ObservationV2;
+import com.langfuse.api.observations.ObservationsApi.APIObservationsGetManyRequest;
 
-import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
-/**
- * Integration tests for the Observations API.
- *
- */
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 @QuarkusTest
 class ObservationsApiTest {
 
+    private static final String TRACE_ID = UUID.randomUUID().toString().replace("-", "");
+    private static final String SPAN_NAME = "observations-test-span-" + UUID.randomUUID();
+
     @Inject
     LangfuseApi client;
-
-    @Inject
-    LangfuseConfig config;
-
-    private static final String TRACE_ID = UUID.randomUUID().toString();
-    private static final String SPAN_ID = UUID.randomUUID().toString();
-    private static final String SPAN_NAME = "observations-test-span-" + UUID.randomUUID();
 
     @Test
     @Order(1)
     void ingestTraceWithSpan() {
-        assertThat(client.ingestion().ingestionBatch(
-                IngestionApi.APIIngestionBatchRequest.newBuilder()
-                        .ingestionBatchRequest(IngestionBatchRequest.builder()
-                                .batch(List.of(
-                                        new IngestionEvent(IngestionEventOneOf.builder()
-                                                .id(UUID.randomUUID().toString())
-                                                .timestamp(OffsetDateTime.now().toString())
-                                                .type(IngestionEventOneOf.TypeEnum.TRACE_CREATE)
-                                                .body(TraceBody.builder()
-                                                        .id(TRACE_ID)
-                                                        .name("observations-test-trace")
-                                                        .environment(config.environment())
-                                                        .build())
-                                                .build()),
-                                        new IngestionEvent(IngestionEventOneOf2.builder()
-                                                .id(UUID.randomUUID().toString())
-                                                .timestamp(OffsetDateTime.now().toString())
-                                                .type(IngestionEventOneOf2.TypeEnum.SPAN_CREATE)
-                                                .body(CreateSpanBody.builder()
-                                                        .id(SPAN_ID)
-                                                        .traceId(TRACE_ID)
-                                                        .name(SPAN_NAME)
-                                                        .build())
-                                                .build())))
-                                .build())
-                        .build()))
-                .satisfies(response -> {
-                    assertThat(response.getSuccesses()).hasSize(2)
-                            .allSatisfy(s -> assertThat(s.getStatus()).isEqualTo(201));
-                    assertThat(response.getErrors()).isEmpty();
-                });
+        // Ingest via OTel — legacy ingestion rejects trace-create in v4 events_only mode
+        OtelTestHelper.ingestTraceWithSpan(client, TRACE_ID, "observations-test-trace", SPAN_NAME);
     }
 
     @Test
     @Order(2)
-    void listObservationsViaLegacyApi() {
+    void listObservationsViaV2Api() {
+        // Poll until the OTel-ingested span appears — ingestion is eventually consistent
         await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .ignoreExceptionsMatching(LangfuseApiException.class::isInstance)
-                .untilAsserted(() -> assertThat(client.legacyObservationsV1().legacyObservationsV1GetMany(
-                        LegacyObservationsV1Api.APILegacyObservationsV1GetManyRequest.newBuilder()
+                .untilAsserted(() -> assertThat(client.observations().observationsGetMany(
+                        APIObservationsGetManyRequest.newBuilder()
                                 .traceId(TRACE_ID)
                                 .build()))
                         .satisfies(observations -> {
@@ -106,8 +63,30 @@ class ObservationsApiTest {
 
                             assertThat(span)
                                     .satisfies(s -> assertThat(s.getStartTime()).isNotNull())
-                                    .extracting(ObservationsView::getTraceId, ObservationsView::getType)
+                                    .extracting(ObservationV2::getTraceId, ObservationV2::getType)
                                     .containsExactly(TRACE_ID, "SPAN");
                         }));
+    }
+
+    @Test
+    @Order(2)
+    void legacyListObservationsReturns404() {
+        assertThatThrownBy(() -> client.legacyObservationsV1().legacyObservationsV1GetMany(
+                APILegacyObservationsV1GetManyRequest.newBuilder()
+                        .traceId(TRACE_ID)
+                        .build()))
+                .isInstanceOf(LangfuseApiException.class)
+                .satisfies(e -> assertThat(((LangfuseApiException) e).getStatusCode()).isEqualTo(404));
+    }
+
+    @Test
+    @Order(2)
+    void legacyGetObservationByIdReturns404() {
+        assertThatThrownBy(() -> client.legacyObservationsV1().legacyObservationsV1Get(
+                APILegacyObservationsV1GetRequest.newBuilder()
+                        .observationId(UUID.randomUUID().toString())
+                        .build()))
+                .isInstanceOf(LangfuseApiException.class)
+                .satisfies(e -> assertThat(((LangfuseApiException) e).getStatusCode()).isEqualTo(404));
     }
 }

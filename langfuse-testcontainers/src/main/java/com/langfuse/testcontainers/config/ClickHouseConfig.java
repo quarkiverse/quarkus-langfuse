@@ -12,7 +12,7 @@ public interface ClickHouseConfig {
     /**
      * Default container image for ClickHouse.
      */
-    String DEFAULT_IMAGE = "clickhouse/clickhouse-server";
+    String DEFAULT_IMAGE = "docker.io/clickhouse/clickhouse-server:25.12";
 
     /**
      * @return the container image

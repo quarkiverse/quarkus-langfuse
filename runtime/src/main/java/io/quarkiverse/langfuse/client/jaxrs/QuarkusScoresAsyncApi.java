@@ -4,17 +4,22 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.concurrent.CompletionStage;
 
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
+import com.langfuse.api.model.CreateScoreRequest;
+import com.langfuse.api.model.CreateScoreResponse;
 import com.langfuse.api.model.GetScoresResponse;
 import com.langfuse.api.model.Score;
 import com.langfuse.api.model.ScoreDataType;
 import com.langfuse.api.model.ScoreSource;
+import com.langfuse.api.scores.ScoresApi.APIScoresCreateRequest;
 import com.langfuse.api.scores.ScoresApi.APIScoresGetByIdRequest;
 import com.langfuse.api.scores.ScoresApi.APIScoresGetManyRequest;
 
@@ -22,6 +27,24 @@ import com.langfuse.api.scores.ScoresApi.APIScoresGetManyRequest;
  * Langfuse Scores Async API
  */
 public interface QuarkusScoresAsyncApi extends com.langfuse.api.scores.async.ScoresApi {
+
+    /**
+     * Create a score (supports trace, observation, session, and dataset run scores)
+     */
+    @POST
+    @Path("/api/public/scores")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    CompletionStage<CreateScoreResponse> scoresCreate(
+            CreateScoreRequest createScoreRequest);
+
+    /**
+     * Create a score (supports trace, observation, session, and dataset run scores)
+     */
+    @Override
+    default CompletionStage<CreateScoreResponse> scoresCreate(APIScoresCreateRequest apiRequest) {
+        return scoresCreate(apiRequest.createScoreRequest());
+    }
 
     /**
      * Get a score (supports both trace and session scores)

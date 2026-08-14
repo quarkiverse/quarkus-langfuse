@@ -15,12 +15,8 @@ import com.langfuse.api.model.UnstableCreateEvaluationRuleRequest;
 import com.langfuse.api.model.UnstableDeleteEvaluationRuleResponse;
 import com.langfuse.api.model.UnstableEvaluationRule;
 import com.langfuse.api.model.UnstableEvaluationRules;
+import com.langfuse.api.model.UnstableReadableEvaluationRule;
 import com.langfuse.api.model.UnstableUpdateEvaluationRuleRequest;
-import com.langfuse.api.unstableEvaluationRules.UnstableEvaluationRulesApi.APIUnstableEvaluationRulesCreateRequest;
-import com.langfuse.api.unstableEvaluationRules.UnstableEvaluationRulesApi.APIUnstableEvaluationRulesDeleteRequest;
-import com.langfuse.api.unstableEvaluationRules.UnstableEvaluationRulesApi.APIUnstableEvaluationRulesGetRequest;
-import com.langfuse.api.unstableEvaluationRules.UnstableEvaluationRulesApi.APIUnstableEvaluationRulesListRequest;
-import com.langfuse.api.unstableEvaluationRules.UnstableEvaluationRulesApi.APIUnstableEvaluationRulesUpdateRequest;
 
 /**
  * Langfuse Unstable Evaluation Rules API
@@ -71,14 +67,14 @@ public interface QuarkusUnstableEvaluationRulesApi
     @GET
     @Path("/api/public/unstable/evaluation-rules/{evaluationRuleId}")
     @Produces(MediaType.APPLICATION_JSON)
-    UnstableEvaluationRule unstableEvaluationRulesGet(
+    UnstableReadableEvaluationRule unstableEvaluationRulesGet(
             @PathParam("evaluationRuleId") String evaluationRuleId);
 
     /**
      * Get one evaluation rule by its identifier.
      */
     @Override
-    default UnstableEvaluationRule unstableEvaluationRulesGet(
+    default UnstableReadableEvaluationRule unstableEvaluationRulesGet(
             APIUnstableEvaluationRulesGetRequest apiRequest) {
         return unstableEvaluationRulesGet(apiRequest.evaluationRuleId());
     }

@@ -14,7 +14,7 @@ public interface LangfuseConfig {
     /**
      * Default container image for Langfuse web server.
      */
-    String DEFAULT_IMAGE = "docker.io/langfuse/langfuse:3";
+    String DEFAULT_IMAGE = "docker.io/langfuse/langfuse:4";
 
     /**
      * Default port for the Langfuse web server.
@@ -24,7 +24,7 @@ public interface LangfuseConfig {
     /**
      * Default startup timeout for the Langfuse web server container.
      */
-    Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(3);
+    Duration DEFAULT_STARTUP_TIMEOUT = Duration.ofMinutes(5);
 
     /**
      * @return the container image

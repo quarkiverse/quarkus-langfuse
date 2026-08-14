@@ -29,11 +29,11 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class DatasetItemsApiAsyncTest {
 
-    @Inject
-    LangfuseApi client;
-
     private static final String DATASET_NAME = "async-test-dataset-items-" + UUID.randomUUID();
     private static String datasetItemId;
+
+    @Inject
+    LangfuseApi client;
 
     @Test
     @Order(1)
@@ -82,5 +82,16 @@ class DatasetItemsApiAsyncTest {
                 .satisfies(items -> assertThat(items.getData())
                         .isNotEmpty()
                         .anyMatch(i -> datasetItemId.equals(i.getId())));
+    }
+
+    @Test
+    @Order(3)
+    void deleteDatasetItem() {
+        assertThat(client.asyncDatasetItems().datasetItemsDelete(
+                DatasetItemsApi.APIDatasetItemsDeleteRequest.newBuilder()
+                        .id(datasetItemId)
+                        .build()))
+                .succeedsWithin(Duration.ofSeconds(5))
+                .satisfies(response -> assertThat(response.getMessage()).isNotBlank());
     }
 }

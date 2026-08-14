@@ -78,7 +78,9 @@ public class LangfuseContainer extends GenericContainer<LangfuseContainer> {
         pgConfig.containerEnv().forEach(postgres::withEnv);
 
         var chConfig = config.clickhouse();
-        this.clickhouse = new ClickHouseContainer(chConfig.image())
+        this.clickhouse = new ClickHouseContainer(
+                DockerImageName.parse(chConfig.image())
+                        .asCompatibleSubstituteFor("clickhouse/clickhouse-server"))
                 .withNetwork(network)
                 .withNetworkAliases(CLICKHOUSE_ALIAS)
                 .withLabel(SERVICE_LABEL, "langfuse-clickhouse")
@@ -180,6 +182,9 @@ public class LangfuseContainer extends GenericContainer<LangfuseContainer> {
         withEnv("LANGFUSE_USE_AZURE_BLOB", "false");
         withEnv("LANGFUSE_USE_OCI_NATIVE_OBJECT_STORAGE", "false");
         withEnv("LANGFUSE_OCI_AUTH_TYPE", "workload_identity");
+        withEnv("LANGFUSE_OBSERVATION_FIELD_OVERFLOW_ENABLED", "false");
+        withEnv("LANGFUSE_OBSERVATION_FIELD_SIZE_LIMIT_BYTES", "2097152");
+        withEnv("LANGFUSE_BULLMQ_SKIP_REDIS_VERSION_CHECK", "false");
         langfuseConfig.ingestionQueueDelay()
                 .ifPresent(d -> withEnv("LANGFUSE_INGESTION_QUEUE_DELAY_MS", String.valueOf(d.toMillis())));
         langfuseConfig.ingestionClickhouseWriteInterval()
@@ -193,6 +198,7 @@ public class LangfuseContainer extends GenericContainer<LangfuseContainer> {
         withEnv("SALT", "mysalt");
         withEnv("ENCRYPTION_KEY", "0000000000000000000000000000000000000000000000000000000000000000");
         withEnv("TELEMETRY_ENABLED", "false");
+        withEnv("LANGFUSE_MIGRATION_V4_WRITE_MODE", "events_only");
 
         withEnv("LANGFUSE_INIT_ORG_ID", langfuseConfig.initOrgId());
         withEnv("LANGFUSE_INIT_ORG_NAME", langfuseConfig.initOrgName());
@@ -326,6 +332,9 @@ public class LangfuseContainer extends GenericContainer<LangfuseContainer> {
         worker.withEnv("LANGFUSE_USE_AZURE_BLOB", "false");
         worker.withEnv("LANGFUSE_USE_OCI_NATIVE_OBJECT_STORAGE", "false");
         worker.withEnv("LANGFUSE_OCI_AUTH_TYPE", "workload_identity");
+        worker.withEnv("LANGFUSE_OBSERVATION_FIELD_OVERFLOW_ENABLED", "false");
+        worker.withEnv("LANGFUSE_OBSERVATION_FIELD_SIZE_LIMIT_BYTES", "2097152");
+        worker.withEnv("LANGFUSE_BULLMQ_SKIP_REDIS_VERSION_CHECK", "false");
         langfuseConfig.ingestionQueueDelay()
                 .ifPresent(d -> worker.withEnv("LANGFUSE_INGESTION_QUEUE_DELAY_MS", String.valueOf(d.toMillis())));
         langfuseConfig.ingestionClickhouseWriteInterval()
@@ -339,6 +348,7 @@ public class LangfuseContainer extends GenericContainer<LangfuseContainer> {
         worker.withEnv("SALT", "mysalt");
         worker.withEnv("ENCRYPTION_KEY", "0000000000000000000000000000000000000000000000000000000000000000");
         worker.withEnv("TELEMETRY_ENABLED", "false");
+        worker.withEnv("LANGFUSE_MIGRATION_V4_WRITE_MODE", "events_only");
     }
 
     private void createMinioBucket() {
