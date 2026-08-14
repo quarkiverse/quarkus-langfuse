@@ -27,11 +27,11 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class ModelsApiTest {
 
-    @Inject
-    LangfuseApi client;
-
     private static final String MODEL_NAME = "test-model-" + UUID.randomUUID().toString().substring(0, 8);
     private static String modelId;
+
+    @Inject
+    LangfuseApi client;
 
     @Test
     @Order(1)

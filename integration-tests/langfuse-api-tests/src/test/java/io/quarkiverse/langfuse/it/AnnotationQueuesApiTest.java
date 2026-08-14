@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import jakarta.inject.Inject;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -15,9 +16,14 @@ import org.junit.jupiter.api.TestMethodOrder;
 import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.annotationQueues.AnnotationQueuesApi;
 import com.langfuse.api.model.AnnotationQueue;
+import com.langfuse.api.model.AnnotationQueueAssignmentRequest;
+import com.langfuse.api.model.AnnotationQueueObjectType;
+import com.langfuse.api.model.AnnotationQueueStatus;
+import com.langfuse.api.model.CreateAnnotationQueueItemRequest;
 import com.langfuse.api.model.CreateAnnotationQueueRequest;
 import com.langfuse.api.model.CreateScoreConfigRequest;
 import com.langfuse.api.model.ScoreConfigDataType;
+import com.langfuse.api.model.UpdateAnnotationQueueItemRequest;
 import com.langfuse.api.scoreConfigs.ScoreConfigsApi;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -30,11 +36,13 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class AnnotationQueuesApiTest {
 
+    private static final String QUEUE_NAME = "test-queue-" + UUID.randomUUID().toString().substring(0, 8);
+    private static final String TRACE_ID = UUID.randomUUID().toString();
+    private static String queueId;
+    private static String queueItemId;
+
     @Inject
     LangfuseApi client;
-
-    private static final String QUEUE_NAME = "test-queue-" + UUID.randomUUID().toString().substring(0, 8);
-    private static String queueId;
 
     @Test
     @Order(1)
@@ -89,5 +97,119 @@ class AnnotationQueuesApiTest {
                             .anyMatch(q -> QUEUE_NAME.equals(q.getName()));
                     assertThat(queues.getMeta().getTotalItems()).isGreaterThan(0);
                 });
+    }
+
+    @Test
+    @Order(1)
+    void ingestTrace() {
+        OtelTestHelper.ingestTrace(client, TRACE_ID, "annotation-queue-test-trace");
+    }
+
+    @Test
+    @Order(3)
+    void createQueueItem() {
+        assertThat(client.annotationQueues().annotationQueuesCreateQueueItem(
+                AnnotationQueuesApi.APIAnnotationQueuesCreateQueueItemRequest.newBuilder()
+                        .queueId(queueId)
+                        .createAnnotationQueueItemRequest(CreateAnnotationQueueItemRequest.builder()
+                                .objectId(TRACE_ID)
+                                .objectType(AnnotationQueueObjectType.TRACE)
+                                .build())
+                        .build()))
+                .satisfies(item -> {
+                    assertThat(item.getId()).isNotBlank();
+                    assertThat(item.getQueueId()).isEqualTo(queueId);
+                    assertThat(item.getObjectId()).isEqualTo(TRACE_ID);
+                    assertThat(item.getObjectType()).isEqualTo(AnnotationQueueObjectType.TRACE);
+                    assertThat(item.getStatus()).isNotNull();
+                    assertThat(item.getCreatedAt()).isNotNull();
+                    queueItemId = item.getId();
+                });
+    }
+
+    @Test
+    @Order(4)
+    void getQueueItem() {
+        assertThat(client.annotationQueues().annotationQueuesGetQueueItem(
+                AnnotationQueuesApi.APIAnnotationQueuesGetQueueItemRequest.newBuilder()
+                        .queueId(queueId)
+                        .itemId(queueItemId)
+                        .build()))
+                .satisfies(item -> {
+                    assertThat(item.getId()).isEqualTo(queueItemId);
+                    assertThat(item.getQueueId()).isEqualTo(queueId);
+                    assertThat(item.getObjectId()).isEqualTo(TRACE_ID);
+                });
+    }
+
+    @Test
+    @Order(4)
+    void listQueueItems() {
+        assertThat(client.annotationQueues().annotationQueuesListQueueItems(
+                AnnotationQueuesApi.APIAnnotationQueuesListQueueItemsRequest.newBuilder()
+                        .queueId(queueId)
+                        .build()))
+                .satisfies(items -> {
+                    assertThat(items.getData())
+                            .isNotEmpty()
+                            .anyMatch(i -> queueItemId.equals(i.getId()));
+                    assertThat(items.getMeta().getTotalItems()).isGreaterThan(0);
+                });
+    }
+
+    @Test
+    @Order(5)
+    void updateQueueItem() {
+        assertThat(client.annotationQueues().annotationQueuesUpdateQueueItem(
+                AnnotationQueuesApi.APIAnnotationQueuesUpdateQueueItemRequest.newBuilder()
+                        .queueId(queueId)
+                        .itemId(queueItemId)
+                        .updateAnnotationQueueItemRequest(UpdateAnnotationQueueItemRequest.builder()
+                                .status(AnnotationQueueStatus.COMPLETED)
+                                .build())
+                        .build()))
+                .satisfies(item -> {
+                    assertThat(item.getId()).isEqualTo(queueItemId);
+                    assertThat(item.getStatus()).isEqualTo(AnnotationQueueStatus.COMPLETED);
+                });
+    }
+
+    @Disabled("Requires a valid user ID not available via API key auth")
+    @Test
+    @Order(6)
+    void createAndDeleteQueueAssignment() {
+        var userId = client.projects().projectsGet().getData().get(0).getOrganization().getId();
+
+        assertThat(client.annotationQueues().annotationQueuesCreateQueueAssignment(
+                AnnotationQueuesApi.APIAnnotationQueuesCreateQueueAssignmentRequest.newBuilder()
+                        .queueId(queueId)
+                        .annotationQueueAssignmentRequest(AnnotationQueueAssignmentRequest.builder()
+                                .userId(userId)
+                                .build())
+                        .build()))
+                .satisfies(response -> {
+                    assertThat(response.getQueueId()).isEqualTo(queueId);
+                    assertThat(response.getUserId()).isEqualTo(userId);
+                });
+
+        assertThat(client.annotationQueues().annotationQueuesDeleteQueueAssignment(
+                AnnotationQueuesApi.APIAnnotationQueuesDeleteQueueAssignmentRequest.newBuilder()
+                        .queueId(queueId)
+                        .annotationQueueAssignmentRequest(AnnotationQueueAssignmentRequest.builder()
+                                .userId(userId)
+                                .build())
+                        .build()))
+                .satisfies(response -> assertThat(response.getSuccess()).isTrue());
+    }
+
+    @Test
+    @Order(7)
+    void deleteQueueItem() {
+        assertThat(client.annotationQueues().annotationQueuesDeleteQueueItem(
+                AnnotationQueuesApi.APIAnnotationQueuesDeleteQueueItemRequest.newBuilder()
+                        .queueId(queueId)
+                        .itemId(queueItemId)
+                        .build()))
+                .satisfies(response -> assertThat(response.getMessage()).isNotBlank());
     }
 }

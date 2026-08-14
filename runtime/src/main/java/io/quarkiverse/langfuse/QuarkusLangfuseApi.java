@@ -9,6 +9,8 @@ import com.langfuse.api.comments.CommentsApi;
 import com.langfuse.api.datasetItems.DatasetItemsApi;
 import com.langfuse.api.datasetRunItems.DatasetRunItemsApi;
 import com.langfuse.api.datasets.DatasetsApi;
+import com.langfuse.api.experiments.ExperimentsApi;
+import com.langfuse.api.feedback.FeedbackApi;
 import com.langfuse.api.health.HealthApi;
 import com.langfuse.api.ingestion.IngestionApi;
 import com.langfuse.api.legacyMetricsV1.LegacyMetricsV1Api;
@@ -27,8 +29,11 @@ import com.langfuse.api.prompts.PromptsApi;
 import com.langfuse.api.scim.ScimApi;
 import com.langfuse.api.scoreConfigs.ScoreConfigsApi;
 import com.langfuse.api.scores.ScoresApi;
+import com.langfuse.api.scoresV3.ScoresV3Api;
 import com.langfuse.api.sessions.SessionsApi;
 import com.langfuse.api.trace.TraceApi;
+import com.langfuse.api.unstableDashboardWidgets.UnstableDashboardWidgetsApi;
+import com.langfuse.api.unstableDashboards.UnstableDashboardsApi;
 import com.langfuse.api.unstableEvaluationRules.UnstableEvaluationRulesApi;
 import com.langfuse.api.unstableEvaluators.UnstableEvaluatorsApi;
 
@@ -118,6 +123,26 @@ public class QuarkusLangfuseApi implements LangfuseApi {
 
     @Override
     public com.langfuse.api.datasets.async.DatasetsApi asyncDatasets() {
+        return this.asyncClient;
+    }
+
+    @Override
+    public ExperimentsApi experiments() {
+        return this.client;
+    }
+
+    @Override
+    public com.langfuse.api.experiments.async.ExperimentsApi asyncExperiments() {
+        return this.asyncClient;
+    }
+
+    @Override
+    public FeedbackApi feedback() {
+        return this.client;
+    }
+
+    @Override
+    public com.langfuse.api.feedback.async.FeedbackApi asyncFeedback() {
         return this.asyncClient;
     }
 
@@ -292,6 +317,16 @@ public class QuarkusLangfuseApi implements LangfuseApi {
     }
 
     @Override
+    public ScoresV3Api scoresV3() {
+        return this.client;
+    }
+
+    @Override
+    public com.langfuse.api.scoresV3.async.ScoresV3Api asyncScoresV3() {
+        return this.asyncClient;
+    }
+
+    @Override
     public SessionsApi sessions() {
         return this.client;
     }
@@ -308,6 +343,26 @@ public class QuarkusLangfuseApi implements LangfuseApi {
 
     @Override
     public com.langfuse.api.trace.async.TraceApi asyncTrace() {
+        return this.asyncClient;
+    }
+
+    @Override
+    public UnstableDashboardWidgetsApi unstableDashboardWidgets() {
+        return this.client;
+    }
+
+    @Override
+    public com.langfuse.api.unstableDashboardWidgets.async.UnstableDashboardWidgetsApi asyncUnstableDashboardWidgets() {
+        return this.asyncClient;
+    }
+
+    @Override
+    public UnstableDashboardsApi unstableDashboards() {
+        return this.client;
+    }
+
+    @Override
+    public com.langfuse.api.unstableDashboards.async.UnstableDashboardsApi asyncUnstableDashboards() {
         return this.asyncClient;
     }
 

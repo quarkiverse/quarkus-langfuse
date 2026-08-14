@@ -30,10 +30,10 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class PromptVersionApiTest {
 
+    private static final String PROMPT_NAME = "test-prompt-version-" + UUID.randomUUID();
+
     @Inject
     LangfuseApi client;
-
-    private static final String PROMPT_NAME = "test-prompt-version-" + UUID.randomUUID();
 
     @Test
     @Order(1)

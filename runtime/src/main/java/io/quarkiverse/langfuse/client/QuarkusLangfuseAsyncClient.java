@@ -13,6 +13,8 @@ import io.quarkiverse.langfuse.client.jaxrs.QuarkusCommentsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusDatasetItemsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusDatasetRunItemsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusDatasetsAsyncApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusExperimentsAsyncApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusFeedbackAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusHealthAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusIngestionAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusLegacyMetricsV1AsyncApi;
@@ -31,8 +33,11 @@ import io.quarkiverse.langfuse.client.jaxrs.QuarkusPromptsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusScimAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusScoreConfigsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusScoresAsyncApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusScoresV3AsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusSessionsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusTraceAsyncApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableDashboardWidgetsAsyncApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableDashboardsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableEvaluationRulesAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableEvaluatorsAsyncApi;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
@@ -49,6 +54,8 @@ public interface QuarkusLangfuseAsyncClient extends LangfuseAsyncApis,
         QuarkusDatasetItemsAsyncApi,
         QuarkusDatasetRunItemsAsyncApi,
         QuarkusDatasetsAsyncApi,
+        QuarkusExperimentsAsyncApi,
+        QuarkusFeedbackAsyncApi,
         QuarkusHealthAsyncApi,
         QuarkusIngestionAsyncApi,
         QuarkusLegacyMetricsV1AsyncApi,
@@ -67,8 +74,11 @@ public interface QuarkusLangfuseAsyncClient extends LangfuseAsyncApis,
         QuarkusScimAsyncApi,
         QuarkusScoreConfigsAsyncApi,
         QuarkusScoresAsyncApi,
+        QuarkusScoresV3AsyncApi,
         QuarkusSessionsAsyncApi,
         QuarkusTraceAsyncApi,
+        QuarkusUnstableDashboardWidgetsAsyncApi,
+        QuarkusUnstableDashboardsAsyncApi,
         QuarkusUnstableEvaluationRulesAsyncApi,
         QuarkusUnstableEvaluatorsAsyncApi {
 

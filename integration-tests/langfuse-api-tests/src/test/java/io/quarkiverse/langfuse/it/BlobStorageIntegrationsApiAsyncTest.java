@@ -1,0 +1,78 @@
+package io.quarkiverse.langfuse.it;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.Duration;
+
+import jakarta.inject.Inject;
+
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+
+import com.langfuse.api.LangfuseApi;
+import com.langfuse.api.blobStorageIntegrations.BlobStorageIntegrationsApi.APIBlobStorageIntegrationsDeleteBlobStorageIntegrationRequest;
+import com.langfuse.api.blobStorageIntegrations.BlobStorageIntegrationsApi.APIBlobStorageIntegrationsGetBlobStorageIntegrationStatusRequest;
+import com.langfuse.api.blobStorageIntegrations.BlobStorageIntegrationsApi.APIBlobStorageIntegrationsUpsertBlobStorageIntegrationRequest;
+import com.langfuse.api.model.CreateBlobStorageIntegrationRequest;
+
+import io.quarkus.test.junit.QuarkusTest;
+
+@Disabled("Requires org-admin role")
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@QuarkusTest
+class BlobStorageIntegrationsApiAsyncTest {
+
+    private static String integrationId;
+
+    @Inject
+    LangfuseApi client;
+
+    @Test
+    @Order(1)
+    void listBlobStorageIntegrations() {
+        assertThat(client.asyncBlobStorageIntegrations().blobStorageIntegrationsGetBlobStorageIntegrations())
+                .succeedsWithin(Duration.ofSeconds(5))
+                .satisfies(response -> assertThat(response.getData()).isNotNull());
+    }
+
+    @Test
+    @Order(2)
+    void upsertBlobStorageIntegration() {
+        assertThat(client.asyncBlobStorageIntegrations().blobStorageIntegrationsUpsertBlobStorageIntegration(
+                APIBlobStorageIntegrationsUpsertBlobStorageIntegrationRequest.newBuilder()
+                        .createBlobStorageIntegrationRequest(CreateBlobStorageIntegrationRequest.builder()
+                                .bucketName("test-bucket")
+                                .region("us-east-1")
+                                .accessKeyId("test-key")
+                                .secretAccessKey("test-secret")
+                                .build())
+                        .build()))
+                .succeedsWithin(Duration.ofSeconds(5))
+                .satisfies(response -> assertThat(response.getId()).isNotBlank());
+    }
+
+    @Test
+    @Order(3)
+    void getIntegrationStatus() {
+        assertThat(client.asyncBlobStorageIntegrations().blobStorageIntegrationsGetBlobStorageIntegrationStatus(
+                APIBlobStorageIntegrationsGetBlobStorageIntegrationStatusRequest.newBuilder()
+                        .id(integrationId)
+                        .build()))
+                .succeedsWithin(Duration.ofSeconds(5))
+                .satisfies(response -> assertThat(response.getId()).isNotBlank());
+    }
+
+    @Test
+    @Order(4)
+    void deleteIntegration() {
+        assertThat(client.asyncBlobStorageIntegrations().blobStorageIntegrationsDeleteBlobStorageIntegration(
+                APIBlobStorageIntegrationsDeleteBlobStorageIntegrationRequest.newBuilder()
+                        .id(integrationId)
+                        .build()))
+                .succeedsWithin(Duration.ofSeconds(5))
+                .satisfies(response -> assertThat(response.getMessage()).isNotBlank());
+    }
+}

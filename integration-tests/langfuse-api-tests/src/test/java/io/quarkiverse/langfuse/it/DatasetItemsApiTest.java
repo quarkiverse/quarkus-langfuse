@@ -29,11 +29,11 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class DatasetItemsApiTest {
 
-    @Inject
-    LangfuseApi client;
-
     private static final String DATASET_NAME = "test-dataset-items-" + UUID.randomUUID();
     private static String datasetItemId;
+
+    @Inject
+    LangfuseApi client;
 
     @Test
     @Order(1)
@@ -95,5 +95,15 @@ class DatasetItemsApiTest {
 
         assertThat(items.getMeta().getTotalItems())
                 .isEqualTo(1);
+    }
+
+    @Test
+    @Order(3)
+    void deleteDatasetItem() {
+        assertThat(client.datasetItems().datasetItemsDelete(
+                DatasetItemsApi.APIDatasetItemsDeleteRequest.newBuilder()
+                        .id(datasetItemId)
+                        .build()))
+                .satisfies(response -> assertThat(response.getMessage()).isNotBlank());
     }
 }

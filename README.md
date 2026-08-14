@@ -19,6 +19,16 @@ A Quarkus extension for [Langfuse](https://langfuse.com), the open-source LLM en
 - **Native image support** - Compatible with GraalVM native image compilation.
 - **OpenTelemetry integration** - When `quarkus-opentelemetry` is on the classpath, automatically exports AI-related spans to Langfuse. Zero configuration needed with DevServices.
 
+## Compatibility
+
+### Langfuse v4
+
+This version of the extension requires **Langfuse v4**. If you are upgrading from a previous version of the extension that targeted Langfuse v3, complete the [Langfuse v4 migration](https://langfuse.com/changelog/2025-05-14-langfuse-v4) before upgrading the extension.
+
+### OpenAPI spec validation
+
+The Langfuse v4 OpenAPI spec uses the `const` keyword (an OpenAPI 3.1 feature) while declaring version 3.0.1. The `openapi-generator-maven-plugin` cannot validate the spec with this incompatibility, so `skipValidateSpec` is set to `true` in the `langfuse-client` module's POM. This does not affect code generation -- only the upfront validation check is bypassed. This is tracked upstream as [openapi-generator#10445](https://github.com/OpenAPITools/openapi-generator/issues/10445).
+
 ## Installation
 
 Add the extension dependency to your project:
@@ -82,16 +92,20 @@ public class MyService {
     @Inject
     LangfuseApi langfuseApi;
 
-    public void listTraces() {
+    public void listObservations() {
         // Synchronous call
-        var traces = langfuseApi.trace().traceList(/* parameters */);
+        var observations = langfuseApi.observations().observationsGetMany(/* parameters */);
 
         // Asynchronous call
-        var asyncTraces = langfuseApi.asyncTrace().traceList(/* parameters */);
+        var asyncObservations = langfuseApi.asyncObservations().observationsGetMany(/* parameters */);
     }
 
     public void listPrompts() {
         var prompts = langfuseApi.prompts().promptsList(/* parameters */);
+    }
+
+    public void listScores() {
+        var scores = langfuseApi.scoresV3().scoresV3GetManyV3(/* parameters */);
     }
 
     public void checkHealth() {
@@ -107,26 +121,38 @@ The `LangfuseApi` bean provides access to the full [Langfuse public API](https:/
 | API Group | Description |
 |---|---|
 | `health()` | Health check endpoints |
-| `trace()` | Create, list, and manage traces |
-| `observations()` | Query observations (spans and generations) |
-| `ingestion()` | Batch ingest traces, spans, generations, scores, and events |
+| `opentelemetry()` | OpenTelemetry trace ingestion (recommended for v4) |
+| `observations()` | Query observations with selective fields and cursor pagination (v2) |
+| `scores()` | Create scores and query scores (v2, deprecated in events_only mode) |
+| `scoresV3()` | Query scores with polymorphic values and cursor pagination (v3, recommended) |
+| `experiments()` | List experiments and experiment items (dataset runs) |
 | `prompts()` | Manage, version, and retrieve prompts |
 | `promptVersion()` | Manage individual prompt versions |
-| `scores()` | Create and query evaluation scores |
 | `scoreConfigs()` | Manage score configurations |
-| `sessions()` | List and query sessions |
 | `datasets()` | Create and manage datasets |
 | `datasetItems()` | Manage dataset items |
 | `datasetRunItems()` | Manage dataset run items |
 | `models()` | Manage model definitions and pricing |
-| `projects()` | Query projects |
-| `organizations()` | Query organizations |
+| `projects()` | Manage projects and API keys |
+| `organizations()` | Manage organization memberships |
 | `comments()` | Manage comments on traces |
 | `media()` | Upload and manage media attachments |
-| `metrics()` | Query usage metrics (cost, token counts, latency) |
-| `opentelemetry()` | OpenTelemetry trace ingestion |
+| `metrics()` | Query usage metrics (v2) |
 | `annotationQueues()` | Manage annotation queues for human review |
 | `llmConnections()` | Manage LLM provider connections |
+| `blobStorageIntegrations()` | Manage blob storage integrations |
+| `scim()` | SCIM user provisioning |
+| `feedback()` | Submit feedback about Langfuse features |
+| `unstableDashboardWidgets()` | Create, list, update, and delete dashboard widgets (unstable) |
+| `unstableDashboards()` | Create, list, update, and delete dashboards with placements (unstable) |
+| `unstableEvaluationRules()` | Manage evaluation rules (unstable) |
+| `unstableEvaluators()` | Manage evaluators (unstable) |
+| `ingestion()` | Legacy batch ingestion (deprecated — use `opentelemetry()`) |
+| `trace()` | Legacy trace endpoints (deprecated in v4 events_only mode) |
+| `sessions()` | Legacy session endpoints (deprecated in v4 events_only mode) |
+| `legacyObservationsV1()` | Legacy observations (v1, deprecated — use `observations()`) |
+| `legacyMetricsV1()` | Legacy metrics (v1, deprecated — use `metrics()`) |
+| `legacyScoreV1()` | Legacy score deletion (v1, deprecated) |
 
 ## OpenTelemetry Integration
 

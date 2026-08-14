@@ -13,6 +13,8 @@ import io.quarkiverse.langfuse.client.jaxrs.QuarkusCommentsApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusDatasetItemsApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusDatasetRunItemsApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusDatasetsApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusExperimentsApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusFeedbackApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusHealthApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusIngestionApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusLegacyMetricsV1Api;
@@ -31,8 +33,11 @@ import io.quarkiverse.langfuse.client.jaxrs.QuarkusPromptsApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusScimApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusScoreConfigsApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusScoresApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusScoresV3Api;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusSessionsApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusTraceApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableDashboardWidgetsApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableDashboardsApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableEvaluationRulesApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableEvaluatorsApi;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
@@ -49,6 +54,8 @@ public interface QuarkusLangfuseClient extends LangfuseApis,
         QuarkusDatasetItemsApi,
         QuarkusDatasetRunItemsApi,
         QuarkusDatasetsApi,
+        QuarkusExperimentsApi,
+        QuarkusFeedbackApi,
         QuarkusHealthApi,
         QuarkusIngestionApi,
         QuarkusLegacyMetricsV1Api,
@@ -67,8 +74,11 @@ public interface QuarkusLangfuseClient extends LangfuseApis,
         QuarkusScimApi,
         QuarkusScoreConfigsApi,
         QuarkusScoresApi,
+        QuarkusScoresV3Api,
         QuarkusSessionsApi,
         QuarkusTraceApi,
+        QuarkusUnstableDashboardWidgetsApi,
+        QuarkusUnstableDashboardsApi,
         QuarkusUnstableEvaluationRulesApi,
         QuarkusUnstableEvaluatorsApi {
 

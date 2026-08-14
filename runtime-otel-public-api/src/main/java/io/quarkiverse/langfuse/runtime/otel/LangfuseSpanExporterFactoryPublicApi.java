@@ -20,7 +20,7 @@ public class LangfuseSpanExporterFactoryPublicApi implements LangfuseSpanExporte
                 config.getSignalPath(),
                 false,
                 Duration.ofSeconds(10),
-                Map.of("Authorization", config.getAuthHeader(), "x-langfuse-ingestion-version", "1"),
+                Map.of("Authorization", config.getAuthHeader(), "x-langfuse-ingestion-version", "4"),
                 "application/x-protobuf",
                 options -> {
                 },

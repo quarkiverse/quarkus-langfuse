@@ -1,0 +1,81 @@
+package io.quarkiverse.langfuse.it;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
+
+import java.time.Duration;
+import java.util.UUID;
+
+import jakarta.inject.Inject;
+
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+
+import com.langfuse.api.LangfuseApi;
+import com.langfuse.api.LangfuseApiException;
+import com.langfuse.api.media.MediaApi.APIMediaGetUploadUrlRequest;
+import com.langfuse.api.media.MediaApi.APIMediaPatchRequest;
+import com.langfuse.api.model.GetMediaUploadUrlRequest;
+import com.langfuse.api.model.MediaContentType;
+import com.langfuse.api.model.PatchMediaBody;
+
+import io.quarkus.test.junit.QuarkusTest;
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@QuarkusTest
+class MediaApiAsyncTest {
+
+    private static final String TRACE_ID = UUID.randomUUID().toString().replace("-", "");
+    private static final String SPAN_ID = TRACE_ID.substring(0, 16);
+    private static String mediaId;
+
+    @Inject
+    LangfuseApi client;
+
+    @Test
+    @Order(1)
+    void ingestTrace() {
+        assertThat(OtelTestHelper.ingestTraceAsync(client, TRACE_ID, SPAN_ID, "async-media-test-trace"))
+                .succeedsWithin(Duration.ofSeconds(5));
+    }
+
+    @Test
+    @Order(2)
+    void getUploadUrl() {
+        await().atMost(Duration.ofSeconds(15))
+                .pollInterval(Duration.ofSeconds(1))
+                .ignoreExceptionsMatching(LangfuseApiException.class::isInstance)
+                .untilAsserted(() -> assertThat(client.asyncMedia().mediaGetUploadUrl(
+                        APIMediaGetUploadUrlRequest.newBuilder()
+                                .getMediaUploadUrlRequest(GetMediaUploadUrlRequest.builder()
+                                        .traceId(TRACE_ID)
+                                        .observationId(SPAN_ID)
+                                        .contentType(MediaContentType.TEXT_PLAIN)
+                                        .contentLength(13)
+                                        .sha256Hash("n4bQgYhMfWWaL+qgxVrQFaO/TxsrC4Is0V1sFbDwCgg=")
+                                        .field("input")
+                                        .build())
+                                .build()))
+                        .succeedsWithin(Duration.ofSeconds(5))
+                        .satisfies(response -> {
+                            assertThat(response.getMediaId()).isNotBlank();
+                            mediaId = response.getMediaId();
+                        }));
+    }
+
+    @Test
+    @Order(3)
+    void patchMedia() {
+        assertThat(client.asyncMedia().mediaPatch(
+                APIMediaPatchRequest.newBuilder()
+                        .mediaId(mediaId)
+                        .patchMediaBody(PatchMediaBody.builder()
+                                .uploadedAt(java.time.OffsetDateTime.now())
+                                .uploadHttpStatus(200)
+                                .build())
+                        .build()))
+                .succeedsWithin(Duration.ofSeconds(5));
+    }
+}

@@ -97,7 +97,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_IMAGE_NAME+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++docker.io/langfuse/langfuse:3+++`
+|`+++docker.io/langfuse/langfuse:4+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-port]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-port[`+++quarkus.langfuse.devservices.langfuse.port+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -605,7 +605,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_CLICKHOUSE_IMAGE_NAME+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++clickhouse/clickhouse-server+++`
+|`+++docker.io/clickhouse/clickhouse-server:25.12+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-username]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-clickhouse-username[`+++quarkus.langfuse.devservices.clickhouse.username+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -899,7 +899,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_WORKER_IMAGE_NAME+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++docker.io/langfuse/langfuse-worker:3+++`
+|`+++docker.io/langfuse/langfuse-worker:4+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-worker-container-env-container-env]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-worker-container-env-container-env[`+++quarkus.langfuse.devservices.worker.container-env."container-env"+++`]##
 ifdef::add-copy-button-to-config-props[]

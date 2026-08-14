@@ -12,7 +12,7 @@ public interface WorkerConfig {
     /**
      * Default container image for the Langfuse worker.
      */
-    String DEFAULT_IMAGE = "docker.io/langfuse/langfuse-worker:3";
+    String DEFAULT_IMAGE = "docker.io/langfuse/langfuse-worker:4";
 
     /**
      * @return the container image

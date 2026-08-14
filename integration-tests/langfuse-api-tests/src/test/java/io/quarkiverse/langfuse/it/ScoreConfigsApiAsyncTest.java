@@ -16,6 +16,7 @@ import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.model.CreateScoreConfigRequest;
 import com.langfuse.api.model.ScoreConfig;
 import com.langfuse.api.model.ScoreConfigDataType;
+import com.langfuse.api.model.UpdateScoreConfigRequest;
 import com.langfuse.api.scoreConfigs.ScoreConfigsApi;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -28,11 +29,11 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class ScoreConfigsApiAsyncTest {
 
-    @Inject
-    LangfuseApi client;
-
     private static final String CONFIG_NAME = "async-cfg-" + UUID.randomUUID().toString().substring(0, 8);
     private static String configId;
+
+    @Inject
+    LangfuseApi client;
 
     @Test
     @Order(1)
@@ -78,5 +79,24 @@ class ScoreConfigsApiAsyncTest {
                 .satisfies(configs -> assertThat(configs.getData())
                         .isNotEmpty()
                         .anyMatch(c -> CONFIG_NAME.equals(c.getName())));
+    }
+
+    @Test
+    @Order(3)
+    void updateScoreConfig() {
+        assertThat(client.asyncScoreConfigs().scoreConfigsUpdate(
+                ScoreConfigsApi.APIScoreConfigsUpdateRequest.newBuilder()
+                        .configId(configId)
+                        .updateScoreConfigRequest(UpdateScoreConfigRequest.builder()
+                                .description("Async updated description")
+                                .isArchived(true)
+                                .build())
+                        .build()))
+                .succeedsWithin(Duration.ofSeconds(5))
+                .satisfies(config -> {
+                    assertThat(config.getId()).isEqualTo(configId);
+                    assertThat(config.getDescription()).isEqualTo("Async updated description");
+                    assertThat(config.getIsArchived()).isTrue();
+                });
     }
 }

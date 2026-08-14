@@ -33,11 +33,11 @@ import io.quarkus.test.junit.QuarkusTest;
 @QuarkusTest
 class PromptsApiAsyncTest {
 
-    @Inject
-    LangfuseApi client;
-
     private static final String TEXT_PROMPT_NAME = "async-test-text-prompt-" + UUID.randomUUID();
     private static final String CHAT_PROMPT_NAME = "async-test-chat-prompt-" + UUID.randomUUID();
+
+    @Inject
+    LangfuseApi client;
 
     @Test
     @Order(1)
@@ -107,5 +107,15 @@ class PromptsApiAsyncTest {
                         .build()))
                 .succeedsWithin(Duration.ofSeconds(5))
                 .satisfies(prompts -> assertThat(prompts.getData()).isNotEmpty());
+    }
+
+    @Test
+    @Order(3)
+    void deletePrompt() {
+        assertThat(client.asyncPrompts().promptsDelete(
+                PromptsApi.APIPromptsDeleteRequest.newBuilder()
+                        .promptName(TEXT_PROMPT_NAME)
+                        .build()))
+                .succeedsWithin(Duration.ofSeconds(5));
     }
 }

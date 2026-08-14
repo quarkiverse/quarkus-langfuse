@@ -3,6 +3,7 @@ package io.quarkiverse.langfuse.client.jaxrs;
 import java.util.concurrent.CompletionStage;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -12,9 +13,11 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
 import com.langfuse.api.model.UnstableCreateEvaluatorRequest;
+import com.langfuse.api.model.UnstableDeleteEvaluatorResponse;
 import com.langfuse.api.model.UnstableEvaluator;
 import com.langfuse.api.model.UnstableEvaluators;
 import com.langfuse.api.unstableEvaluators.UnstableEvaluatorsApi.APIUnstableEvaluatorsCreateRequest;
+import com.langfuse.api.unstableEvaluators.UnstableEvaluatorsApi.APIUnstableEvaluatorsDeleteRequest;
 import com.langfuse.api.unstableEvaluators.UnstableEvaluatorsApi.APIUnstableEvaluatorsGetRequest;
 import com.langfuse.api.unstableEvaluators.UnstableEvaluatorsApi.APIUnstableEvaluatorsListRequest;
 
@@ -37,6 +40,24 @@ public interface QuarkusUnstableEvaluatorsAsyncApi extends com.langfuse.api.unst
     default CompletionStage<UnstableEvaluator> unstableEvaluatorsCreate(
             APIUnstableEvaluatorsCreateRequest apiRequest) {
         return unstableEvaluatorsCreate(apiRequest.unstableCreateEvaluatorRequest());
+    }
+
+    /**
+     * Delete an evaluator.
+     */
+    @DELETE
+    @Path("/api/public/unstable/evaluators/{evaluatorId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    CompletionStage<UnstableDeleteEvaluatorResponse> unstableEvaluatorsDelete(
+            @PathParam("evaluatorId") String evaluatorId);
+
+    /**
+     * Delete an evaluator.
+     */
+    @Override
+    default CompletionStage<UnstableDeleteEvaluatorResponse> unstableEvaluatorsDelete(
+            APIUnstableEvaluatorsDeleteRequest apiRequest) {
+        return unstableEvaluatorsDelete(apiRequest.evaluatorId());
     }
 
     /**
