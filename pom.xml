@@ -46,7 +46,7 @@
 		<quarkus.baseline.version>3.33.2</quarkus.baseline.version>
 		<quarkus-otel-public-api.version>3.36.3</quarkus-otel-public-api.version>
 		<quarkus-antora.version>3.33.2</quarkus-antora.version>
-		<quarkus-wiremock.version>1.6.3</quarkus-wiremock.version>
+		<quarkus-wiremock.version>1.7.0</quarkus-wiremock.version>
 		<quarkus-langchain4j.version>1.13.0</quarkus-langchain4j.version>
 		<testcontainers-redis.version>2.2.4</testcontainers-redis.version>
 	</properties>
