@@ -4,6 +4,7 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -17,6 +18,7 @@ import com.langfuse.api.models.ModelsApi.APIModelsCreateRequest;
 import com.langfuse.api.models.ModelsApi.APIModelsDeleteRequest;
 import com.langfuse.api.models.ModelsApi.APIModelsGetRequest;
 import com.langfuse.api.models.ModelsApi.APIModelsListRequest;
+import com.langfuse.api.models.ModelsApi.APIModelsUpsertRequest;
 
 /**
  * Langfuse Models API
@@ -91,6 +93,25 @@ public interface QuarkusModelsApi extends com.langfuse.api.models.ModelsApi {
     @Override
     default PaginatedModels modelsList(APIModelsListRequest apiRequest) {
         return modelsList(apiRequest.page(), apiRequest.limit());
+    }
+
+    /**
+     * Create or replace a project-owned model using its id
+     */
+    @PUT
+    @Path("/api/public/models/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    Model modelsUpsert(
+            @PathParam("id") String id,
+            CreateModelRequest createModelRequest);
+
+    /**
+     * Create or replace a project-owned model using its id
+     */
+    @Override
+    default Model modelsUpsert(APIModelsUpsertRequest apiRequest) {
+        return modelsUpsert(apiRequest.id(), apiRequest.createModelRequest());
     }
 
 }

@@ -10,6 +10,8 @@ import com.langfuse.api.comments.CommentsApi;
 import com.langfuse.api.datasetItems.DatasetItemsApi;
 import com.langfuse.api.datasetRunItems.DatasetRunItemsApi;
 import com.langfuse.api.datasets.DatasetsApi;
+import com.langfuse.api.evaluationRules.EvaluationRulesApi;
+import com.langfuse.api.evaluators.EvaluatorsApi;
 import com.langfuse.api.experiments.ExperimentsApi;
 import com.langfuse.api.feedback.FeedbackApi;
 import com.langfuse.api.health.HealthApi;
@@ -108,6 +110,18 @@ public interface LangfuseApi {
 
     /** @return the async Datasets API */
     com.langfuse.api.datasets.async.DatasetsApi asyncDatasets();
+
+    /** @return the Evaluation Rules API */
+    EvaluationRulesApi evaluationRules();
+
+    /** @return the async Evaluation Rules API */
+    com.langfuse.api.evaluationRules.async.EvaluationRulesApi asyncEvaluationRules();
+
+    /** @return the Evaluators API */
+    EvaluatorsApi evaluators();
+
+    /** @return the async Evaluators API */
+    com.langfuse.api.evaluators.async.EvaluatorsApi asyncEvaluators();
 
     /** @return the Experiments API */
     ExperimentsApi experiments();

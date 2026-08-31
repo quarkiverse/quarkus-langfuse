@@ -18,6 +18,7 @@ import com.langfuse.api.model.UnstableDeleteEvaluationRuleResponse;
 import com.langfuse.api.model.UnstableEvaluationRule;
 import com.langfuse.api.model.UnstableEvaluationRules;
 import com.langfuse.api.model.UnstableReadableEvaluationRule;
+import com.langfuse.api.model.UnstableReadableV2EvaluationRule;
 import com.langfuse.api.model.UnstableUpdateEvaluationRuleRequest;
 import com.langfuse.api.unstableEvaluationRules.UnstableEvaluationRulesApi.APIUnstableEvaluationRulesCreateRequest;
 import com.langfuse.api.unstableEvaluationRules.UnstableEvaluationRulesApi.APIUnstableEvaluationRulesDeleteRequest;
@@ -109,7 +110,7 @@ public interface QuarkusUnstableEvaluationRulesAsyncApi
     @Path("/api/public/unstable/evaluation-rules/{evaluationRuleId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    CompletionStage<UnstableEvaluationRule> unstableEvaluationRulesUpdate(
+    CompletionStage<UnstableReadableV2EvaluationRule> unstableEvaluationRulesUpdate(
             @PathParam("evaluationRuleId") String evaluationRuleId,
             UnstableUpdateEvaluationRuleRequest unstableUpdateEvaluationRuleRequest);
 
@@ -117,7 +118,7 @@ public interface QuarkusUnstableEvaluationRulesAsyncApi
      * Update an evaluation rule.
      */
     @Override
-    default CompletionStage<UnstableEvaluationRule> unstableEvaluationRulesUpdate(
+    default CompletionStage<UnstableReadableV2EvaluationRule> unstableEvaluationRulesUpdate(
             APIUnstableEvaluationRulesUpdateRequest apiRequest) {
         return unstableEvaluationRulesUpdate(apiRequest.evaluationRuleId(),
                 apiRequest.unstableUpdateEvaluationRuleRequest());

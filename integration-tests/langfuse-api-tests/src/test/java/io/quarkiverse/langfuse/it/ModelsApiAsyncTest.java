@@ -15,6 +15,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.model.CreateModelRequest;
 import com.langfuse.api.model.Model;
+import com.langfuse.api.model.ModelTokenizerId;
 import com.langfuse.api.model.ModelUsageUnit;
 import com.langfuse.api.models.ModelsApi;
 
@@ -45,7 +46,7 @@ class ModelsApiAsyncTest {
                                 .unit(ModelUsageUnit.TOKENS)
                                 .inputPrice(0.001)
                                 .outputPrice(0.002)
-                                .tokenizerId("openai")
+                                .tokenizerId(ModelTokenizerId.OPENAI)
                                 .build())
                         .build()))
                 .succeedsWithin(Duration.ofSeconds(5))
@@ -80,6 +81,26 @@ class ModelsApiAsyncTest {
                     assertThat(models.getData()).isNotEmpty();
                     assertThat(models.getMeta().getTotalItems()).isGreaterThan(0);
                 });
+    }
+
+    @Test
+    @Order(2)
+    void upsertModel() {
+        assertThat(client.asyncModels().modelsUpsert(
+                ModelsApi.APIModelsUpsertRequest.newBuilder()
+                        .id(modelId)
+                        .createModelRequest(CreateModelRequest.builder()
+                                .modelName(MODEL_NAME)
+                                .matchPattern("(?i)^(%s)(-.+)?$".formatted(MODEL_NAME))
+                                .unit(ModelUsageUnit.TOKENS)
+                                .inputPrice(0.005)
+                                .outputPrice(0.010)
+                                .tokenizerId(ModelTokenizerId.OPENAI)
+                                .build())
+                        .build()))
+                .succeedsWithin(Duration.ofSeconds(5))
+                .extracting(Model::getId, Model::getInputPrice, Model::getOutputPrice)
+                .containsExactly(modelId, 0.005, 0.010);
     }
 
     @Test

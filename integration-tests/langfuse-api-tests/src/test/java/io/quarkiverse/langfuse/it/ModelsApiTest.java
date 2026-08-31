@@ -14,6 +14,7 @@ import org.junit.jupiter.api.TestMethodOrder;
 import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.model.CreateModelRequest;
 import com.langfuse.api.model.Model;
+import com.langfuse.api.model.ModelTokenizerId;
 import com.langfuse.api.model.ModelUsageUnit;
 import com.langfuse.api.models.ModelsApi;
 
@@ -44,7 +45,7 @@ class ModelsApiTest {
                                 .unit(ModelUsageUnit.TOKENS)
                                 .inputPrice(0.001)
                                 .outputPrice(0.002)
-                                .tokenizerId("openai")
+                                .tokenizerId(ModelTokenizerId.OPENAI)
                                 .build())
                         .build()))
                 .satisfies(model -> {
@@ -81,6 +82,29 @@ class ModelsApiTest {
                     assertThat(models.getData()).isNotEmpty();
                     assertThat(models.getMeta().getTotalItems()).isGreaterThan(0);
                     assertThat(models.getMeta().getPage()).isEqualTo(1);
+                });
+    }
+
+    @Test
+    @Order(2)
+    void upsertModel() {
+        assertThat(client.models().modelsUpsert(
+                ModelsApi.APIModelsUpsertRequest.newBuilder()
+                        .id(modelId)
+                        .createModelRequest(CreateModelRequest.builder()
+                                .modelName(MODEL_NAME)
+                                .matchPattern("(?i)^(%s)(-.+)?$".formatted(MODEL_NAME))
+                                .unit(ModelUsageUnit.TOKENS)
+                                .inputPrice(0.005)
+                                .outputPrice(0.010)
+                                .tokenizerId(ModelTokenizerId.OPENAI)
+                                .build())
+                        .build()))
+                .satisfies(model -> {
+                    assertThat(model.getId()).isEqualTo(modelId);
+                    assertThat(model.getModelName()).isEqualTo(MODEL_NAME);
+                    assertThat(model.getInputPrice()).isEqualTo(0.005);
+                    assertThat(model.getOutputPrice()).isEqualTo(0.010);
                 });
     }
 

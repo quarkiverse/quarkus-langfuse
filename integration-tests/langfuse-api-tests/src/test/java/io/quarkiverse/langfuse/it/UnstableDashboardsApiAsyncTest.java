@@ -14,9 +14,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 
 import com.langfuse.api.LangfuseApi;
-import com.langfuse.api.model.UnstableCreateDashboardPlacementRequestOneOf;
 import com.langfuse.api.model.UnstableCreateDashboardRequest;
 import com.langfuse.api.model.UnstableCreateDashboardWidgetRequest;
+import com.langfuse.api.model.UnstableCreateWidgetPlacement;
 import com.langfuse.api.model.UnstableDashboardWidgetChartType;
 import com.langfuse.api.model.UnstableDashboardWidgetMetric;
 import com.langfuse.api.model.UnstableDashboardWidgetMetricAggregation;
@@ -122,19 +122,19 @@ class UnstableDashboardsApiAsyncTest {
                         .dashboardId(dashboardId)
                         .unstableCreateDashboardPlacementRequest(
                                 new com.langfuse.api.model.UnstableCreateDashboardPlacementRequest(
-                                        UnstableCreateDashboardPlacementRequestOneOf.builder()
+                                        UnstableCreateWidgetPlacement.builder()
                                                 .widgetId(widgetId)
                                                 .x(0)
                                                 .y(0)
                                                 .width(6)
                                                 .height(6)
-                                                .type(UnstableCreateDashboardPlacementRequestOneOf.TypeEnum.WIDGET)
+                                                .type(UnstableCreateWidgetPlacement.TypeEnum.WIDGET)
                                                 .build()))
                         .build()))
                 .succeedsWithin(Duration.ofSeconds(5))
                 .satisfies(placement -> {
                     assertThat(placement).isNotNull();
-                    placementId = placement.getUnstableDashboardPlacementOneOf().getId();
+                    placementId = placement.getUnstableWidgetPlacement().getId();
                     assertThat(placementId).isNotBlank();
                 });
     }

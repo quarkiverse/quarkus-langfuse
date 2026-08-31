@@ -24,6 +24,10 @@ open module com.langfuse.api {
     exports com.langfuse.api.datasetRunItems.async;
     exports com.langfuse.api.datasets;
     exports com.langfuse.api.datasets.async;
+    exports com.langfuse.api.evaluationRules;
+    exports com.langfuse.api.evaluationRules.async;
+    exports com.langfuse.api.evaluators;
+    exports com.langfuse.api.evaluators.async;
     exports com.langfuse.api.experiments;
     exports com.langfuse.api.experiments.async;
     exports com.langfuse.api.feedback;

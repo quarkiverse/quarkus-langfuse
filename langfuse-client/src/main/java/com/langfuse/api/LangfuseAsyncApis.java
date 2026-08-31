@@ -6,6 +6,8 @@ import com.langfuse.api.comments.async.CommentsApi;
 import com.langfuse.api.datasetItems.async.DatasetItemsApi;
 import com.langfuse.api.datasetRunItems.async.DatasetRunItemsApi;
 import com.langfuse.api.datasets.async.DatasetsApi;
+import com.langfuse.api.evaluationRules.async.EvaluationRulesApi;
+import com.langfuse.api.evaluators.async.EvaluatorsApi;
 import com.langfuse.api.experiments.async.ExperimentsApi;
 import com.langfuse.api.feedback.async.FeedbackApi;
 import com.langfuse.api.health.async.HealthApi;
@@ -41,6 +43,8 @@ public interface LangfuseAsyncApis extends
         DatasetItemsApi,
         DatasetRunItemsApi,
         DatasetsApi,
+        EvaluationRulesApi,
+        EvaluatorsApi,
         ExperimentsApi,
         FeedbackApi,
         HealthApi,
