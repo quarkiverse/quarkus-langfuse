@@ -13,6 +13,8 @@ import io.quarkiverse.langfuse.client.jaxrs.QuarkusCommentsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusDatasetItemsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusDatasetRunItemsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusDatasetsAsyncApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusEvaluationRulesAsyncApi;
+import io.quarkiverse.langfuse.client.jaxrs.QuarkusEvaluatorsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusExperimentsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusFeedbackAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusHealthAsyncApi;
@@ -54,6 +56,8 @@ public interface QuarkusLangfuseAsyncClient extends LangfuseAsyncApis,
         QuarkusDatasetItemsAsyncApi,
         QuarkusDatasetRunItemsAsyncApi,
         QuarkusDatasetsAsyncApi,
+        QuarkusEvaluationRulesAsyncApi,
+        QuarkusEvaluatorsAsyncApi,
         QuarkusExperimentsAsyncApi,
         QuarkusFeedbackAsyncApi,
         QuarkusHealthAsyncApi,

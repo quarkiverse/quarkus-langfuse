@@ -6,6 +6,8 @@ import com.langfuse.api.comments.CommentsApi;
 import com.langfuse.api.datasetItems.DatasetItemsApi;
 import com.langfuse.api.datasetRunItems.DatasetRunItemsApi;
 import com.langfuse.api.datasets.DatasetsApi;
+import com.langfuse.api.evaluationRules.EvaluationRulesApi;
+import com.langfuse.api.evaluators.EvaluatorsApi;
 import com.langfuse.api.experiments.ExperimentsApi;
 import com.langfuse.api.feedback.FeedbackApi;
 import com.langfuse.api.health.HealthApi;
@@ -41,6 +43,8 @@ public interface LangfuseApis extends
         DatasetItemsApi,
         DatasetRunItemsApi,
         DatasetsApi,
+        EvaluationRulesApi,
+        EvaluatorsApi,
         ExperimentsApi,
         FeedbackApi,
         HealthApi,

@@ -11,8 +11,8 @@ import org.junit.jupiter.api.Test;
 
 import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.model.UnstableCodeEvaluatorSourceCodeLanguage;
+import com.langfuse.api.model.UnstableCreateCodeEvaluatorRequest;
 import com.langfuse.api.model.UnstableCreateEvaluatorRequest;
-import com.langfuse.api.model.UnstableCreateEvaluatorRequestOneOf1;
 import com.langfuse.api.unstableEvaluators.UnstableEvaluatorsApi.APIUnstableEvaluatorsCreateRequest;
 import com.langfuse.api.unstableEvaluators.UnstableEvaluatorsApi.APIUnstableEvaluatorsListRequest;
 
@@ -37,11 +37,11 @@ class UnstableEvaluatorsApiAsyncTest {
     void createCodeEvaluatorRequiresEnterprisePlan() {
         // Code evaluator creation returns 403 on self-hosted free tier
         var createRequest = new UnstableCreateEvaluatorRequest(
-                UnstableCreateEvaluatorRequestOneOf1.builder()
+                UnstableCreateCodeEvaluatorRequest.builder()
                         .name("async-test-evaluator-" + UUID.randomUUID().toString().substring(0, 8))
                         .sourceCode("def evaluate(output, expected_output, input, metadata):\n  return 1.0")
                         .sourceCodeLanguage(UnstableCodeEvaluatorSourceCodeLanguage.PYTHON)
-                        .type(UnstableCreateEvaluatorRequestOneOf1.TypeEnum.CODE)
+                        .type(UnstableCreateCodeEvaluatorRequest.TypeEnum.CODE)
                         .build());
 
         assertThat(client.asyncUnstableEvaluators().unstableEvaluatorsCreate(

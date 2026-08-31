@@ -156,7 +156,13 @@ The `LangfuseApi` bean provides access to the full https://langfuse.com/docs[Lan
 | Manage dataset run items
 
 | `models()`
-| Manage model definitions and pricing
+| Create, upsert, and manage model definitions and pricing
+
+| `evaluators()`
+| Create and manage evaluators (v2)
+
+| `evaluationRules()`
+| Create and manage evaluation rules (v2)
 
 | `projects()`
 | Manage projects and API keys

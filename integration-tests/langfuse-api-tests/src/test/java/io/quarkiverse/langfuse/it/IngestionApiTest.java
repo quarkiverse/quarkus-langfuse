@@ -15,12 +15,12 @@ import com.langfuse.api.ingestion.IngestionApi.APIIngestionBatchRequest;
 import com.langfuse.api.model.CreateScoreValue;
 import com.langfuse.api.model.IngestionBatchRequest;
 import com.langfuse.api.model.IngestionEvent;
-import com.langfuse.api.model.IngestionEventOneOf;
-import com.langfuse.api.model.IngestionEventOneOf1;
 import com.langfuse.api.model.IngestionSuccess;
 import com.langfuse.api.model.ScoreBody;
 import com.langfuse.api.model.ScoreDataType;
+import com.langfuse.api.model.ScoreEvent1;
 import com.langfuse.api.model.TraceBody;
+import com.langfuse.api.model.TraceEvent1;
 
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
@@ -38,10 +38,10 @@ class IngestionApiTest {
     void traceCreateReturnsErrorInEventsOnlyMode() {
         var eventId = UUID.randomUUID().toString();
 
-        var traceEvent = IngestionEventOneOf.builder()
+        var traceEvent = TraceEvent1.builder()
                 .id(eventId)
                 .timestamp(OffsetDateTime.now().toString())
-                .type(IngestionEventOneOf.TypeEnum.TRACE_CREATE)
+                .type(TraceEvent1.TypeEnum.TRACE_CREATE)
                 .body(TraceBody.builder()
                         .id(UUID.randomUUID().toString())
                         .name("test-trace")
@@ -70,20 +70,20 @@ class IngestionApiTest {
         var eventId2 = UUID.randomUUID().toString();
 
         List<IngestionEvent> events = List.of(
-                new IngestionEvent(IngestionEventOneOf.builder()
+                new IngestionEvent(TraceEvent1.builder()
                         .id(eventId1)
                         .timestamp(OffsetDateTime.now().toString())
-                        .type(IngestionEventOneOf.TypeEnum.TRACE_CREATE)
+                        .type(TraceEvent1.TypeEnum.TRACE_CREATE)
                         .body(TraceBody.builder()
                                 .id(UUID.randomUUID().toString())
                                 .name("batch-trace-1")
                                 .environment(config.environment())
                                 .build())
                         .build()),
-                new IngestionEvent(IngestionEventOneOf.builder()
+                new IngestionEvent(TraceEvent1.builder()
                         .id(eventId2)
                         .timestamp(OffsetDateTime.now().toString())
-                        .type(IngestionEventOneOf.TypeEnum.TRACE_CREATE)
+                        .type(TraceEvent1.TypeEnum.TRACE_CREATE)
                         .body(TraceBody.builder()
                                 .id(UUID.randomUUID().toString())
                                 .name("batch-trace-2")
@@ -113,10 +113,10 @@ class IngestionApiTest {
 
         var eventId = UUID.randomUUID().toString();
 
-        var scoreEvent = IngestionEventOneOf1.builder()
+        var scoreEvent = ScoreEvent1.builder()
                 .id(eventId)
                 .timestamp(OffsetDateTime.now().toString())
-                .type(IngestionEventOneOf1.TypeEnum.SCORE_CREATE)
+                .type(ScoreEvent1.TypeEnum.SCORE_CREATE)
                 .body(ScoreBody.builder()
                         .traceId(traceId)
                         .name("ingestion-test-score")

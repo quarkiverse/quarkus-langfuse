@@ -132,7 +132,9 @@ The `LangfuseApi` bean provides access to the full [Langfuse public API](https:/
 | `datasets()` | Create and manage datasets |
 | `datasetItems()` | Manage dataset items |
 | `datasetRunItems()` | Manage dataset run items |
-| `models()` | Manage model definitions and pricing |
+| `models()` | Create, upsert, and manage model definitions and pricing |
+| `evaluators()` | Create and manage evaluators (v2) |
+| `evaluationRules()` | Create and manage evaluation rules (v2) |
 | `projects()` | Manage projects and API keys |
 | `organizations()` | Manage organization memberships |
 | `comments()` | Manage comments on traces |
