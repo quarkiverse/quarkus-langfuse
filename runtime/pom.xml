@@ -60,6 +60,12 @@
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-rest-client-jackson</artifactId>
 		</dependency>
+		<!-- Mutiny appears in the public signatures of the higher-level API operations,
+				 so it is declared explicitly rather than relied upon transitively -->
+		<dependency>
+			<groupId>io.smallrye.reactive</groupId>
+			<artifactId>mutiny</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>io.quarkus</groupId>
 			<artifactId>quarkus-hibernate-validator</artifactId>
@@ -104,7 +110,11 @@
 									<artifactId>quarkus-langfuse-client</artifactId>
 									<version>${project.version}</version>
 									<outputDirectory>${project.build.outputDirectory}</outputDirectory>
-									<excludes>META-INF/MANIFEST.MF,META-INF/maven/**</excludes>
+									<!-- module-info.class is excluded because it declares the client's own JPMS module
+											 (com.langfuse.api). Unpacking it here would both mislabel this jar's module and,
+											 because it lands in target/classes, make javac treat this module as modular on any
+											 subsequent incremental build, failing with "module not found" for every requires -->
+									<excludes>META-INF/MANIFEST.MF,META-INF/maven/**,module-info.class</excludes>
 								</artifactItem>
 							</artifactItems>
 						</configuration>

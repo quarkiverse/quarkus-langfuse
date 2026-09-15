@@ -1243,6 +1243,52 @@ endif::add-copy-button-to-env-var[]
 a|`all`, `ai-only`
 |`+++ai-only+++`
 
+a| [[quarkus-langfuse_quarkus-langfuse-api-default-page-size]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-api-default-page-size[`+++quarkus.langfuse.api.default-page-size+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.api.default-page-size+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Default number of items requested per page when traversing a page-addressed collection, such as models, datasets, LLM connections or score configs.
+
+Langfuse caps this per endpoint (most allow at most `100`); a value above an endpoint's cap is rejected by the server rather than by this extension.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_API_DEFAULT_PAGE_SIZE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_API_DEFAULT_PAGE_SIZE+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|`+++50+++`
+
+a| [[quarkus-langfuse_quarkus-langfuse-api-default-batch-size]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-api-default-batch-size[`+++quarkus.langfuse.api.default-batch-size+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.api.default-batch-size+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Default number of items requested per batch when traversing a cursor-addressed collection, such as evaluation rules.
+
+Langfuse caps this per endpoint (most allow at most `100`); a value above an endpoint's cap is rejected by the server rather than by this extension.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_API_DEFAULT_BATCH_SIZE+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_API_DEFAULT_BATCH_SIZE+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|`+++50+++`
+
 |===
 
 ifndef::no-duration-note[]
