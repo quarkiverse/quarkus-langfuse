@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import jakarta.inject.Inject;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import com.langfuse.api.LangfuseApi;
@@ -18,6 +19,7 @@ import com.langfuse.api.unstableEvaluators.UnstableEvaluatorsApi.APIUnstableEval
 
 import io.quarkus.test.junit.QuarkusTest;
 
+@Disabled("Deprecated unstable endpoints removed in latest Langfuse v4 image")
 @QuarkusTest
 class UnstableEvaluatorsApiTest {
 

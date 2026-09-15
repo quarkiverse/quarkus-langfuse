@@ -18,6 +18,7 @@ import com.langfuse.api.unstableEvaluationRules.UnstableEvaluationRulesApi.APIUn
 import io.quarkus.test.junit.QuarkusTest;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@Disabled("Deprecated unstable endpoints removed in latest Langfuse v4 image")
 @QuarkusTest
 class UnstableEvaluationRulesApiTest {
 

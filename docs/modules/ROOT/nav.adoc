@@ -1,2 +1,3 @@
 * xref:index.adoc[About Langfuse]
+* xref:api-operations.adoc[Higher-Level API Operations]
 * xref:all-config.adoc[All Configuration Options]

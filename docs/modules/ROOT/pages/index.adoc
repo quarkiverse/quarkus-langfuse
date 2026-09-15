@@ -74,7 +74,9 @@ For a complete list of configuration properties, see the <<extension-configurati
 
 == Usage
 
-Simply inject `LangfuseApi` into your CDI beans. The extension automatically configures and provides the implementation:
+Simply inject `LangfuseApi` into your CDI beans for raw REST API access, or inject `LangfuseOperations` / `AsyncLangfuseOperations` for higher-level operations such as finding resources by name, checking existence, and walking paginated collections (see xref:api-operations.adoc[Higher-Level API Operations]).
+
+The extension automatically configures and provides the implementations:
 
 [source,java]
 ----

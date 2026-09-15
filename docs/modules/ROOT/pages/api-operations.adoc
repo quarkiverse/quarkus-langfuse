@@ -1,0 +1,280 @@
+= Higher-Level API Operations
+include::./includes/attributes.adoc[]
+
+The generated `LangfuseApi` client mirrors the Langfuse REST API one endpoint at a time. For common tasks - looking things up by name, checking whether they exist, ensuring resources are created idempotently at startup, and walking paginated collections without hand-rolling page arithmetic - the extension provides a curated, higher-level layer in `io.quarkiverse.langfuse.api`.
+
+Anything not covered by this layer remains one call away through `api()`, which returns the underlying `LangfuseApi`.
+
+== Dependency and Injection
+
+The operations layer is included automatically with the `quarkus-langfuse` dependency. No extra dependencies are required.
+
+Two injection styles are supported:
+
+[source,java]
+----
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+
+import io.quarkiverse.langfuse.api.AsyncLangfuseOperations;
+import io.quarkiverse.langfuse.api.LangfuseOperations;
+
+@ApplicationScoped
+public class TelemetryService {
+
+    // Synchronous facade, with langfuse.async() available
+    @Inject
+    LangfuseOperations langfuse;
+
+    // Standalone Mutiny-only bean (no blocking facade involved)
+    @Inject
+    AsyncLangfuseOperations asyncLangfuse;
+}
+----
+
+`AsyncLangfuseOperations` is a standalone CDI bean, not merely a child of `LangfuseOperations`. Applications that never block can inject `AsyncLangfuseOperations` directly and ignore the synchronous tree entirely. Both routes resolve to the same underlying instance.
+
+== Available Operations
+
+Langfuse uses two different pagination models depending on the resource. The layer reflects this distinction rather than hiding it behind an artificial abstraction:
+
+[cols="1,1,2,2",options="header"]
+|===
+| Domain | Addressing | Method | Description
+
+| Models
+| Page
+| `langfuse.models()`
+| Query, paginate and create model definitions
+
+| Datasets
+| Page
+| `langfuse.datasets()`
+| Query, paginate and create datasets
+
+| LLM Connections
+| Page
+| `langfuse.llmConnections()`
+| Query, paginate and configure LLM provider connections
+
+| Score Configs
+| Page
+| `langfuse.scoreConfigs()`
+| Query, paginate and create score configurations
+
+| Evaluation Rules
+| **Cursor**
+| `langfuse.evaluationRules()`
+| Query, paginate via cursor and create evaluation rules
+|===
+
+=== Page-Addressed Operations
+
+Models, datasets, LLM connections, and score configs are page-addressed (`page` and `limit` query parameters):
+
+[cols="2,2,3",options="header"]
+|===
+| Synchronous | Asynchronous (Mutiny) | Description
+
+| `Optional<T> findByName(String)`
+| `Uni<T> findByName(String)`
+| Exact-match lookup. Emits `null` on the async tree if absent.
+
+| `boolean exists(String)`
+| `Uni<Boolean> exists(String)`
+| Whether an item with that exact name exists.
+
+| `List<T> findAll()`
+| `Uni<List<T>> findAll()`
+| Fetches all items across all pages using the configured default page size.
+
+| `List<T> find(PageSelection)`
+| `Uni<List<T>> find(PageSelection)`
+| Fetches all items on the selected pages as a list.
+
+| `Stream<T> streamAll()`
+| `Multi<T> streamAll()`
+| Lazily walks all items across all pages.
+
+| `Stream<T> stream(PageSelection)`
+| `Multi<T> stream(PageSelection)`
+| Lazily walks items on the selected pages.
+
+| `Stream<PagedResult<T>> streamPages(PageSelection)`
+| `Multi<PagedResult<T>> streamPages(PageSelection)`
+| Lazily walks pages, exposing totals and page metadata.
+
+| `PagedResult<T> findPage(Page)`
+| `Uni<PagedResult<T>> findPage(Page)`
+| Fetches a single page with its server-reported totals.
+
+| `T createIfAbsent(...)`
+| `Uni<T> createIfAbsent(...)`
+| Returns the existing item or creates it (non-atomic).
+|===
+
+NOTE: LLM connections are keyed by `provider` rather than `name`, so their operations are named `findByProvider(String)` and `exists(String)`. In addition, LLM connections provide an atomic `upsert(UpsertLlmConnectionRequest)` instead of `createIfAbsent`.
+
+=== Cursor-Addressed Operations
+
+Evaluation rules use opaque server cursors rather than page numbers. Because Langfuse reports only a cursor and no total page count or item count, cursor operations do not fabricate totals or ordinal page indexes:
+
+[cols="2,2,3",options="header"]
+|===
+| Synchronous | Asynchronous (Mutiny) | Description
+
+| `Optional<T> findByName(String)`
+| `Uni<T> findByName(String)`
+| Exact-match lookup. Emits `null` on the async tree if absent.
+
+| `boolean exists(String)`
+| `Uni<Boolean> exists(String)`
+| Whether an item with that exact name exists.
+
+| `List<T> findAll()`
+| `Uni<List<T>> findAll()`
+| Fetches all items across all batches using the configured default batch size.
+
+| `List<T> find(CursorSelection)`
+| `Uni<List<T>> find(CursorSelection)`
+| Fetches all items in the selected batches as a list.
+
+| `Stream<T> streamAll()`
+| `Multi<T> streamAll()`
+| Lazily walks all items across all batches.
+
+| `Stream<T> stream(CursorSelection)`
+| `Multi<T> stream(CursorSelection)`
+| Lazily walks items in the selected batches.
+
+| `Stream<CursorResult<T>> streamBatches(CursorSelection)`
+| `Multi<CursorResult<T>> streamBatches(CursorSelection)`
+| Lazily walks batches, exposing the next cursor.
+
+| `CursorResult<T> findBatch(Cursor)`
+| `Uni<CursorResult<T>> findBatch(Cursor)`
+| Fetches a single batch by cursor.
+
+| `T createIfAbsent(...)`
+| `Uni<T> createIfAbsent(...)`
+| Returns the existing rule or creates it (non-atomic).
+|===
+
+== Pagination
+
+=== Page Addressing
+
+A `Page` is a 1-based coordinate. A `PageSelection` describes the intent of a traversal:
+
+[source,java]
+----
+// Coordinates
+Page.of(2, 75);                            // page 2, 75 items per page
+Page.ofSize(75);                           // page 1, 75 items per page
+
+// Selections
+PageSelection.all();                       // every page, using default page size
+PageSelection.all(75);                     // every page, 75 items per page
+PageSelection.from(Page.of(2, 75));        // page 2 onward
+PageSelection.only(Page.of(2, 75));        // page 2 only
+PageSelection.range(2, 4, 75);             // pages 2 and 3 (end exclusive)
+PageSelection.rangeClosed(2, 4, 75);       // pages 2, 3 and 4 (end inclusive)
+----
+
+NOTE: Page indexes are **1-based**, matching Langfuse's REST API and UI. This differs from `io.quarkus.panache.common.Page`, which is 0-based. Because indexes are 1-based, `range(1, 4, 50)` selects three pages (1, 2, 3), not four.
+
+=== Cursor Addressing
+
+A `Cursor` is an opaque token returned by Langfuse, never parsed by the extension:
+
+[source,java]
+----
+Cursor.first(75);                          // start of the collection, 75 items per request
+Cursor.at("opaque-token", 75);             // resume from a previous response's cursor
+
+CursorSelection.all();                     // every batch, using default batch size
+CursorSelection.all(75);                   // every batch, 75 items per request
+CursorSelection.from(cursor);              // from cursor onward
+CursorSelection.only(cursor);              // that single batch only
+CursorSelection.first(3, 75);              // first 3 batches
+----
+
+=== Laziness and Short-Circuiting
+
+Both `Pagination` (synchronous `Stream`) and `AsyncPagination` (Mutiny `Multi`) are lazy end-to-end:
+
+* No HTTP request is issued until the stream is consumed or the `Multi` is subscribed to.
+* Each page or batch is requested only when the previous one has been exhausted.
+* Short-circuiting terminal operations (`findFirst()`, `anyMatch()`, `limit()`, Mutiny `select().first()`) stop the traversal immediately; subsequent pages are **never requested**.
+* An empty selection (e.g., `range(2, 2, 50)`) performs zero HTTP requests.
+
+== Error Handling
+
+Absence and failure are strictly separated:
+
+* `findByName` and `findByProvider` return `Optional.empty()` (sync) or emit `null` (async) only when the resource genuinely does not exist (404 from the server, or not found in the listing).
+* `exists` returns `false` only when the resource genuinely does not exist.
+* All other failures - bad credentials (401/403), transport errors, 5xx server errors - **propagate as exceptions** (`LangfuseApiException`). They are never swallowed or logged as warnings.
+* `findAll()`, `find()`, `findPage()`, and `findBatch()` propagate 404 errors, because a 404 on a collection endpoint indicates a misconfigured URL or project rather than an empty collection (Langfuse returns 200 with an empty array for an empty collection).
+
+=== Consuming Asynchronous Absence
+
+Because `Uni` emits `null` when a resource is absent, use Mutiny's null-handling operators when absent values must be handled explicitly:
+
+[source,java]
+----
+// Throw an exception if missing
+langfuse.async().models().findByName("gpt-4o")
+        .onItem().ifNull().failWith(() -> new IllegalStateException("gpt-4o is not registered"))
+        .map(Model::getId);
+
+// Supply a fallback value
+langfuse.async().models().findByName("gpt-4o")
+        .map(model -> (model != null) ? model.getId() : "default-id");
+----
+
+== Write Semantics
+
+[cols="1,1,3",options="header"]
+|===
+| Domain | Operation | Concurrency Guarantee
+
+| LLM Connections
+| `upsert(...)`
+| **Atomic.** Backed by Langfuse's own `PUT /api/public/llm-connections`, which creates or replaces by provider in a single request.
+
+| Models
+| `createIfAbsent(...)`
+| **Not atomic.** Langfuse offers no upsert-by-name endpoint for models. This performs a lookup followed by a create; concurrent callers may both observe absence and both create.
+
+| Datasets
+| `createIfAbsent(...)`
+| **Not atomic.** Lookup is a single request (`GET /api/public/v2/datasets/{name}`), but the create is a separate second request.
+
+| Score Configs
+| `createIfAbsent(...)`
+| **Not atomic.** Lookup followed by create.
+
+| Evaluation Rules
+| `createIfAbsent(...)`
+| **Not atomic.** Cursor scan followed by create.
+|===
+
+== Configuration Reference
+
+These settings control the default page and batch sizes used by `findAll()` and `streamAll()`:
+
+[cols="2,1,3",options="header"]
+|===
+| Property | Default | Description
+
+| `quarkus.langfuse.api.default-page-size`
+| `50`
+| Default number of items per page for page-addressed collections (models, datasets, LLM connections, score configs).
+
+| `quarkus.langfuse.api.default-batch-size`
+| `50`
+| Default number of items per batch for cursor-addressed collections (evaluation rules).
+|===
+
+An explicit `PageSelection` or `CursorSelection` passed to `find(...)` or `stream(...)` overrides these defaults for that call.

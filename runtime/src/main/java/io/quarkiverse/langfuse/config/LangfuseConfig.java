@@ -100,4 +100,9 @@ public interface LangfuseConfig {
      * Provides the configuration related to OpenTelemetry for Langfuse integration.
      */
     LangfuseOtelConfig otel();
+
+    /**
+     * Provides the configuration for the higher-level Langfuse API operations.
+     */
+    LangfuseApiConfig api();
 }

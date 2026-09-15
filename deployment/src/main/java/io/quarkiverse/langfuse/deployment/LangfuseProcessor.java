@@ -10,12 +10,15 @@ import org.jboss.jandex.ClassType;
 
 import com.langfuse.api.spi.LangfuseApiBuilderFactory;
 
+import io.quarkiverse.langfuse.api.AsyncLangfuseOperations;
+import io.quarkiverse.langfuse.api.LangfuseOperations;
 import io.quarkiverse.langfuse.client.QuarkusLangfuseApiBuilderFactory;
 import io.quarkiverse.langfuse.deployment.config.LangfuseBuildTimeConfig;
 import io.quarkiverse.langfuse.deployment.config.LangfuseOtelBuildTimeConfig.ExportTarget;
 import io.quarkiverse.langfuse.runtime.LangfuseRecorder;
 import io.quarkiverse.langfuse.runtime.langchain4j.LangfuseLangchain4jConfigBuilder;
 import io.quarkiverse.langfuse.runtime.otel.LangfuseOtelConfigBuilder;
+import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.OpenTelemetrySdkBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
 import io.quarkus.bootstrap.classloading.QuarkusClassLoader;
@@ -37,6 +40,20 @@ class LangfuseProcessor {
     @BuildStep
     FeatureBuildItem feature() {
         return new FeatureBuildItem(FEATURE);
+    }
+
+    /**
+     * Registers the higher-level API operations explicitly rather than relying on bean discovery: the
+     * runtime module's {@code META-INF/beans.xml} is the only thing that would otherwise make these
+     * classes visible to ArC, and its removal would silently drop the beans.
+     */
+    @BuildStep
+    AdditionalBeanBuildItem langfuseOperations() {
+        return AdditionalBeanBuildItem.builder()
+                .addBeanClasses(LangfuseOperations.class, AsyncLangfuseOperations.class)
+                .setUnremovable()
+                .setDefaultScope(io.quarkus.arc.processor.DotNames.APPLICATION_SCOPED)
+                .build();
     }
 
     @BuildStep
