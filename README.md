@@ -13,7 +13,7 @@ A Quarkus extension for [Langfuse](https://langfuse.com), the open-source LLM en
 ## Features
 
 - **Type-safe Langfuse API client** - Synchronous and asynchronous clients covering the full [Langfuse public API](https://langfuse.com/docs) (traces, ingestion, prompts, scores, datasets, observations, sessions, and more), built on the Quarkus REST Client Reactive.
-- **Higher-level API operations** - Curated `LangfuseOperations` and `AsyncLangfuseOperations` (Mutiny) beans for common operations: find-by-name, existence checks, lazy pagination with short-circuiting, and idempotent resource initialization, with an `api()` escape hatch to the raw client.
+- **Higher-level API operations** - Curated `LangfuseOperations` and `AsyncLangfuseOperations` (Mutiny) beans for common operations: find-by-name, existence checks, lazy pagination with short-circuiting, idempotent resource initialization, and batch deletes by id or name that report an outcome per identifier, with an `api()` escape hatch to the raw client.
 - **CDI integration** - Inject `LangfuseApi`, `LangfuseOperations`, or `AsyncLangfuseOperations` directly into your beans.
 - **DevServices** - Automatically starts a complete Langfuse stack (Langfuse server, PostgreSQL, ClickHouse, Redis, MinIO, and Worker) in dev and test mode using Testcontainers. No manual setup required.
 - **Dev UI** - Provides a Dev UI card with a direct link to the Langfuse dashboard running in your local DevServices instance.

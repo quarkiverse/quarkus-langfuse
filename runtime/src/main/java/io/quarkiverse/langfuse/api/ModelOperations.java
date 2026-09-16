@@ -1,5 +1,8 @@
 package io.quarkiverse.langfuse.api;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import com.langfuse.api.model.CreateModelRequest;
@@ -67,4 +70,122 @@ public sealed interface ModelOperations extends PagedOperations<Model> permits D
      * @return the existing or newly created model definition
      */
     Model createIfAbsent(CreateModelRequest request);
+
+    /**
+     * Deletes the model definitions with the given ids.
+     *
+     * <p>
+     * <strong>Absence is not an error.</strong> An id matching no model yields a
+     * {@link DeletionOutcome.NotFound} outcome rather than throwing, so deleting something that is
+     * already gone is a normal result rather than a failure to handle.
+     *
+     * <p>
+     * <strong>Never fails fast.</strong> Every id is attempted regardless of what happened to the
+     * others, and each is reported separately: one failure neither hides the successes nor prevents
+     * the remaining work.
+     *
+     * <p>
+     * <strong>Not atomic.</strong> Langfuse offers no bulk delete, so this iterates client-side and
+     * can partially apply. Inspect the returned {@link DeletionResult} rather than assuming
+     * all-or-nothing.
+     *
+     * <p>
+     * <strong>Blocks the calling thread.</strong> Do not call this from a Vert.x I/O thread; use
+     * {@link AsyncModelOperations#deleteById(Collection)} instead.
+     *
+     * @param ids the model ids to delete, must not be {@code null} and must not contain {@code null}
+     *        or blank elements; may be empty, in which case no request is issued
+     * @return one outcome per distinct id
+     * @throws IllegalArgumentException if {@code ids} is {@code null}, or if any element is
+     *         {@code null} or blank
+     */
+    DeletionResult deleteById(Collection<String> ids);
+
+    /**
+     * Deletes the model definition with the given id.
+     *
+     * @param id the model id to delete, must not be {@code null} or blank
+     * @return the outcome for that id
+     * @throws IllegalArgumentException if {@code id} is {@code null} or blank
+     * @see #deleteById(Collection)
+     */
+    default DeletionResult deleteById(String id) {
+        return deleteById(Collections.singletonList(id));
+    }
+
+    /**
+     * Deletes the model definitions with the given ids.
+     *
+     * @param ids the model ids to delete, must not be {@code null} and must not contain {@code null}
+     *        or blank elements; may be empty, in which case no request is issued
+     * @return one outcome per distinct id
+     * @throws IllegalArgumentException if {@code ids} is {@code null}, or if any element is
+     *         {@code null} or blank
+     * @see #deleteById(Collection)
+     */
+    default DeletionResult deleteById(String... ids) {
+        return deleteById((ids == null) ? null : Arrays.asList(ids));
+    }
+
+    /**
+     * Deletes the model definitions with the given exact names.
+     *
+     * <p>
+     * <strong>Absence is not an error.</strong> A name matching no model yields a
+     * {@link DeletionOutcome.NotFound} outcome rather than throwing, so deleting something that is
+     * already gone is a normal result rather than a failure to handle.
+     *
+     * <p>
+     * <strong>Never fails fast.</strong> Every name is attempted regardless of what happened to the
+     * others, and each is reported separately: one failure neither hides the successes nor prevents
+     * the remaining work.
+     *
+     * <p>
+     * <strong>Not atomic.</strong> Langfuse offers no bulk delete, so this iterates client-side and
+     * can partially apply. Inspect the returned {@link DeletionResult} rather than assuming
+     * all-or-nothing.
+     *
+     * <p>
+     * Each name is resolved to its id first, which walks the collection the way {@link #findByName}
+     * does. A name that matches stops the scan early, but an <strong>absent</strong> name costs a
+     * full traversal, so deleting many absent names is markedly more expensive than deleting the
+     * same number of ids. Prefer {@link #deleteById(Collection)} where ids are already known.
+     *
+     * <p>
+     * <strong>Blocks the calling thread.</strong> Do not call this from a Vert.x I/O thread; use
+     * {@link AsyncModelOperations#deleteByName(Collection)} instead.
+     *
+     * @param modelNames the model names to delete, must not be {@code null} and must not contain
+     *        {@code null} or blank elements; may be empty, in which case no request is issued
+     * @return one outcome per distinct name, keyed by the name supplied rather than by the resolved id
+     * @throws IllegalArgumentException if {@code modelNames} is {@code null}, or if any element is
+     *         {@code null} or blank
+     */
+    DeletionResult deleteByName(Collection<String> modelNames);
+
+    /**
+     * Deletes the model definition with the given exact name.
+     *
+     * @param modelName the model name to delete, must not be {@code null} or blank
+     * @return the outcome for that name
+     * @throws IllegalArgumentException if {@code modelName} is {@code null} or blank
+     * @see #deleteByName(Collection)
+     */
+    default DeletionResult deleteByName(String modelName) {
+        return deleteByName(Collections.singletonList(modelName));
+    }
+
+    /**
+     * Deletes the model definitions with the given exact names.
+     *
+     * @param modelNames the model names to delete, must not be {@code null} and must not contain
+     *        {@code null} or blank elements; may be empty, in which case no request is issued
+     * @return one outcome per distinct name
+     * @throws IllegalArgumentException if {@code modelNames} is {@code null}, or if any element is
+     *         {@code null} or blank
+     * @see #deleteByName(Collection)
+     */
+    default DeletionResult deleteByName(String... modelNames) {
+        return deleteByName((modelNames == null) ? null : Arrays.asList(modelNames));
+    }
 }

@@ -1,8 +1,10 @@
 package io.quarkiverse.langfuse.api;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import com.langfuse.api.llmConnections.LlmConnectionsApi;
+import com.langfuse.api.llmConnections.LlmConnectionsApi.APILlmConnectionsDeleteRequest;
 import com.langfuse.api.llmConnections.LlmConnectionsApi.APILlmConnectionsListRequest;
 import com.langfuse.api.llmConnections.LlmConnectionsApi.APILlmConnectionsUpsertRequest;
 import com.langfuse.api.model.LlmConnection;
@@ -28,6 +30,27 @@ final class DefaultLlmConnectionOperations extends AbstractPagedOperations<LlmCo
     public LlmConnection upsert(UpsertLlmConnectionRequest request) {
         return this.llmConnectionsApi.llmConnectionsUpsert(APILlmConnectionsUpsertRequest.newBuilder()
                 .upsertLlmConnectionRequest(request)
+                .build());
+    }
+
+    @Override
+    public DeletionResult deleteById(Collection<String> ids) {
+        return Deletions.deleteAll(ids, "LLM connection id", Optional::of, this::delete, deleteConcurrency());
+    }
+
+    @Override
+    public DeletionResult deleteByProvider(Collection<String> providers) {
+        return Deletions.deleteAll(providers, "Provider", this::resolveByProvider, this::delete, deleteConcurrency());
+    }
+
+    private Optional<String> resolveByProvider(String provider) {
+        return findByProvider(provider)
+                .map(LlmConnection::getId);
+    }
+
+    private void delete(String id) {
+        this.llmConnectionsApi.llmConnectionsDelete(APILlmConnectionsDeleteRequest.newBuilder()
+                .id(id)
                 .build());
     }
 

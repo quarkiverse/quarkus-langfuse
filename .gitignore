@@ -65,3 +65,5 @@ release.properties
 
 META-INF
 /.explyt/
+/AGENTS.md
+.tasks/

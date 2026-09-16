@@ -62,4 +62,8 @@ abstract non-sealed class AbstractCursorOperations<T> implements CursorOperation
     private int defaultBatchSize() {
         return this.config.api().defaultBatchSize();
     }
+
+    protected final int deleteConcurrency() {
+        return Math.max(1, this.config.api().deleteConcurrency());
+    }
 }

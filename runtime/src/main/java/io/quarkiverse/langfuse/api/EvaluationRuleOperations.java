@@ -1,5 +1,8 @@
 package io.quarkiverse.langfuse.api;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Optional;
 
 import com.langfuse.api.model.CreateEvaluationRuleRequest;
@@ -60,4 +63,134 @@ public sealed interface EvaluationRuleOperations extends CursorOperations<Evalua
      * @return the existing or newly created evaluation rule
      */
     EvaluationRule createIfAbsent(CreateEvaluationRuleRequest request);
+
+    /**
+     * Deletes the evaluation rules with the given ids.
+     *
+     * <p>
+     * <strong>Absence is not an error.</strong> An id matching no evaluation rule yields a
+     * {@link DeletionOutcome.NotFound} outcome rather than throwing, so deleting something that is
+     * already gone is a normal result rather than a failure to handle.
+     *
+     * <p>
+     * <strong>Never fails fast.</strong> Every id is attempted regardless of what happened to the
+     * others, and each is reported separately: one failure neither hides the successes nor prevents
+     * the remaining work.
+     *
+     * <p>
+     * <strong>Not atomic.</strong> Langfuse offers no bulk delete, so this iterates client-side and
+     * can partially apply. Inspect the returned {@link DeletionResult} rather than assuming
+     * all-or-nothing.
+     *
+     * <p>
+     * <strong>Narrower than it appears.</strong> This removes the live-ingestion rule only:
+     * associated evaluators, and scores they have already produced, are preserved. Legacy trace and
+     * dataset rules can also be deleted, and their evaluators and previously produced scores are
+     * likewise preserved.
+     *
+     * <p>
+     * <strong>Blocks the calling thread.</strong> Do not call this from a Vert.x I/O thread; use
+     * {@link AsyncEvaluationRuleOperations#deleteById(Collection)} instead.
+     *
+     * @param ids the evaluation rule ids to delete, must not be {@code null} and must not contain
+     *        {@code null} or blank elements; may be empty, in which case no request is issued
+     * @return one outcome per distinct id
+     * @throws IllegalArgumentException if {@code ids} is {@code null}, or if any element is
+     *         {@code null} or blank
+     */
+    DeletionResult deleteById(Collection<String> ids);
+
+    /**
+     * Deletes the evaluation rule with the given id.
+     *
+     * @param id the evaluation rule id to delete, must not be {@code null} or blank
+     * @return the outcome for that id
+     * @throws IllegalArgumentException if {@code id} is {@code null} or blank
+     * @see #deleteById(Collection)
+     */
+    default DeletionResult deleteById(String id) {
+        return deleteById(Collections.singletonList(id));
+    }
+
+    /**
+     * Deletes the evaluation rules with the given ids.
+     *
+     * @param ids the evaluation rule ids to delete, must not be {@code null} and must not contain
+     *        {@code null} or blank elements; may be empty, in which case no request is issued
+     * @return one outcome per distinct id
+     * @throws IllegalArgumentException if {@code ids} is {@code null}, or if any element is
+     *         {@code null} or blank
+     * @see #deleteById(Collection)
+     */
+    default DeletionResult deleteById(String... ids) {
+        return deleteById((ids == null) ? null : Arrays.asList(ids));
+    }
+
+    /**
+     * Deletes the evaluation rules with the given exact names.
+     *
+     * <p>
+     * <strong>Absence is not an error.</strong> A name matching no evaluation rule yields a
+     * {@link DeletionOutcome.NotFound} outcome rather than throwing, so deleting something that is
+     * already gone is a normal result rather than a failure to handle.
+     *
+     * <p>
+     * <strong>Never fails fast.</strong> Every name is attempted regardless of what happened to the
+     * others, and each is reported separately: one failure neither hides the successes nor prevents
+     * the remaining work.
+     *
+     * <p>
+     * <strong>Not atomic.</strong> Langfuse offers no bulk delete, so this iterates client-side and
+     * can partially apply. Inspect the returned {@link DeletionResult} rather than assuming
+     * all-or-nothing.
+     *
+     * <p>
+     * <strong>Narrower than it appears.</strong> This removes the live-ingestion rule only:
+     * associated evaluators, and scores they have already produced, are preserved. Legacy trace and
+     * dataset rules can also be deleted, and their evaluators and previously produced scores are
+     * likewise preserved.
+     *
+     * <p>
+     * Each name is resolved to its id first, which walks the collection the way {@link #findByName}
+     * does. A name that matches stops the scan early, but an <strong>absent</strong> name costs a
+     * full traversal, so deleting many absent names is markedly more expensive than deleting the
+     * same number of ids. Prefer {@link #deleteById(Collection)} where ids are already known.
+     *
+     * <p>
+     * <strong>Blocks the calling thread.</strong> Do not call this from a Vert.x I/O thread; use
+     * {@link AsyncEvaluationRuleOperations#deleteByName(Collection)} instead.
+     *
+     * @param ruleNames the evaluation rule names to delete, must not be {@code null} and must not
+     *        contain {@code null} or blank elements; may be empty, in which case no request is issued
+     * @return one outcome per distinct name, keyed by the name supplied rather than by the resolved id
+     * @throws IllegalArgumentException if {@code ruleNames} is {@code null}, or if any element is
+     *         {@code null} or blank
+     */
+    DeletionResult deleteByName(Collection<String> ruleNames);
+
+    /**
+     * Deletes the evaluation rule with the given exact name.
+     *
+     * @param ruleName the evaluation rule name to delete, must not be {@code null} or blank
+     * @return the outcome for that name
+     * @throws IllegalArgumentException if {@code ruleName} is {@code null} or blank
+     * @see #deleteByName(Collection)
+     */
+    default DeletionResult deleteByName(String ruleName) {
+        return deleteByName(Collections.singletonList(ruleName));
+    }
+
+    /**
+     * Deletes the evaluation rules with the given exact names.
+     *
+     * @param ruleNames the evaluation rule names to delete, must not be {@code null} and must not
+     *        contain {@code null} or blank elements; may be empty, in which case no request is issued
+     * @return one outcome per distinct name
+     * @throws IllegalArgumentException if {@code ruleNames} is {@code null}, or if any element is
+     *         {@code null} or blank
+     * @see #deleteByName(Collection)
+     */
+    default DeletionResult deleteByName(String... ruleNames) {
+        return deleteByName((ruleNames == null) ? null : Arrays.asList(ruleNames));
+    }
 }

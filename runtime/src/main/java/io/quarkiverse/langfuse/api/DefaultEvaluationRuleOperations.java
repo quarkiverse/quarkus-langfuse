@@ -1,9 +1,11 @@
 package io.quarkiverse.langfuse.api;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import com.langfuse.api.evaluationRules.EvaluationRulesApi;
 import com.langfuse.api.evaluationRules.EvaluationRulesApi.APIEvaluationRulesCreateRequest;
+import com.langfuse.api.evaluationRules.EvaluationRulesApi.APIEvaluationRulesDeleteRequest;
 import com.langfuse.api.evaluationRules.EvaluationRulesApi.APIEvaluationRulesListRequest;
 import com.langfuse.api.model.CreateEvaluationRuleRequest;
 import com.langfuse.api.model.EvaluationRule;
@@ -31,6 +33,28 @@ final class DefaultEvaluationRuleOperations extends AbstractCursorOperations<Eva
                 .orElseGet(() -> this.evaluationRulesApi.evaluationRulesCreate(APIEvaluationRulesCreateRequest.newBuilder()
                         .createEvaluationRuleRequest(request)
                         .build()));
+    }
+
+    @Override
+    public DeletionResult deleteById(Collection<String> ids) {
+        return Deletions.deleteAll(ids, "Evaluation rule id", Optional::of, this::delete, deleteConcurrency());
+    }
+
+    @Override
+    public DeletionResult deleteByName(Collection<String> ruleNames) {
+        return Deletions.deleteAll(ruleNames, "Evaluation rule name", this::resolveByName, this::delete,
+                deleteConcurrency());
+    }
+
+    private Optional<String> resolveByName(String ruleName) {
+        return findByName(ruleName)
+                .map(EvaluationRule::getId);
+    }
+
+    private void delete(String id) {
+        this.evaluationRulesApi.evaluationRulesDelete(APIEvaluationRulesDeleteRequest.newBuilder()
+                .evaluationRuleId(id)
+                .build());
     }
 
     // cursor.value().orElse(null): the "cursor" query parameter is absent for the first request (the

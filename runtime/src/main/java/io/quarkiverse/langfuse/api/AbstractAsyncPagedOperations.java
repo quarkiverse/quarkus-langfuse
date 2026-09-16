@@ -64,4 +64,8 @@ abstract non-sealed class AbstractAsyncPagedOperations<T> implements AsyncPagedO
     private int defaultPageSize() {
         return this.config.api().defaultPageSize();
     }
+
+    protected final int deleteConcurrency() {
+        return Math.max(1, this.config.api().deleteConcurrency());
+    }
 }

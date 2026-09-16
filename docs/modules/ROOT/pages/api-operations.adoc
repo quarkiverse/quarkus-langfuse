@@ -1,7 +1,7 @@
 = Higher-Level API Operations
 include::./includes/attributes.adoc[]
 
-The generated `LangfuseApi` client mirrors the Langfuse REST API one endpoint at a time. For common tasks - looking things up by name, checking whether they exist, ensuring resources are created idempotently at startup, and walking paginated collections without hand-rolling page arithmetic - the extension provides a curated, higher-level layer in `io.quarkiverse.langfuse.api`.
+The generated `LangfuseApi` client mirrors the Langfuse REST API one endpoint at a time. For common tasks - looking things up by name, checking whether they exist, ensuring resources are created idempotently at startup, deleting them in batches, and walking paginated collections without hand-rolling page arithmetic - the extension provides a curated, higher-level layer in `io.quarkiverse.langfuse.api`.
 
 Anything not covered by this layer remains one call away through `api()`, which returns the underlying `LangfuseApi`.
 
@@ -45,7 +45,7 @@ Langfuse uses two different pagination models depending on the resource. The lay
 | Models
 | Page
 | `langfuse.models()`
-| Query, paginate and create model definitions
+| Query, paginate, create and delete model definitions
 
 | Datasets
 | Page
@@ -55,7 +55,7 @@ Langfuse uses two different pagination models depending on the resource. The lay
 | LLM Connections
 | Page
 | `langfuse.llmConnections()`
-| Query, paginate and configure LLM provider connections
+| Query, paginate, configure and delete LLM provider connections
 
 | Score Configs
 | Page
@@ -65,13 +65,15 @@ Langfuse uses two different pagination models depending on the resource. The lay
 | Evaluation Rules
 | **Cursor**
 | `langfuse.evaluationRules()`
-| Query, paginate via cursor and create evaluation rules
+| Query, paginate via cursor, create and delete evaluation rules
 
 | Evaluators
 | **Cursor**
 | `langfuse.evaluators()`
-| Query, paginate via cursor and create evaluators
+| Query, paginate via cursor, create and delete evaluators
 |===
+
+NOTE: Datasets and score configs have **no delete operations**. This is a limitation of the Langfuse v4 API rather than an omission here: it exposes no delete endpoint for either resource. (`DELETE /api/public/v2/datasets/{name}/runs/{runName}` deletes a dataset *run*, which this layer does not model.)
 
 === Page-Addressed Operations
 
@@ -116,9 +118,25 @@ Models, datasets, LLM connections, and score configs are page-addressed (`page` 
 | `T createIfAbsent(...)`
 | `Uni<T> createIfAbsent(...)`
 | Returns the existing item or creates it (non-atomic).
+
+| `DeletionResult deleteById(String)` +
+`DeletionResult deleteById(String...)` +
+`DeletionResult deleteById(Collection<String>)`
+| `Uni<DeletionResult> deleteById(String)` +
+`Uni<DeletionResult> deleteById(String...)` +
+`Uni<DeletionResult> deleteById(Collection<String>)`
+| Deletes one or more items by id, reporting an outcome per identifier.
+
+| `DeletionResult deleteByName(String)` +
+`DeletionResult deleteByName(String...)` +
+`DeletionResult deleteByName(Collection<String>)`
+| `Uni<DeletionResult> deleteByName(String)` +
+`Uni<DeletionResult> deleteByName(String...)` +
+`Uni<DeletionResult> deleteByName(Collection<String>)`
+| Resolves each name to its id, then deletes. Models only; see the note below for LLM connections.
 |===
 
-NOTE: LLM connections are keyed by `provider` rather than `name`, so their operations are named `findByProvider(String)` and `exists(String)`. In addition, LLM connections provide an atomic `upsert(UpsertLlmConnectionRequest)` instead of `createIfAbsent`.
+NOTE: LLM connections are keyed by `provider` rather than `name`, so their operations are named `findByProvider(String)`, `exists(String)` and `deleteByProvider(String)` (also available in varargs and `Collection` forms). In addition, LLM connections provide an atomic `upsert(UpsertLlmConnectionRequest)` instead of `createIfAbsent`. Deleting an LLM connection also causes Langfuse to pause any evaluators that depend on it.
 
 === Cursor-Addressed Operations
 
@@ -163,7 +181,25 @@ Evaluation rules and evaluators use opaque server cursors rather than page numbe
 | `T createIfAbsent(...)`
 | `Uni<T> createIfAbsent(...)`
 | Returns the existing item or creates it (non-atomic).
+
+| `DeletionResult deleteById(String)` +
+`DeletionResult deleteById(String...)` +
+`DeletionResult deleteById(Collection<String>)`
+| `Uni<DeletionResult> deleteById(String)` +
+`Uni<DeletionResult> deleteById(String...)` +
+`Uni<DeletionResult> deleteById(Collection<String>)`
+| Deletes one or more items by id, reporting an outcome per identifier.
+
+| `DeletionResult deleteByName(String)` +
+`DeletionResult deleteByName(String...)` +
+`DeletionResult deleteByName(Collection<String>)`
+| `Uni<DeletionResult> deleteByName(String)` +
+`Uni<DeletionResult> deleteByName(String...)` +
+`Uni<DeletionResult> deleteByName(Collection<String>)`
+| Resolves each name to its id, then deletes.
 |===
+
+NOTE: Deleting an evaluator removes the evaluator **and all of its stored versions**, and drops the evaluation-rule assignments that reference it. Scores it has already produced are preserved. Deleting an evaluation rule is narrower than it appears: it removes the live-ingestion rule only, leaving associated evaluators and previously produced scores in place.
 
 == Pagination
 
@@ -222,6 +258,8 @@ Absence and failure are strictly separated:
 * All other failures - bad credentials (401/403), transport errors, 5xx server errors - **propagate as exceptions** (`LangfuseApiException`). They are never swallowed or logged as warnings.
 * `findAll()`, `find()`, `findPage()`, and `findBatch()` propagate 404 errors, because a 404 on a collection endpoint indicates a misconfigured URL or project rather than an empty collection (Langfuse returns 200 with an empty array for an empty collection).
 
+Delete operations apply the same separation, but report it as data instead of throwing. An identifier matching nothing yields a `NotFound` outcome; every other failure yields a `Failed` outcome carrying the cause. Only a genuine not-found is treated as absence, so a 401 or a timeout can never be misread as a missing resource. Malformed input is the exception to this: a `null` or blank identifier is a programming error and throws `IllegalArgumentException` before any request is issued - including on the asynchronous tree, where it is thrown from the call itself rather than emitted as a failed `Uni`.
+
 === Consuming Asynchronous Absence
 
 Because `Uni` emits `null` when a resource is absent, use Mutiny's null-handling operators when absent values must be handled explicitly:
@@ -237,6 +275,83 @@ langfuse.async().models().findByName("gpt-4o")
 langfuse.async().models().findByName("gpt-4o")
         .map(model -> (model != null) ? model.getId() : "default-id");
 ----
+
+== Deletion Outcomes
+
+Delete operations never fail fast. Every identifier is attempted regardless of what happened to the others, and each is reported separately, so one failure neither hides the successes nor prevents the remaining work. The result is a `DeletionResult`, holding one `DeletionOutcome` per **distinct** identifier:
+
+[source,java]
+----
+var result = langfuse.models().deleteByName("gpt-4o", "retired-model", "never-existed");
+
+result.deleted();       // Set<String>            - identifiers whose resources were deleted
+result.notFound();      // Set<String>            - identifiers that matched nothing
+result.failed();        // Map<String, Throwable> - identifiers whose deletes could not be completed
+result.hasFailures();   // boolean                - true if any outcome is a failure
+result.size();          // int                    - number of distinct identifiers
+
+result.outcome("gpt-4o");   // Optional<DeletionOutcome>
+result.outcomes();          // Map<String, DeletionOutcome>
+----
+
+Results are **keyed by the identifier you supplied**, not by position - for `deleteByName` that is the name, not the resolved id. Identifiers are deduplicated before any request is made, so passing the same identifier twice yields one outcome and one request, and `size()` may be smaller than the number of identifiers passed.
+
+NOTE: Outcome ordering is **not** part of the contract. Look outcomes up by identifier rather than relying on iteration order.
+
+`DeletionOutcome` is a sealed interface with exactly three branches, all nested inside it:
+
+[cols="1,3",options="header"]
+|===
+| Branch | Meaning
+
+| `DeletionOutcome.Deleted`
+| The resource existed and was deleted.
+
+| `DeletionOutcome.NotFound`
+| No resource matched the identifier. **An expected outcome, not a failure** - deleting something already absent is the normal result of an idempotent teardown.
+
+| `DeletionOutcome.Failed`
+| The delete could not be completed. The only branch that carries a `cause()`.
+|===
+
+Only `Failed` carries a cause, so a cause cannot be read off a success. Because the hierarchy is sealed and exhaustive, an application **compiled against Java 21 or later** can switch over it with no `default` branch, and adding a branch would become a compile error at every such call site:
+
+[source,java]
+----
+import io.quarkiverse.langfuse.api.DeletionOutcome.Deleted;
+import io.quarkiverse.langfuse.api.DeletionOutcome.Failed;
+import io.quarkiverse.langfuse.api.DeletionOutcome.NotFound;
+
+// Requires the consuming application to target Java 21+
+var message = switch (outcome) {
+    case Deleted d -> "deleted %s".formatted(d.identifier());
+    case NotFound n -> "absent %s".formatted(n.identifier());
+    case Failed f -> "failed %s: %s".formatted(f.identifier(), f.cause().getMessage());
+};
+----
+
+The branches are nested types, so `case DeletionOutcome.Deleted d ->` is equally valid if you prefer qualification to an import.
+
+Switch patterns are a Java 21 feature. On Java 17 an `instanceof` chain is the equivalent:
+
+[source,java]
+----
+String message;
+
+if (outcome instanceof Failed f) {
+    message = "failed %s: %s".formatted(f.identifier(), f.cause().getMessage());
+} else if (outcome instanceof NotFound) {
+    message = "absent %s".formatted(outcome.identifier());
+} else {
+    message = "deleted %s".formatted(outcome.identifier());
+}
+----
+
+=== Deleting by Name
+
+Langfuse deletes only by id, so `deleteByName` (and `deleteByProvider`) resolves each name to its id first, exactly as `findByName` does. A name that matches stops the scan early, but proving a name is **absent** has no early exit and costs a full collection traversal. Deleting many absent names is therefore markedly more expensive than deleting the same number of ids.
+
+TIP: Prefer `deleteById` wherever ids are already known. Reserve `deleteByName` for cases where the name is genuinely the only handle you have.
 
 == Write Semantics
 
@@ -267,23 +382,42 @@ langfuse.async().models().findByName("gpt-4o")
 | Evaluators
 | `createIfAbsent(...)`
 | **Not atomic.** Cursor scan followed by create.
+
+| Models, LLM Connections, Evaluation Rules, Evaluators
+| `deleteById(...)`
+| **Not atomic.** Langfuse offers no bulk delete endpoint, so a batch is client-side iteration and can partially apply. Inspect the returned `DeletionResult` rather than assuming all-or-nothing.
+
+| Models, Evaluation Rules, Evaluators
+| `deleteByName(...)`
+| **Not atomic.** Resolution followed by delete, per identifier. A resource created between the lookup and the delete is not seen.
+
+| LLM Connections
+| `deleteByProvider(...)`
+| **Not atomic.** Resolution followed by delete, per provider.
 |===
 
 == Configuration Reference
 
-These settings control the default page and batch sizes used by `findAll()` and `streamAll()`:
+This layer is configured under `quarkus.langfuse.api`. Property names, types and defaults are listed in the xref:all-config.adoc[full configuration reference], which is generated from the extension itself; the guidance below covers what that table cannot express.
 
-[cols="2,1,3",options="header"]
-|===
-| Property | Default | Description
+=== Page and Batch Sizes
 
-| `quarkus.langfuse.api.default-page-size`
-| `50`
-| Default number of items per page for page-addressed collections (models, datasets, LLM connections, score configs).
+`quarkus.langfuse.api.default-page-size` and `quarkus.langfuse.api.default-batch-size` control how many items each request asks for while traversing a collection - the former for page-addressed collections, the latter for cursor-addressed ones. They are only defaults: an explicit `PageSelection` or `CursorSelection` passed to `find(...)` or `stream(...)` overrides them for that call.
 
-| `quarkus.langfuse.api.default-batch-size`
-| `50`
-| Default number of items per batch for cursor-addressed collections (evaluation rules, evaluators).
-|===
+Langfuse caps these per endpoint. A value above an endpoint's cap is rejected by the server rather than by the extension.
 
-An explicit `PageSelection` or `CursorSelection` passed to `find(...)` or `stream(...)` overrides these defaults for that call.
+=== Delete Concurrency
+
+`quarkus.langfuse.api.delete-concurrency` bounds how many deletes from a **single** batch call are in flight at once. It is not a thread-pool size, and it does not limit how many identifiers you may pass.
+
+A ceiling exists because Langfuse rate-limits. Unbounded fan-out would produce `429` responses that surface as `Failed` outcomes - manufacturing the very failures the result reports.
+
+Setting it to `1` disables fan-out entirely: deletes run strictly one at a time on the calling thread. That is useful for deterministic debugging, for rate-limit-sensitive instances, and for reproducing a batch serially. Values below `1` are clamped to `1`.
+
+IMPORTANT: The value changes only timing and request interleaving, never *which* outcomes are produced. Validation, deduplication and the deleted/not-found/failed contract are all independent of it.
+
+The practical ceiling is the REST client's connection pool, which defaults to 50 concurrent connections (`quarkus.rest-client."client".connection-pool-size`). Raising `delete-concurrency` above the pool size achieves nothing, because the excess requests simply queue on the pool. If you genuinely need more parallelism, raise the pool first.
+
+=== Threads and the Two Trees
+
+The synchronous delete operations block the calling thread by design, and fan out over the shared Quarkus worker pool. Do **not** invoke them from a Vert.x I/O thread - the asynchronous tree exists for reactive callers and never blocks.

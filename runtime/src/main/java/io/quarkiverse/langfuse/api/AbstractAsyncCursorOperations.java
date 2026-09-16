@@ -63,4 +63,8 @@ abstract non-sealed class AbstractAsyncCursorOperations<T> implements AsyncCurso
     private int defaultBatchSize() {
         return this.config.api().defaultBatchSize();
     }
+
+    protected final int deleteConcurrency() {
+        return Math.max(1, this.config.api().deleteConcurrency());
+    }
 }

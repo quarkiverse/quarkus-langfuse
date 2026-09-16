@@ -1,9 +1,13 @@
 package io.quarkiverse.langfuse.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assumptions.assumeTrue;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import jakarta.inject.Inject;
@@ -27,12 +31,14 @@ import com.langfuse.api.model.ScoreConfigDataType;
 import com.langfuse.api.model.UpsertLlmConnectionRequest;
 
 import io.quarkiverse.langfuse.api.AsyncLangfuseOperations;
+import io.quarkiverse.langfuse.api.DeletionOutcome;
 import io.quarkiverse.langfuse.api.LangfuseOperations;
 import io.quarkiverse.langfuse.api.Page;
 import io.quarkiverse.langfuse.api.PageSelection;
 import io.quarkiverse.langfuse.api.PagedResult;
 import io.quarkus.test.junit.QuarkusTest;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.mutiny.infrastructure.Infrastructure;
 
 /**
  * Integration tests exercising {@link LangfuseOperations} and {@link AsyncLangfuseOperations}
@@ -54,6 +60,12 @@ class OperationsIntegrationTest {
     private static final String SCORE_CONFIG_NAME = "it-score-config-" + RUN_ID;
     private static final String DATASET_PREFIX = "it-dataset-" + RUN_ID + "-";
     private static final String LLM_PROVIDER = "it-provider-" + RUN_ID;
+
+    // Fixtures the delete scenarios create and destroy themselves. This module has no teardown, and
+    // @Order(11) still asserts MODEL_NAME / LLM_PROVIDER / SCORE_CONFIG_NAME exist, so delete tests own
+    // a disjoint prefix and never target those.
+    private static final String DELETE_MODEL_PREFIX = "it-del-model-" + RUN_ID + "-";
+    private static final String DELETE_PROVIDER_PREFIX = "it-del-provider-" + RUN_ID + "-";
 
     @Inject
     LangfuseOperations langfuse;
@@ -288,6 +300,168 @@ class OperationsIntegrationTest {
         assertThat(await(asyncLangfuse.evaluationRules().findAll())).isNotNull();
         assertThat(await(asyncLangfuse.evaluationRules().findByName("non-existent-rule-" + RUN_ID))).isNull();
         assertThat(await(asyncLangfuse.evaluationRules().exists("non-existent-rule-" + RUN_ID))).isFalse();
+    }
+
+    // --- Scenario 9: Batch delete against a real server ------------------------------------
+
+    @Test
+    @Order(13)
+    void deleteByIdReportsDeletedAndNotFoundInOneBatch() {
+        var present = createDeletableModel("a");
+        var absent = "does-not-exist-" + UUID.randomUUID();
+
+        var result = langfuse.models().deleteById(present, absent);
+
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.outcome(present)).get().isInstanceOf(DeletionOutcome.Deleted.class);
+        assertThat(result.outcome(absent)).get().isInstanceOf(DeletionOutcome.NotFound.class);
+        assertThat(result.hasFailures()).isFalse();
+        assertThat(result.deleted()).containsExactlyInAnyOrder(present);
+        assertThat(result.notFound()).containsExactlyInAnyOrder(absent);
+    }
+
+    @Test
+    @Order(14)
+    void deleteByNameCollapsesDuplicatesAndRemovesTheModel() {
+        var name = DELETE_MODEL_PREFIX + "dup";
+        createModelNamed(name);
+
+        var result = langfuse.models().deleteByName(name, name, name);
+
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.outcome(name)).get().isInstanceOf(DeletionOutcome.Deleted.class);
+        assertThat(langfuse.models().findByName(name)).isEmpty();
+    }
+
+    @Test
+    @Order(15)
+    void deletingAnAbsentIdentifierIsNotAnError() {
+        var absent = "absent-" + UUID.randomUUID();
+
+        assertThat(langfuse.models().deleteById(absent).outcome(absent))
+                .get()
+                .isInstanceOf(DeletionOutcome.NotFound.class);
+
+        assertThat(langfuse.models().deleteByName(absent).outcome(absent))
+                .get()
+                .isInstanceOf(DeletionOutcome.NotFound.class);
+
+        assertThat(langfuse.models().deleteById(List.of()).size()).isZero();
+    }
+
+    @Test
+    @Order(16)
+    void asyncDeleteAgreesWithTheSyncTree() {
+        var present = createDeletableModel("async");
+        var absent = "does-not-exist-" + UUID.randomUUID();
+
+        var result = await(asyncLangfuse.models().deleteById(present, absent));
+
+        assertThat(result.size()).isEqualTo(2);
+        assertThat(result.outcome(present)).get().isInstanceOf(DeletionOutcome.Deleted.class);
+        assertThat(result.outcome(absent)).get().isInstanceOf(DeletionOutcome.NotFound.class);
+
+        var byName = DELETE_MODEL_PREFIX + "async-name";
+        createModelNamed(byName);
+
+        assertThat(await(asyncLangfuse.models().deleteByName(byName)).outcome(byName))
+                .get()
+                .isInstanceOf(DeletionOutcome.Deleted.class);
+        assertThat(await(asyncLangfuse.models().findByName(byName))).isNull();
+    }
+
+    @Test
+    @Order(17)
+    void deleteByProviderRemovesAnLlmConnection() {
+        var provider = DELETE_PROVIDER_PREFIX + "a";
+
+        langfuse.llmConnections().upsert(UpsertLlmConnectionRequest.builder()
+                .provider(provider)
+                .adapter(LlmAdapter.OPENAI)
+                .secretKey("sk-delete-me")
+                .build());
+
+        var result = langfuse.llmConnections().deleteByProvider(provider);
+
+        assertThat(result.outcome(provider)).get().isInstanceOf(DeletionOutcome.Deleted.class);
+        assertThat(langfuse.llmConnections().findByProvider(provider)).isEmpty();
+        assertThat(langfuse.llmConnections().findByProvider(LLM_PROVIDER)).isPresent();
+    }
+
+    @Test
+    @Order(18)
+    void cursorAddressedDomainsReportAbsentIdentifiersAsNotFound() {
+        var absent = "absent-" + UUID.randomUUID();
+
+        assertThat(langfuse.evaluationRules().deleteByName(absent).outcome(absent))
+                .get()
+                .isInstanceOf(DeletionOutcome.NotFound.class);
+
+        assertThat(langfuse.evaluators().deleteByName(absent).outcome(absent))
+                .get()
+                .isInstanceOf(DeletionOutcome.NotFound.class);
+
+        assertThat(await(asyncLangfuse.evaluationRules().deleteByName(absent)).outcome(absent))
+                .get()
+                .isInstanceOf(DeletionOutcome.NotFound.class);
+
+        assertThat(await(asyncLangfuse.evaluators().deleteByName(absent)).outcome(absent))
+                .get()
+                .isInstanceOf(DeletionOutcome.NotFound.class);
+    }
+
+    @Test
+    @Order(19)
+    void deletingALangfuseManagedModelIsReportedAsNotFound() {
+        // Langfuse refuses to delete its built-in model definitions, but answers 404 rather than 4xx:
+        // "No model with this id found. Note: You cannot delete built-in models". Our mapping turns that
+        // into NotFound, and the model survives - so refusal is observable as absence plus survival, not
+        // as a failure. Guarded because seeded built-ins are a property of the image, not of this code.
+        var managed = langfuse.models().stream(PageSelection.all())
+                .filter(model -> Boolean.TRUE.equals(model.getIsLangfuseManaged()))
+                .map(Model::getId)
+                .findFirst();
+
+        assumeTrue(managed.isPresent(), "no Langfuse-managed model is seeded in this instance");
+
+        var result = langfuse.models().deleteById(managed.get());
+
+        assertThat(result.hasFailures()).isFalse();
+        assertThat(result.outcome(managed.get())).get().isInstanceOf(DeletionOutcome.NotFound.class);
+        assertThat(langfuse.models().stream(PageSelection.all()).map(Model::getId)).contains(managed.get());
+    }
+
+    @Test
+    @Order(20)
+    void syncBatchDeleteInvokedFromAWorkerThreadCompletesRatherThanDeadlocking() throws Exception {
+        var ids = IntStream.rangeClosed(1, 6)
+                .mapToObj(i -> createDeletableModel("worker-" + i))
+                .toList();
+
+        // The fan-out submits to the same pool this call runs on. A timeout here is the starvation that
+        // running one unit on the calling thread exists to prevent.
+        var result = CompletableFuture
+                .supplyAsync(() -> langfuse.models().deleteById(ids), Infrastructure.getDefaultExecutor())
+                .get(30, TimeUnit.SECONDS);
+
+        assertThat(result.size()).isEqualTo(6);
+        assertThat(result.deleted()).containsExactlyInAnyOrderElementsOf(ids);
+    }
+
+    private String createDeletableModel(String suffix) {
+        return createModelNamed(DELETE_MODEL_PREFIX + suffix);
+    }
+
+    private String createModelNamed(String name) {
+        return langfuse.models().createIfAbsent(CreateModelRequest.builder()
+                .modelName(name)
+                .matchPattern("(?i)^(%s)$".formatted(name))
+                .unit(ModelUsageUnit.TOKENS)
+                .inputPrice(0.001)
+                .outputPrice(0.002)
+                .tokenizerId(ModelTokenizerId.OPENAI)
+                .build())
+                .getId();
     }
 
     private void runInitializerRoutine() {

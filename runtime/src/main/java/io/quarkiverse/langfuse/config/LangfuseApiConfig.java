@@ -39,4 +39,27 @@ public interface LangfuseApiConfig {
      */
     @WithDefault("50")
     int defaultBatchSize();
+
+    /**
+     * Maximum number of deletes a single batch delete operation runs at once.
+     *
+     * <p>
+     * Langfuse has no bulk delete endpoint, so {@code deleteById}, {@code deleteByName} and
+     * {@code deleteByProvider} delete one resource per request. This caps how many of those requests
+     * are in flight for one call; it is neither a thread pool size nor a limit on how many identifiers
+     * may be passed. Langfuse rate-limits, and an unbounded fan-out simply manufactures the {@code 429}
+     * responses that the returned result would then report as failures.
+     *
+     * <p>
+     * A value of {@code 1} runs the deletes strictly one at a time on the calling thread, with no
+     * fan-out at all, which is useful for deterministic debugging or a rate-limit-sensitive instance.
+     * Values below {@code 1} are clamped to {@code 1} rather than rejected.
+     *
+     * <p>
+     * This setting changes only timing and the order requests interleave. The outcome reported for
+     * every identifier is identical at any value, and validation, deduplication and the
+     * deleted/not-found/failed contract are unaffected by it.
+     */
+    @WithDefault("4")
+    int deleteConcurrency();
 }
