@@ -78,10 +78,6 @@ open module com.langfuse.api {
     exports com.langfuse.api.unstableDashboardWidgets.async;
     exports com.langfuse.api.unstableDashboards;
     exports com.langfuse.api.unstableDashboards.async;
-    exports com.langfuse.api.unstableEvaluationRules;
-    exports com.langfuse.api.unstableEvaluationRules.async;
-    exports com.langfuse.api.unstableEvaluators;
-    exports com.langfuse.api.unstableEvaluators.async;
 
     uses com.langfuse.api.spi.LangfuseApiBuilderFactory;
 }

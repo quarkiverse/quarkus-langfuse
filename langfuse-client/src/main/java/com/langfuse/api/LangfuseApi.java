@@ -39,8 +39,6 @@ import com.langfuse.api.spi.ServiceLoaderHelper;
 import com.langfuse.api.trace.TraceApi;
 import com.langfuse.api.unstableDashboardWidgets.UnstableDashboardWidgetsApi;
 import com.langfuse.api.unstableDashboards.UnstableDashboardsApi;
-import com.langfuse.api.unstableEvaluationRules.UnstableEvaluationRulesApi;
-import com.langfuse.api.unstableEvaluators.UnstableEvaluatorsApi;
 
 /**
  * Langfuse API interface. Entry point for all Langfuse operations.
@@ -266,18 +264,6 @@ public interface LangfuseApi {
 
     /** @return the async Unstable Dashboards API */
     com.langfuse.api.unstableDashboards.async.UnstableDashboardsApi asyncUnstableDashboards();
-
-    /** @return the Unstable Evaluation Rules API */
-    UnstableEvaluationRulesApi unstableEvaluationRules();
-
-    /** @return the async Unstable Evaluation Rules API */
-    com.langfuse.api.unstableEvaluationRules.async.UnstableEvaluationRulesApi asyncUnstableEvaluationRules();
-
-    /** @return the Unstable Evaluators API */
-    UnstableEvaluatorsApi unstableEvaluators();
-
-    /** @return the async Unstable Evaluators API */
-    com.langfuse.api.unstableEvaluators.async.UnstableEvaluatorsApi asyncUnstableEvaluators();
 
     /**
      * Creates a builder for constructing a {@link LangfuseApi} instance.

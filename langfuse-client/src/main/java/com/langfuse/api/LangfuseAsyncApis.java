@@ -33,8 +33,6 @@ import com.langfuse.api.sessions.async.SessionsApi;
 import com.langfuse.api.trace.async.TraceApi;
 import com.langfuse.api.unstableDashboardWidgets.async.UnstableDashboardWidgetsApi;
 import com.langfuse.api.unstableDashboards.async.UnstableDashboardsApi;
-import com.langfuse.api.unstableEvaluationRules.async.UnstableEvaluationRulesApi;
-import com.langfuse.api.unstableEvaluators.async.UnstableEvaluatorsApi;
 
 public interface LangfuseAsyncApis extends
         AnnotationQueuesApi,
@@ -69,7 +67,5 @@ public interface LangfuseAsyncApis extends
         SessionsApi,
         TraceApi,
         UnstableDashboardWidgetsApi,
-        UnstableDashboardsApi,
-        UnstableEvaluationRulesApi,
-        UnstableEvaluatorsApi {
+        UnstableDashboardsApi {
 }

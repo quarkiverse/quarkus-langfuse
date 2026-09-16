@@ -202,12 +202,6 @@ The `LangfuseApi` bean provides access to the full https://langfuse.com/docs[Lan
 | `unstableDashboards()`
 | Create, list, update, and delete dashboards with placements (unstable)
 
-| `unstableEvaluationRules()`
-| Manage evaluation rules (unstable)
-
-| `unstableEvaluators()`
-| Manage evaluators (unstable)
-
 | `ingestion()`
 | Legacy batch ingestion (deprecated -- use `opentelemetry()`)
 

@@ -36,8 +36,6 @@ import com.langfuse.api.sessions.SessionsApi;
 import com.langfuse.api.trace.TraceApi;
 import com.langfuse.api.unstableDashboardWidgets.UnstableDashboardWidgetsApi;
 import com.langfuse.api.unstableDashboards.UnstableDashboardsApi;
-import com.langfuse.api.unstableEvaluationRules.UnstableEvaluationRulesApi;
-import com.langfuse.api.unstableEvaluators.UnstableEvaluatorsApi;
 
 import io.quarkiverse.langfuse.client.QuarkusLangfuseAsyncClient;
 import io.quarkiverse.langfuse.client.QuarkusLangfuseClient;
@@ -385,26 +383,6 @@ public class QuarkusLangfuseApi implements LangfuseApi {
 
     @Override
     public com.langfuse.api.unstableDashboards.async.UnstableDashboardsApi asyncUnstableDashboards() {
-        return this.asyncClient;
-    }
-
-    @Override
-    public UnstableEvaluationRulesApi unstableEvaluationRules() {
-        return this.client;
-    }
-
-    @Override
-    public com.langfuse.api.unstableEvaluationRules.async.UnstableEvaluationRulesApi asyncUnstableEvaluationRules() {
-        return this.asyncClient;
-    }
-
-    @Override
-    public UnstableEvaluatorsApi unstableEvaluators() {
-        return this.client;
-    }
-
-    @Override
-    public com.langfuse.api.unstableEvaluators.async.UnstableEvaluatorsApi asyncUnstableEvaluators() {
         return this.asyncClient;
     }
 

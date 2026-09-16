@@ -40,8 +40,6 @@ import io.quarkiverse.langfuse.client.jaxrs.QuarkusSessionsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusTraceAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableDashboardWidgetsAsyncApi;
 import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableDashboardsAsyncApi;
-import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableEvaluationRulesAsyncApi;
-import io.quarkiverse.langfuse.client.jaxrs.QuarkusUnstableEvaluatorsAsyncApi;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.rest.client.reactive.ClientBasicAuth;
 
@@ -82,8 +80,6 @@ public interface QuarkusLangfuseAsyncClient extends LangfuseAsyncApis,
         QuarkusSessionsAsyncApi,
         QuarkusTraceAsyncApi,
         QuarkusUnstableDashboardWidgetsAsyncApi,
-        QuarkusUnstableDashboardsAsyncApi,
-        QuarkusUnstableEvaluationRulesAsyncApi,
-        QuarkusUnstableEvaluatorsAsyncApi {
+        QuarkusUnstableDashboardsAsyncApi {
 
 }

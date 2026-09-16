@@ -148,8 +148,6 @@ The `LangfuseApi` bean provides access to the full [Langfuse public API](https:/
 | `feedback()` | Submit feedback about Langfuse features |
 | `unstableDashboardWidgets()` | Create, list, update, and delete dashboard widgets (unstable) |
 | `unstableDashboards()` | Create, list, update, and delete dashboards with placements (unstable) |
-| `unstableEvaluationRules()` | Manage evaluation rules (unstable) |
-| `unstableEvaluators()` | Manage evaluators (unstable) |
 | `ingestion()` | Legacy batch ingestion (deprecated — use `opentelemetry()`) |
 | `trace()` | Legacy trace endpoints (deprecated in v4 events_only mode) |
 | `sessions()` | Legacy session endpoints (deprecated in v4 events_only mode) |
