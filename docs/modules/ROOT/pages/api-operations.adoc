@@ -260,6 +260,8 @@ Absence and failure are strictly separated:
 
 Delete operations apply the same separation, but report it as data instead of throwing. An identifier matching nothing yields a `NotFound` outcome; every other failure yields a `Failed` outcome carrying the cause. Only a genuine not-found is treated as absence, so a 401 or a timeout can never be misread as a missing resource. Malformed input is the exception to this: a `null` or blank identifier is a programming error and throws `IllegalArgumentException` before any request is issued - including on the asynchronous tree, where it is thrown from the call itself rather than emitted as a failed `Uni`.
 
+The **whole** set of identifiers is validated before the first request, not one at a time as the batch proceeds. A blank identifier in the tenth position therefore rejects the call without having deleted the first nine, so a batch that fails validation leaves nothing behind and is safe to retry in full once the input is corrected.
+
 === Consuming Asynchronous Absence
 
 Because `Uni` emits `null` when a resource is absent, use Mutiny's null-handling operators when absent values must be handled explicitly:
