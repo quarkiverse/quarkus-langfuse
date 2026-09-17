@@ -1,28 +1,46 @@
 package io.quarkiverse.langfuse.client.jaxrs;
 
+import java.util.Optional;
+
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status.Family;
+import jakarta.ws.rs.core.Response.Status;
 
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
-import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
-import io.quarkus.logging.Log;
+import com.langfuse.api.LangfuseApiException;
 
-public class QuarkusLangfuseExceptionMapper implements ResponseExceptionMapper<RuntimeException> {
+import io.quarkiverse.langfuse.client.LangfuseAuthenticationException;
+import io.quarkiverse.langfuse.client.LangfuseAuthorizationException;
+import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
+
+public class QuarkusLangfuseExceptionMapper implements ResponseExceptionMapper<LangfuseApiException> {
 
     @Override
-    public RuntimeException toThrowable(Response response) {
-        var message = "Langfuse API error (%d): %s".formatted(response.getStatus(), response.readEntity(String.class));
+    public LangfuseApiException toThrowable(Response response) {
+        // The entity is read once up front: the response body is a stream, so a second read would
+        // see it already consumed.
+        var status = response.getStatus();
+        var message = "Langfuse API error (%d): %s".formatted(status, response.readEntity(String.class));
 
-        if (response.getStatus() == 404) {
-            return new LangfuseNotFoundException(message);
-        }
+        // fromStatusCode answers null for any code outside the Jakarta RS enum - nginx's 499 and
+        // Cloudflare's 520-526 reach us that way through a proxy - so the unknown case is folded into
+        // the same generic failure as the statuses that have no dedicated type.
+        var knownStatus = Status.fromStatusCode(status);
 
-        if (response.getStatusInfo().getFamily() == Family.CLIENT_ERROR) {
-            Log.warn(message);
-            return null;
-        }
+        // Never returns null. A null return tells the REST Client the response was not an error, which
+        // makes it deserialize the error body into the declared return type - the defect this mapper
+        // used to have for every non-404 client error.
+        return Optional.ofNullable(knownStatus)
+                .map(s -> toApiException(s, message))
+                .orElseGet(() -> new LangfuseApiException(message, status));
+    }
 
-        return new RuntimeException(message);
+    private static LangfuseApiException toApiException(Status status, String message) {
+        return switch (status) {
+            case UNAUTHORIZED -> new LangfuseAuthenticationException(message);
+            case FORBIDDEN -> new LangfuseAuthorizationException(message);
+            case NOT_FOUND -> new LangfuseNotFoundException(message);
+            default -> new LangfuseApiException(message, status.getStatusCode());
+        };
     }
 }

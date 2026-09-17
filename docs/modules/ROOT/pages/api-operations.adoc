@@ -261,12 +261,70 @@ Absence and failure are strictly separated:
 
 * `findByName` and `findByProvider` return `Optional.empty()` (sync) or emit `null` (async) only when the resource genuinely does not exist (404 from the server, or not found in the listing).
 * `exists` returns `false` only when the resource genuinely does not exist.
-* All other failures - bad credentials (401/403), transport errors, 5xx server errors - **propagate as exceptions** (`LangfuseApiException`). They are never swallowed or logged as warnings.
+* All other failures - rejected credentials (`LangfuseAuthenticationException`), refused actions (`LangfuseAuthorizationException`), transport errors, 5xx server errors - **propagate as exceptions** (all of them `LangfuseApiException` subtypes). They are never swallowed or logged as warnings.
 * `findAll()`, `find()`, `findPage()`, and `findBatch()` propagate 404 errors, because a 404 on a collection endpoint indicates a misconfigured URL or project rather than an empty collection (Langfuse returns 200 with an empty array for an empty collection).
 
 Delete operations apply the same separation, but report it as data instead of throwing. An identifier matching nothing yields a `NotFound` outcome; every other failure yields a `Failed` outcome carrying the cause. Only a genuine not-found is treated as absence, so a 401 or a timeout can never be misread as a missing resource. Malformed input is the exception to this: a `null` or blank identifier is a programming error and throws `IllegalArgumentException` before any request is issued - including on the asynchronous tree, where it is thrown from the call itself rather than emitted as a failed `Uni`.
 
 The **whole** set of identifiers is validated before the first request, not one at a time as the batch proceeds. A blank identifier in the tenth position therefore rejects the call without having deleted the first nine, so a batch that fails validation leaves nothing behind and is safe to retry in full once the input is corrected.
+
+=== Exception Hierarchy
+
+Every failed request raises a `LangfuseApiException`, or one of its subtypes when the status identifies a specific, separately actionable problem:
+
+[source]
+----
+RuntimeException
+└── LangfuseApiException                  (com.langfuse.api - carries getStatusCode())
+    ├── LangfuseAuthenticationException   401
+    ├── LangfuseAuthorizationException    403
+    └── LangfuseNotFoundException         404
+----
+
+The three subtypes live in `io.quarkiverse.langfuse.client`. Catching `LangfuseApiException` handles every failure, so code that does not care about the distinction never needs to name the subtypes.
+
+[cols="1,2,3",options="header"]
+|===
+| Status | Exception | Meaning
+
+| `401`
+| `LangfuseAuthenticationException`
+| The credentials were rejected - no identity was established. Check `quarkus.langfuse.public-key` and `quarkus.langfuse.secret-key`, and that they belong to the project `quarkus.langfuse.base-url` points at.
+
+| `403`
+| `LangfuseAuthorizationException`
+| The credentials were accepted, but the action is not permitted. Replacing the keys only helps if the new ones carry different permissions - review the key's scope, role, or project. Some endpoints are gated behind a paid plan and answer `403` for any credentials.
+
+| `404`
+| `LangfuseNotFoundException`
+| The resource was not found. This is the only failure the operations layer treats as absence rather than as an error.
+
+| other `4xx`
+| `LangfuseApiException`
+| Malformed or rejected request - for example `400` for an over-limit `limit` parameter, `409` for a conflict, or `429` when rate-limited.
+
+| `5xx`
+| `LangfuseApiException`
+| Server-side failure.
+|===
+
+The status is always available through `getStatusCode()`, so the unmapped cases remain fully diagnosable without a dedicated type:
+
+[source,java]
+----
+try {
+    var models = langfuse.models().findAll();
+}
+catch (LangfuseAuthenticationException e) {
+    // Wrong or missing API keys - the application is misconfigured
+}
+catch (LangfuseApiException e) {
+    // Anything else: rate limiting, a server error, a refused action
+    Log.warnf("Langfuse call failed with status %d", e.getStatusCode());
+}
+----
+
+NOTE: A `404` does not always mean the resource is missing. Langfuse also answers `404` for some refusals - deleting a Langfuse-managed model reports `No model with this id found. Note: You cannot delete built-in models...` even though the model exists. "You may not delete this" and "this does not exist" are therefore indistinguishable by status code on those endpoints.
 
 === Consuming Asynchronous Absence
 

@@ -28,6 +28,8 @@ import io.quarkiverse.langfuse.api.LangfuseOperations;
 import io.quarkiverse.langfuse.api.cursor.Cursor;
 import io.quarkiverse.langfuse.api.cursor.CursorResult;
 import io.quarkiverse.langfuse.api.cursor.CursorSelection;
+import io.quarkiverse.langfuse.client.LangfuseAuthenticationException;
+import io.quarkiverse.langfuse.client.LangfuseAuthorizationException;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.QuarkusUnitTest;
@@ -210,6 +212,29 @@ class EvaluatorOperationsTests extends EvaluatorOperationsTestSupport {
 
         assertThatThrownBy(() -> langfuse.evaluators().findAll())
                 .isInstanceOf(LangfuseNotFoundException.class);
+    }
+
+    /**
+     * The cursor-addressed counterpart of the paged absence-versus-failure separation: unlike the
+     * 404 above, a 401 must escape the scan rather than reading as "no such evaluator".
+     */
+    @Test
+    void rejectedCredentialsAreNeverMistakenForAbsence() {
+        stubListingFailure(401);
+
+        assertThatThrownBy(() -> langfuse.evaluators().findByName("evaluator-1"))
+                .isInstanceOf(LangfuseAuthenticationException.class);
+
+        assertThatThrownBy(() -> langfuse.evaluators().exists("evaluator-1"))
+                .isInstanceOf(LangfuseAuthenticationException.class);
+    }
+
+    @Test
+    void aRefusedActionBecomesAnAuthorizationFailure() {
+        stubListingFailure(403);
+
+        assertThatThrownBy(() -> langfuse.evaluators().findAll())
+                .isInstanceOf(LangfuseAuthorizationException.class);
     }
 
     // --- writes ----------------------------------------------------------------------------

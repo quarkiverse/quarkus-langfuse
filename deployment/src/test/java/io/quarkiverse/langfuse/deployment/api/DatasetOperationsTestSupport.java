@@ -43,6 +43,19 @@ abstract class DatasetOperationsTestSupport extends PagedCollectionTestSupport {
                                 .withBody("{\"message\":\"Dataset %s not found\"}".formatted(name))));
     }
 
+    /**
+     * Makes the single-dataset lookup endpoint fail with the given status, so tests can prove that
+     * only a 404 is read as absence on the direct-lookup path.
+     */
+    void stubDatasetFailure(String name, int status) {
+        wiremock().register(
+                get(urlPathEqualTo(DATASETS_PATH + "/" + name))
+                        .willReturn(aResponse()
+                                .withStatus(status)
+                                .withHeader("Content-Type", "application/json")
+                                .withBody("{\"message\":\"rejected\"}")));
+    }
+
     void stubDatasets(int itemCount, int pageSize) {
         stubCollection(itemCount, pageSize);
     }

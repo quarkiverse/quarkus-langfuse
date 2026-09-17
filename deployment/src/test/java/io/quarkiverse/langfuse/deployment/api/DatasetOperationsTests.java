@@ -15,6 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import com.langfuse.api.LangfuseApiException;
 import com.langfuse.api.model.CreateDatasetRequest;
 import com.langfuse.api.model.Dataset;
 
@@ -22,6 +23,8 @@ import io.quarkiverse.langfuse.api.LangfuseOperations;
 import io.quarkiverse.langfuse.api.paging.Page;
 import io.quarkiverse.langfuse.api.paging.PageSelection;
 import io.quarkiverse.langfuse.api.paging.PagedResult;
+import io.quarkiverse.langfuse.client.LangfuseAuthenticationException;
+import io.quarkiverse.langfuse.client.LangfuseAuthorizationException;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.QuarkusUnitTest;
@@ -179,6 +182,41 @@ class DatasetOperationsTests extends DatasetOperationsTestSupport {
 
         assertThatThrownBy(() -> langfuse.datasets().findPage(Page.of(1, 3)))
                 .isInstanceOf(LangfuseNotFoundException.class);
+    }
+
+    @Test
+    void rejectedCredentialsBecomeAnAuthenticationFailure() {
+        stubListingFailure(401);
+
+        assertThatThrownBy(() -> langfuse.datasets().findAll())
+                .isInstanceOf(LangfuseAuthenticationException.class)
+                .extracting(t -> ((LangfuseApiException) t).getStatusCode())
+                .isEqualTo(401);
+    }
+
+    @Test
+    void aRefusedActionBecomesAnAuthorizationFailure() {
+        stubListingFailure(403);
+
+        assertThatThrownBy(() -> langfuse.datasets().findAll())
+                .isInstanceOf(LangfuseAuthorizationException.class)
+                .extracting(t -> ((LangfuseApiException) t).getStatusCode())
+                .isEqualTo(403);
+    }
+
+    /**
+     * The heart of issue #96: before the mapper threw for non-404 client errors, a 401 was
+     * deserialized into an empty result and a name lookup concluded the dataset did not exist.
+     */
+    @Test
+    void aRejectedCredentialIsNeverMistakenForAnAbsentDataset() {
+        stubDatasetFailure("my-dataset", 401);
+
+        assertThatThrownBy(() -> langfuse.datasets().findByName("my-dataset"))
+                .isInstanceOf(LangfuseAuthenticationException.class);
+
+        assertThatThrownBy(() -> langfuse.datasets().exists("my-dataset"))
+                .isInstanceOf(LangfuseAuthenticationException.class);
     }
 
     // --- writes ----------------------------------------------------------------------------

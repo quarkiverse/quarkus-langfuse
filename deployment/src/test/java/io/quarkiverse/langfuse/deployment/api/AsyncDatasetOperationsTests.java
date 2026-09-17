@@ -17,6 +17,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import com.langfuse.api.LangfuseApiException;
 import com.langfuse.api.model.CreateDatasetRequest;
 import com.langfuse.api.model.Dataset;
 
@@ -24,6 +25,8 @@ import io.quarkiverse.langfuse.api.AsyncLangfuseOperations;
 import io.quarkiverse.langfuse.api.paging.Page;
 import io.quarkiverse.langfuse.api.paging.PageSelection;
 import io.quarkiverse.langfuse.api.paging.PagedResult;
+import io.quarkiverse.langfuse.client.LangfuseAuthenticationException;
+import io.quarkiverse.langfuse.client.LangfuseAuthorizationException;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.QuarkusUnitTest;
@@ -146,6 +149,36 @@ class AsyncDatasetOperationsTests extends DatasetOperationsTestSupport {
 
         assertThatThrownBy(() -> await(asyncLangfuse.datasets().findAll()))
                 .isInstanceOf(LangfuseNotFoundException.class);
+    }
+
+    @Test
+    void rejectedCredentialsFailTheUniRatherThanEmittingAnEmptyResult() {
+        stubListingFailure(401);
+
+        assertThatThrownBy(() -> await(asyncLangfuse.datasets().findAll()))
+                .isInstanceOf(LangfuseAuthenticationException.class)
+                .extracting(t -> ((LangfuseApiException) t).getStatusCode())
+                .isEqualTo(401);
+    }
+
+    @Test
+    void aRefusedActionFailsTheUniWithAnAuthorizationFailure() {
+        stubListingFailure(403);
+
+        assertThatThrownBy(() -> await(asyncLangfuse.datasets().findAll()))
+                .isInstanceOf(LangfuseAuthorizationException.class);
+    }
+
+    /**
+     * The asynchronous mirror of the absence-versus-failure separation: a 401 must fail the
+     * {@code Uni} rather than emitting {@code null}, which is how absence is signalled here.
+     */
+    @Test
+    void aRejectedCredentialIsNeverEmittedAsAnAbsentDataset() {
+        stubDatasetFailure("my-dataset", 401);
+
+        assertThatThrownBy(() -> await(asyncLangfuse.datasets().findByName("my-dataset")))
+                .isInstanceOf(LangfuseAuthenticationException.class);
     }
 
     // --- writes ----------------------------------------------------------------------------
