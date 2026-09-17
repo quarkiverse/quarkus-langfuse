@@ -8,6 +8,7 @@ import jakarta.ws.rs.core.Response.Status;
 import org.eclipse.microprofile.rest.client.ext.ResponseExceptionMapper;
 
 import com.langfuse.api.LangfuseApiException;
+import com.langfuse.api.LangfuseErrorBody;
 
 import io.quarkiverse.langfuse.client.LangfuseAuthenticationException;
 import io.quarkiverse.langfuse.client.LangfuseAuthorizationException;
@@ -20,7 +21,12 @@ public class QuarkusLangfuseExceptionMapper implements ResponseExceptionMapper<L
         // The entity is read once up front: the response body is a stream, so a second read would
         // see it already consumed.
         var status = response.getStatus();
-        var message = "Langfuse API error (%d): %s".formatted(status, response.readEntity(String.class));
+        var raw = response.readEntity(String.class);
+        var message = "Langfuse API error (%d): %s".formatted(status, raw);
+
+        // The media type is consulted rather than the body's own fields: it is the only discriminator
+        // available before parsing, so an HTML page from a proxy never reaches the JSON parser.
+        var errorBody = LangfuseErrorBodies.parse(response.getMediaType(), raw);
 
         // fromStatusCode answers null for any code outside the Jakarta RS enum - nginx's 499 and
         // Cloudflare's 520-526 reach us that way through a proxy - so the unknown case is folded into
@@ -31,16 +37,16 @@ public class QuarkusLangfuseExceptionMapper implements ResponseExceptionMapper<L
         // makes it deserialize the error body into the declared return type - the defect this mapper
         // used to have for every non-404 client error.
         return Optional.ofNullable(knownStatus)
-                .map(s -> toApiException(s, message))
-                .orElseGet(() -> new LangfuseApiException(message, status));
+                .map(s -> toApiException(s, message, errorBody))
+                .orElseGet(() -> new LangfuseApiException(message, status, errorBody));
     }
 
-    private static LangfuseApiException toApiException(Status status, String message) {
+    private static LangfuseApiException toApiException(Status status, String message, LangfuseErrorBody errorBody) {
         return switch (status) {
-            case UNAUTHORIZED -> new LangfuseAuthenticationException(message);
-            case FORBIDDEN -> new LangfuseAuthorizationException(message);
-            case NOT_FOUND -> new LangfuseNotFoundException(message);
-            default -> new LangfuseApiException(message, status.getStatusCode());
+            case UNAUTHORIZED -> new LangfuseAuthenticationException(message, errorBody);
+            case FORBIDDEN -> new LangfuseAuthorizationException(message, errorBody);
+            case NOT_FOUND -> new LangfuseNotFoundException(message, errorBody);
+            default -> new LangfuseApiException(message, status.getStatusCode(), errorBody);
         };
     }
 }

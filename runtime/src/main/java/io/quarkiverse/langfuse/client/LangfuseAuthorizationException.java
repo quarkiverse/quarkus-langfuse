@@ -1,6 +1,7 @@
 package io.quarkiverse.langfuse.client;
 
 import com.langfuse.api.LangfuseApiException;
+import com.langfuse.api.LangfuseErrorBody;
 
 /**
  * Thrown when Langfuse accepts the request credentials but refuses the action, corresponding to
@@ -24,5 +25,14 @@ public class LangfuseAuthorizationException extends LangfuseApiException {
      */
     public LangfuseAuthorizationException(String message) {
         super(message, 403);
+    }
+
+    /**
+     * @param message the error message
+     * @param errorBody the response body the server sent, or {@link LangfuseErrorBody#empty()} when
+     *        there was none
+     */
+    public LangfuseAuthorizationException(String message, LangfuseErrorBody errorBody) {
+        super(message, 403, errorBody);
     }
 }

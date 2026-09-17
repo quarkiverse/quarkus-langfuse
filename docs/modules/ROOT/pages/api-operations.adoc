@@ -275,7 +275,10 @@ Every failed request raises a `LangfuseApiException`, or one of its subtypes whe
 [source]
 ----
 RuntimeException
-└── LangfuseApiException                  (com.langfuse.api - carries getStatusCode())
+└── LangfuseApiException                  (com.langfuse.api)
+    │                                     getStatusCode()    - the HTTP status
+    │                                     getServerMessage() - the server's own words
+    │                                     getErrorBody()     - the response body, typed
     ├── LangfuseAuthenticationException   401
     ├── LangfuseAuthorizationException    403
     └── LangfuseNotFoundException         404
@@ -308,7 +311,7 @@ The three subtypes live in `io.quarkiverse.langfuse.client`. Catching `LangfuseA
 | Server-side failure.
 |===
 
-The status is always available through `getStatusCode()`, so the unmapped cases remain fully diagnosable without a dedicated type:
+The status is always available through `getStatusCode()`, and the server's explanation through `getServerMessage()`, so the unmapped cases remain fully diagnosable without a dedicated type:
 
 [source,java]
 ----
@@ -320,11 +323,88 @@ catch (LangfuseAuthenticationException e) {
 }
 catch (LangfuseApiException e) {
     // Anything else: rate limiting, a server error, a refused action
-    Log.warnf("Langfuse call failed with status %d", e.getStatusCode());
+    Log.warnf("Langfuse call failed with status %d: %s", e.getStatusCode(), e.getServerMessage());
 }
 ----
 
-NOTE: A `404` does not always mean the resource is missing. Langfuse also answers `404` for some refusals - deleting a Langfuse-managed model reports `No model with this id found. Note: You cannot delete built-in models...` even though the model exists. "You may not delete this" and "this does not exist" are therefore indistinguishable by status code on those endpoints.
+NOTE: A `404` does not always mean the resource is missing. Langfuse also answers `404` for some refusals - deleting a Langfuse-managed model reports `No model with this id found. Note: You cannot delete built-in models...` even though the model exists. "You may not delete this" and "this does not exist" are therefore indistinguishable by status code on those endpoints. `getServerMessage()` tells you which of the two happened; the status code alone does not.
+
+=== Reading the Error Response
+
+`getMessage()` carries the whole raw response body behind a `Langfuse API error (404): ` prefix, which is exactly what you want in a stack trace and exactly what you do not want in a log line. Two accessors on `LangfuseApiException` give that body as data instead, so no caller has to parse JSON out of an exception message. Both live on the **base** type, so they are reachable from the catch-all `catch (LangfuseApiException e)` block and are available for the statuses that have no dedicated subtype - `400`, `409`, `429`, `5xx`.
+
+[cols="1,3",options="header"]
+|===
+| Accessor | Use it when
+
+| `String getServerMessage()`
+| You want the server's own sentence - for a log line, a UI notification, or a wrapped exception. This is the common path and involves no new types.
+
+| `LangfuseErrorBody getErrorBody()`
+| You need more than the sentence: the machine-readable code, or the body exactly as it arrived.
+|===
+
+==== The Common Path: `getServerMessage()`
+
+[source,java]
+----
+try {
+    var dataset = langfuse.datasets().createIfAbsent(request);
+}
+catch (LangfuseApiException e) {
+    // "Dataset name must not be empty" - not {"message":"Dataset name must not be empty"}
+    Log.warnf("Langfuse rejected the call (%d): %s", e.getStatusCode(), e.getServerMessage());
+}
+----
+
+When the failure carried no response body at all - a transport error that never reached the server, or an error response with an empty body - `getServerMessage()` falls back to `getMessage()` rather than answering an empty string. It is therefore always worth logging, whatever went wrong.
+
+`getMessage()` itself is unchanged and still carries the raw body. Nothing that reads it needs to be touched; the accessors are purely additive.
+
+==== The Full Body: `getErrorBody()`
+
+`getErrorBody()` answers a `com.langfuse.api.LangfuseErrorBody` and **never returns `null`** - a failure that carried no body answers an empty one. The type is a sealed interface with three accessors:
+
+[cols="1,3",options="header"]
+|===
+| Accessor | Meaning
+
+| `String message()`
+| The server's explanation. Never `null`, but empty when no body arrived. This is what `getServerMessage()` returns when it is non-empty.
+
+| `Optional<String> code()`
+| The machine-readable error code, when the server sent one. Usually empty - see below.
+
+| `String rawBody()`
+| The response body exactly as it arrived, before any interpretation. The escape hatch for a shape this type does not model. Never `null`, but empty when no body arrived.
+|===
+
+[source,java]
+----
+try {
+    var evaluators = langfuse.evaluators().findAll();
+}
+catch (LangfuseApiException e) {
+    var body = e.getErrorBody();
+
+    Log.warnf("Langfuse call failed (%d): %s [code=%s]",
+            e.getStatusCode(), body.message(), body.code().orElse("none"));
+
+    // code() is empty on most endpoints, so it can only ever refine the handling,
+    // never carry it - the status code stays the primary signal
+    var retryable = body.code()
+            .filter("rate_limited"::equals)
+            .isPresent();
+}
+----
+
+IMPORTANT: `code()` is only populated by the evaluators and evaluation-rules endpoints, which are the only ones that declare a code in their error schema. The great majority of Langfuse endpoints declare their error response as an empty schema and send no code at all, so `code()` is empty far more often than not. Branch on `getStatusCode()`, and treat a present `code()` as a bonus.
+
+==== Bodies That Cannot Be Understood
+
+Not every error response is a Langfuse error object. An intervening proxy or load balancer may answer with an HTML error page, a gateway may send an empty body, and a misrouted request may return JSON that is not an object at all. Any of these yields an **opaque** body: `message()` answers the raw text rather than an empty string, `code()` is empty, and `rawBody()` holds the original bytes as text.
+
+The practical consequence is that `getServerMessage()` and `getErrorBody().message()` are always safe to call and always worth logging. They degrade from "the server's sentence" to "whatever text arrived" to "the exception message", but they never degrade to `null` and never to nothing.
 
 === Consuming Asynchronous Absence
 

@@ -1,6 +1,7 @@
 package io.quarkiverse.langfuse.client;
 
 import com.langfuse.api.LangfuseApiException;
+import com.langfuse.api.LangfuseErrorBody;
 
 /**
  * Thrown when Langfuse answers a request with HTTP {@code 404}.
@@ -26,5 +27,14 @@ public class LangfuseNotFoundException extends LangfuseApiException {
      */
     public LangfuseNotFoundException(String message) {
         super(message, 404);
+    }
+
+    /**
+     * @param message the error message
+     * @param errorBody the response body the server sent, or {@link LangfuseErrorBody#empty()} when
+     *        there was none
+     */
+    public LangfuseNotFoundException(String message, LangfuseErrorBody errorBody) {
+        super(message, 404, errorBody);
     }
 }
