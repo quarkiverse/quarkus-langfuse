@@ -281,7 +281,8 @@ langfuse.async().models().findByName("gpt-4o")
 
 // Supply a fallback value
 langfuse.async().models().findByName("gpt-4o")
-        .map(model -> (model != null) ? model.getId() : "default-id");
+        .onItem().ifNotNull().transform(Model::getId)
+        .onItem().ifNull().continueWith("default-id");
 ----
 
 == Deletion Outcomes
