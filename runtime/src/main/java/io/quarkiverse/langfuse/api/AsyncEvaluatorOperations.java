@@ -10,6 +10,8 @@ import com.langfuse.api.model.CreateEvaluatorRequest;
 import com.langfuse.api.model.CreateLlmAsJudgeEvaluatorRequest1;
 import com.langfuse.api.model.Evaluator;
 
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome;
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
 import io.quarkiverse.langfuse.util.ValidationUtils;
 import io.smallrye.mutiny.Uni;
 
@@ -26,6 +28,23 @@ import io.smallrye.mutiny.Uni;
  */
 public sealed interface AsyncEvaluatorOperations extends AsyncCursorOperations<Evaluator>
         permits DefaultAsyncEvaluatorOperations {
+
+    /**
+     * Finds an evaluator by its id.
+     *
+     * <p>
+     * <strong>Emits {@code null} if no evaluator has that id.</strong>
+     *
+     * <p>
+     * Unlike {@link #findByName(String)}, this is a <strong>direct lookup</strong>: Langfuse resolves
+     * the id server-side, so it costs a single request whatever the size of the collection. Prefer it
+     * wherever the id is already known.
+     *
+     * @param id the evaluator id to look for, must not be {@code null} or blank
+     * @return the matching evaluator, or {@code null} if no evaluator has that id
+     * @throws IllegalArgumentException if {@code id} is {@code null} or blank
+     */
+    Uni<Evaluator> findById(String id);
 
     /**
      * Finds an evaluator by its exact name.
@@ -211,4 +230,27 @@ public sealed interface AsyncEvaluatorOperations extends AsyncCursorOperations<E
     default Uni<DeletionResult> deleteByName(String... evaluatorNames) {
         return deleteByName((evaluatorNames == null) ? null : Arrays.asList(evaluatorNames));
     }
+
+    /**
+     * The stored version history of the evaluator with the given id.
+     *
+     * <p>
+     * Versions are addressed relative to their evaluator, so they are reached through this view rather
+     * than as a top-level collection. Every operation on the returned view applies to that evaluator
+     * alone, and {@code findAll()} on it means every version <strong>of that evaluator</strong>,
+     * newest-first.
+     *
+     * <p>
+     * <strong>The evaluator id is validated here</strong>, not on first use, so a blank id throws from
+     * this call rather than emitting a failure later from a traversal. The evaluator is not looked up:
+     * a view over an evaluator that does not exist is created happily and reports the absence when it
+     * is used.
+     *
+     * @param evaluatorId the id of the evaluator whose versions to operate on, must not be
+     *        {@code null} or blank
+     * @return the operations over that evaluator's versions. Never {@code null}
+     * @throws IllegalArgumentException if {@code evaluatorId} is {@code null} or blank. Thrown from
+     *         this call rather than emitted as a failure
+     */
+    AsyncEvaluatorVersionOperations versions(String evaluatorId);
 }

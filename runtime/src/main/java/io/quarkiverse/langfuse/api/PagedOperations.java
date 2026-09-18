@@ -21,7 +21,9 @@ import io.quarkiverse.langfuse.api.paging.PagedResult;
  * @see AbstractPagedOperations
  */
 sealed interface PagedOperations<T>
-        permits ModelOperations, DatasetOperations, LlmConnectionOperations, ScoreConfigOperations, AbstractPagedOperations {
+        permits ModelOperations, DatasetOperations, LlmConnectionOperations, ScoreConfigOperations, PromptOperations,
+        AnnotationQueueOperations, AnnotationQueueItemOperations, CommentOperations, DatasetItemOperations,
+        AbstractPagedOperations {
 
     /**
      * All items, fetched using the page size configured by

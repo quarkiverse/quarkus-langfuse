@@ -6,12 +6,16 @@ import java.util.Optional;
 import com.langfuse.api.evaluationRules.EvaluationRulesApi;
 import com.langfuse.api.evaluationRules.EvaluationRulesApi.APIEvaluationRulesCreateRequest;
 import com.langfuse.api.evaluationRules.EvaluationRulesApi.APIEvaluationRulesDeleteRequest;
+import com.langfuse.api.evaluationRules.EvaluationRulesApi.APIEvaluationRulesGetRequest;
 import com.langfuse.api.evaluationRules.EvaluationRulesApi.APIEvaluationRulesListRequest;
 import com.langfuse.api.model.CreateEvaluationRuleRequest;
+import com.langfuse.api.model.CursorMeta;
 import com.langfuse.api.model.EvaluationRule;
 
 import io.quarkiverse.langfuse.api.cursor.Cursor;
 import io.quarkiverse.langfuse.api.cursor.CursorResult;
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
+import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkiverse.langfuse.util.ValidationUtils;
 
@@ -22,6 +26,22 @@ final class DefaultEvaluationRuleOperations extends AbstractCursorOperations<Eva
     DefaultEvaluationRuleOperations(EvaluationRulesApi evaluationRulesApi, LangfuseConfig config) {
         super(cursor -> fetch(evaluationRulesApi, cursor), config);
         this.evaluationRulesApi = evaluationRulesApi;
+    }
+
+    @Override
+    public Optional<EvaluationRule> findById(String id) {
+        var ruleId = ValidationUtils.ensureNotBlank(id, "Evaluation rule id");
+
+        // Direct GET, so no scan: the server resolves the id. Only LangfuseNotFoundException is caught -
+        // catching LangfuseApiException would report a 401 or a 500 as "absent", which is the one
+        // mistake this layer must never make.
+        try {
+            return Optional.of(this.evaluationRulesApi.evaluationRulesGet(APIEvaluationRulesGetRequest.newBuilder()
+                    .evaluationRuleId(ruleId)
+                    .build()));
+        } catch (LangfuseNotFoundException e) {
+            return Optional.empty();
+        }
     }
 
     @Override
@@ -68,6 +88,6 @@ final class DefaultEvaluationRuleOperations extends AbstractCursorOperations<Eva
                 .cursor(cursor.value().orElse(null))
                 .build());
 
-        return CursorResults.from(cursor, response.getData(), response.getMeta());
+        return CursorResults.from(cursor, response.getData(), response.getMeta(), CursorMeta::getCursor);
     }
 }

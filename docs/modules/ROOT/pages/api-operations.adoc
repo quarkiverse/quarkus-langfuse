@@ -1,7 +1,9 @@
 = Higher-Level API Operations
 include::./includes/attributes.adoc[]
 
-The generated `LangfuseApi` client mirrors the Langfuse REST API one endpoint at a time. For common tasks - looking things up by name, checking whether they exist, ensuring resources are created idempotently at startup, deleting them in batches, and walking paginated collections without hand-rolling page arithmetic - the extension provides a curated, higher-level layer in `io.quarkiverse.langfuse.api`. The coordinate and selection types that describe which part of a collection to walk live alongside it, in `io.quarkiverse.langfuse.api.paging` and `io.quarkiverse.langfuse.api.cursor`.
+The generated `LangfuseApi` client mirrors the Langfuse REST API one endpoint at a time. For common tasks - looking things up by id or by name, checking whether they exist, ensuring resources are created idempotently at startup, restricting a collection to the items you care about, deleting them in batches, and walking paginated collections without hand-rolling page arithmetic - the extension provides a curated, higher-level layer in `io.quarkiverse.langfuse.api`.
+
+Three subpackages hold the vocabularies every domain shares: `io.quarkiverse.langfuse.api.paging` (`Page`, `PageSelection`, `PagedResult`), `io.quarkiverse.langfuse.api.cursor` (`Cursor`, `CursorSelection`, `CursorResult`) and `io.quarkiverse.langfuse.api.deletion` (`DeletionResult`, `DeletionOutcome`). Per-domain filter types stay beside their domain interface in `io.quarkiverse.langfuse.api`: unlike a page or a cursor, a `CommentFilter` means nothing away from comments.
 
 Anything not covered by this layer remains one call away through `api()`, which returns the underlying `LangfuseApi`.
 
@@ -36,7 +38,7 @@ public class TelemetryService {
 
 == Available Operations
 
-Langfuse uses two different pagination models depending on the resource. The layer reflects this distinction rather than hiding it behind an artificial abstraction:
+Langfuse uses two different pagination models depending on the resource, and one collection it does not paginate at all. The layer reflects those distinctions rather than hiding them behind an artificial abstraction:
 
 [cols="1,1,2,2",options="header"]
 |===
@@ -52,6 +54,11 @@ Langfuse uses two different pagination models depending on the resource. The lay
 | `langfuse.datasets()`
 | Query, paginate and create datasets
 
+| Dataset Items
+| Page
+| `langfuse.datasetItems()`
+| Query, filter, paginate, create and delete dataset items
+
 | LLM Connections
 | Page
 | `langfuse.llmConnections()`
@@ -62,6 +69,26 @@ Langfuse uses two different pagination models depending on the resource. The lay
 | `langfuse.scoreConfigs()`
 | Query, paginate and create score configurations
 
+| Prompts
+| Page
+| `langfuse.prompts()`
+| Query, paginate, create and delete prompts
+
+| Annotation Queues
+| Page
+| `langfuse.annotationQueues()`
+| Query, paginate and create annotation queues, and reach their items
+
+| Annotation Queue Items
+| Page, **parent-scoped**
+| `langfuse.annotationQueues().items(queueId)`
+| Query, paginate, create, update and delete the items of one queue
+
+| Comments
+| Page
+| `langfuse.comments()`
+| Query, filter, paginate and create comments
+
 | Evaluation Rules
 | **Cursor**
 | `langfuse.evaluationRules()`
@@ -70,18 +97,56 @@ Langfuse uses two different pagination models depending on the resource. The lay
 | Evaluators
 | **Cursor**
 | `langfuse.evaluators()`
-| Query, paginate via cursor, create and delete evaluators
+| Query, paginate via cursor, create and delete evaluators, and reach their version history
+
+| Evaluator Versions
+| **Cursor**, **parent-scoped**
+| `langfuse.evaluators().versions(evaluatorId)`
+| Walk the stored version history of one evaluator
+
+| Scores
+| **Cursor**
+| `langfuse.scores()`
+| Query, filter, paginate via cursor, create and delete scores
+
+| Observations
+| **Cursor**
+| `langfuse.observations()`
+| Query, filter and paginate observations via cursor
+
+| Experiments
+| **Cursor**, time-windowed
+| `langfuse.experiments().since(from)`
+| Query, filter and paginate experiments within a time window
+
+| Experiment Items
+| **Cursor**, time-windowed
+| `langfuse.experimentItems().since(from)`
+| Query, filter and paginate experiment items within a time window
+
+| Blob Storage Integrations
+| **Unpaginated**
+| `langfuse.blobStorageIntegrations()`
+| List, inspect status, upsert and delete blob storage integrations
 |===
 
-NOTE: Datasets and score configs have **no delete operations**. This is a limitation of the Langfuse v4 API rather than an omission here: it exposes no delete endpoint for either resource. (`DELETE /api/public/v2/datasets/{name}/runs/{runName}` deletes a dataset *run*, which this layer does not model.)
+Every domain above is also reachable on the asynchronous tree under the same name - `langfuse.async().scores()`, or `asyncLangfuse.scores()` - returning `Uni` and `Multi` in place of values and streams.
+
+The surface is **deliberately not uniform**: a domain declares the operations its endpoint actually supports, and no more. <<why-the-surface-is-asymmetric,Why the Surface Is Asymmetric>> explains each case.
+
+NOTE: Datasets and score configs have **no delete operations**. This is a limitation of the Langfuse v4 API rather than an omission here: it exposes no delete endpoint for either resource. (`DELETE /api/public/v2/datasets/\{name}/runs/\{runName}` deletes a dataset *run*, which this layer does not model.)
 
 === Page-Addressed Operations
 
-Models, datasets, LLM connections, and score configs are page-addressed (`page` and `limit` query parameters):
+Models, datasets, dataset items, LLM connections, score configs, prompts, annotation queues, annotation queue items and comments are page-addressed (`page` and `limit` query parameters). Not every domain declares every row below - see <<why-the-surface-is-asymmetric,Why the Surface Is Asymmetric>>:
 
 [cols="2,2,3",options="header"]
 |===
 | Synchronous | Asynchronous (Mutiny) | Description
+
+| `Optional<T> findById(String)`
+| `Uni<T> findById(String)`
+| Direct lookup by id: a single request whatever the size of the collection, unlike `findByName`. See the note below for which domains declare it.
 
 | `Optional<T> findByName(String)`
 | `Uni<T> findByName(String)`
@@ -133,18 +198,26 @@ Models, datasets, LLM connections, and score configs are page-addressed (`page` 
 | `Uni<DeletionResult> deleteByName(String)` +
 `Uni<DeletionResult> deleteByName(String...)` +
 `Uni<DeletionResult> deleteByName(Collection<String>)`
-| Resolves each name to its id, then deletes. Models only; see the note below for LLM connections.
+| Resolves each name to its id, then deletes. See <<deleting-by-name,Deleting by Name>> - prompts are the exception, and delete by name server-side.
 |===
+
+NOTE: `findById` is available only where Langfuse exposes a GET-by-id endpoint returning the resource. Among the page-addressed domains that means models, score configs, annotation queues, annotation queue items, comments and dataset items. Datasets are keyed by name (`GET /api/public/v2/datasets/\{datasetName}`), LLM connections have no GET-by-id at all, and prompts resolve by name server-side, so none of the three declares it.
 
 NOTE: LLM connections are keyed by `provider` rather than `name`, so their operations are named `findByProvider(String)`, `exists(String)` and `deleteByProvider(String)` (also available in varargs and `Collection` forms). In addition, LLM connections provide an atomic `upsert(UpsertLlmConnectionRequest)` instead of `createIfAbsent`. Deleting an LLM connection also causes Langfuse to pause any evaluators that depend on it.
 
+NOTE: Prompts list and look up as different types. `PromptOperations` walks `PromptMeta` - a name with its versions, labels and tags, but no prompt content - while `findByName(String)` fetches a `Prompt`, the polymorphic chat-or-text model. That asymmetry is the API's. Prompts also resolve by name server-side, so `findByName`, `exists` and `deleteByName` each cost a single request rather than a paginated scan.
+
 === Cursor-Addressed Operations
 
-Evaluation rules and evaluators use opaque server cursors rather than page numbers. Because Langfuse reports only a cursor and no total page count or item count, cursor operations do not fabricate totals or ordinal page indexes:
+Evaluation rules, evaluators, evaluator versions, scores, observations, experiments and experiment items use opaque server cursors rather than page numbers. Because Langfuse reports only a cursor and no total page count or item count, cursor operations do not fabricate totals or ordinal page indexes. As with the page-addressed domains, not every row below is declared by every domain:
 
 [cols="2,2,3",options="header"]
 |===
 | Synchronous | Asynchronous (Mutiny) | Description
+
+| `Optional<T> findById(String)`
+| `Uni<T> findById(String)`
+| Direct lookup by id: a single request whatever the size of the collection, unlike `findByName`. Declared by evaluation rules and evaluators.
 
 | `Optional<T> findByName(String)`
 | `Uni<T> findByName(String)`
@@ -200,6 +273,134 @@ Evaluation rules and evaluators use opaque server cursors rather than page numbe
 |===
 
 NOTE: Deleting an evaluator removes the evaluator **and all of its stored versions**, and drops the evaluation-rule assignments that reference it. Scores it has already produced are preserved. Deleting an evaluation rule is narrower than it appears: it removes the live-ingestion rule only, leaving associated evaluators and previously produced scores in place.
+
+=== Unpaginated Operations
+
+Blob storage integrations are the one collection Langfuse does not paginate: `GET /api/public/blob-storage-integrations` answers the whole list in a single response, with no cursor, no page count and no request object at all. `BlobStorageIntegrationOperations` therefore declares `findAll()` alone - no `find(selection)`, no `streamPages`, no `findBatch` - because there is nothing for a selection to select.
+
+[cols="2,2,3",options="header"]
+|===
+| Synchronous | Asynchronous (Mutiny) | Description
+
+| `List<BlobStorageIntegrationResponse> findAll()`
+| `Uni<List<BlobStorageIntegrationResponse>> findAll()`
+| The whole list, in one request.
+
+| `Optional<BlobStorageIntegrationStatusResponse> findStatusById(String)`
+| `Uni<BlobStorageIntegrationStatusResponse> findStatusById(String)`
+| The **status** of one integration - not the integration itself. See <<why-the-surface-is-asymmetric,Why the Surface Is Asymmetric>>.
+
+| `BlobStorageIntegrationResponse upsert(...)`
+| `Uni<BlobStorageIntegrationResponse> upsert(...)`
+| Atomic server-side create-or-replace.
+
+| `DeletionResult deleteById(...)`
+| `Uni<DeletionResult> deleteById(...)`
+| Deletes one or more integrations by id, in the usual three arities.
+|===
+
+== Filtering
+
+Several Langfuse list endpoints accept query criteria. Where they do, the domain exposes a single `matching(XFilter)` method returning **its own type**, so a filtered collection is just another view of that domain and every operation above keeps working on it:
+
+[source,java]
+----
+import io.quarkiverse.langfuse.api.CommentFilter;
+
+var filter = CommentFilter.builder()
+        .objectType(CommentObjectType.TRACE)
+        .objectId("trace-1")
+        .build();
+
+langfuse.comments().findAll();                                      // the whole collection
+langfuse.comments().matching(filter).findAll();                     // every comment on that trace
+langfuse.comments().matching(filter).streamPages(PageSelection.all());
+langfuse.async().comments().matching(filter).streamAll();
+----
+
+The domains carrying a filter are comments (`CommentFilter`), dataset items (`DatasetItemFilter`), scores (`ScoreFilter`), observations (`ObservationFilter`), experiments (`ExperimentFilter`) and experiment items (`ExperimentItemFilter`).
+
+IMPORTANT: `matching` **replaces** the filter in force; it does not compose with it. `.matching(a).matching(b)` is filtered by `b` alone. Composition would have to choose a meaning for combining two filters - AND across all fields, override per field, or merge - and no choice is obviously right, so the layer makes none.
+
+On a filtered view, `findAll()` means *every item of this view*, not every item in the remote collection - the same reading as `stream().filter(...).count()`, where the receiver scopes the operation. The filter lives in the receiver rather than in an argument, which is why `findAll()` stays zero-argument and there is no `findAll(filter)` claiming whole-collection semantics while taking criteria.
+
+=== Building a Filter
+
+Each filter is an immutable sealed interface with a fluent builder, a `none()` instance matching everything, and a `toBuilder()` for deriving a variant:
+
+[source,java]
+----
+var numeric = ScoreFilter.builder()
+        .traceId("trace-1")
+        .dataType(ScoreDataType.NUMERIC)
+        .valueMin(0.5d)
+        .build();
+
+var tighter = numeric.toBuilder()
+        .valueMax(0.9d)
+        .build();
+----
+
+Filters are **per domain and share no supertype**. A score filter offers twenty criteria, a comment filter three, and the two overlap barely at all; there is no common `Filter` type, and none is intended. Accessors return `Optional`, so an unset criterion is visibly unset rather than encoded as `null`.
+
+NOTE: Langfuse enforces combination rules server-side, and the filters do not pre-empt them. A rejected combination - a score `valueMin` without a `NUMERIC` `dataType`, a comment `objectId` without an `objectType` - surfaces as a `LangfuseApiException` carrying HTTP 400 when the listing runs, not as an `IllegalArgumentException` from the builder. The filter reports what you asked for; the server remains the authority on what it accepts.
+
+== Direct Lookup by Id
+
+`findById(String)` is a **single request** whatever the size of the collection, because Langfuse resolves the id itself. Contrast `findByName`, which - on every domain except prompts - walks the collection until it finds a match, and walks all of it to prove a name absent.
+
+[source,java]
+----
+langfuse.models().findById("model-id");              // one GET
+langfuse.models().findByName("gpt-4o");              // a scan, short-circuited on a hit
+----
+
+TIP: Prefer `findById` wherever the id is already known.
+
+It is declared by models, score configs, evaluation rules, evaluators, annotation queues, annotation queue items, comments and dataset items - every domain whose GET-by-id endpoint exists, is not deprecated, and returns the resource itself.
+
+== Parent-Scoped Sub-Collections
+
+Two collections live under a parent in the Langfuse URL space, and are reached through a sub-accessor on the parent domain rather than by passing the parent id to every operation:
+
+[source,java]
+----
+langfuse.annotationQueues().items(queueId).findAll();
+langfuse.annotationQueues().items(queueId).create(request);
+
+langfuse.evaluators().versions(evaluatorId).streamAll();
+----
+
+The view captures the parent, so no operation on it takes a queue or evaluator id. The parent is validated **when the sub-accessor is called**, so a blank id fails at `items("")` rather than later at `findAll()` - including on the asynchronous tree, where it is thrown from the call itself rather than emitted as a failed `Uni`.
+
+NOTE: Experiment items look parent-scoped but are not. Langfuse takes `experimentId` and `experimentName` as query criteria on a top-level collection, so they belong on `ExperimentItemFilter` and experiment items are reached from `langfuse.experimentItems()`, not from an experiment.
+
+== Time-Windowed Collections
+
+The experiments and experiment-items endpoints make `fromStartTime` a **required** query parameter, so that the query stays fast on large projects. A zero-argument `findAll()` could not satisfy that, and would be a guaranteed HTTP 400.
+
+Rather than document that hazard and leave it reachable, both accessors return a small gateway - `ExperimentTimeWindow` and `ExperimentItemTimeWindow` - that exposes only the two ways of supplying the bound. The collection operations exist only on the far side of one of them, so the unsatisfiable call cannot be written:
+
+[source,java]
+----
+import java.time.OffsetDateTime;
+
+var from = OffsetDateTime.now().minusDays(7);
+
+langfuse.experiments().since(from).findAll();
+langfuse.experiments().between(from, OffsetDateTime.now()).streamAll();
+langfuse.experiments().since(from).matching(filter).findAll();
+
+langfuse.experimentItems().since(from).matching(itemFilter).findAll();
+----
+
+`since(from)` leaves the upper bound open; `between(from, to)` closes it. The bound lives in the gateway and **not** in the filter, so there is never a conflict between the two with no defined winner.
+
+== Updating
+
+`update` exists on exactly one domain: `langfuse.annotationQueues().items(queueId).update(itemId, request)`.
+
+Annotation queue items are the one place where the workflow *is* the state transition - moving an item to completed is the point of a queue - and Langfuse's PATCH endpoint returns the updated entity. Three other domains have PATCH endpoints and do not get `update` from this: a domain earns an operation because its endpoint and its use case warrant one, never for symmetry with a sibling.
 
 == Pagination
 
@@ -259,7 +460,7 @@ Both `Pagination` (synchronous `Stream`) and `AsyncPagination` (Mutiny `Multi`) 
 
 Absence and failure are strictly separated:
 
-* `findByName` and `findByProvider` return `Optional.empty()` (sync) or emit `null` (async) only when the resource genuinely does not exist (404 from the server, or not found in the listing).
+* `findById`, `findByName`, `findByProvider` and `findStatusById` return `Optional.empty()` (sync) or emit `null` (async) only when the resource genuinely does not exist (404 from the server, or not found in the listing).
 * `exists` returns `false` only when the resource genuinely does not exist.
 * All other failures - rejected credentials (`LangfuseAuthenticationException`), refused actions (`LangfuseAuthorizationException`), transport errors, 5xx server errors - **propagate as exceptions** (all of them `LangfuseApiException` subtypes). They are never swallowed or logged as warnings.
 * `findAll()`, `find()`, `findPage()`, and `findBatch()` propagate 404 errors, because a 404 on a collection endpoint indicates a misconfigured URL or project rather than an empty collection (Langfuse returns 200 with an empty array for an empty collection).
@@ -465,9 +666,9 @@ Only `Failed` carries a cause, so a cause cannot be read off a success. Because 
 
 [source,java]
 ----
-import io.quarkiverse.langfuse.api.DeletionOutcome.Deleted;
-import io.quarkiverse.langfuse.api.DeletionOutcome.Failed;
-import io.quarkiverse.langfuse.api.DeletionOutcome.NotFound;
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome.Deleted;
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome.Failed;
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome.NotFound;
 
 // Requires the consuming application to target Java 21+
 var message = switch (outcome) {
@@ -494,13 +695,25 @@ if (outcome instanceof Failed f) {
 }
 ----
 
+[#deleting-by-name]
 === Deleting by Name
 
-Langfuse deletes only by id, so `deleteByName` (and `deleteByProvider`) resolves each name to its id first, exactly as `findByName` does. A name that matches stops the scan early, but proving a name is **absent** has no early exit and costs a full collection traversal. Deleting many absent names is therefore markedly more expensive than deleting the same number of ids.
+On models, evaluation rules, evaluators and LLM connections, Langfuse deletes only by id, so `deleteByName` (and `deleteByProvider`) resolves each name to its id first, exactly as `findByName` does. A name that matches stops the scan early, but proving a name is **absent** has no early exit and costs a full collection traversal. Deleting many absent names is therefore markedly more expensive than deleting the same number of ids.
 
 TIP: Prefer `deleteById` wherever ids are already known. Reserve `deleteByName` for cases where the name is genuinely the only handle you have.
 
+**Prompts are different, and cost nothing extra.** Langfuse keys the prompt delete endpoint on the name itself, so `langfuse.prompts().deleteByName(...)` issues one request per name with no resolution scan at all, and an absent name costs no more than a present one. The traversal cost above does not apply to prompts.
+
+IMPORTANT: A prompt delete removes **every version** of the named prompt. Langfuse scopes the deletion by an optional label or version and this layer supplies neither, so the whole prompt goes. Use `api()` directly to delete a single label or version.
+
 == Write Semantics
+
+Two verbs exist for "make sure this is there", and the difference between them is not cosmetic:
+
+* **`upsert`** is a **single atomic server-side operation**. Langfuse creates or replaces in one request; concurrent callers cannot both win. Only LLM connections and blob storage integrations have such an endpoint, and so only they declare `upsert`.
+* **`createIfAbsent`** is **find-then-create, and is not atomic**. Two callers may both observe absence and both create. Every other domain's helper is named this way precisely so the weaker guarantee is visible at the call site.
+
+A find-then-create helper is never named `upsert`, and a server-side upsert is never named `createIfAbsent`.
 
 [cols="1,1,3",options="header"]
 |===
@@ -510,13 +723,17 @@ TIP: Prefer `deleteById` wherever ids are already known. Reserve `deleteByName` 
 | `upsert(...)`
 | **Atomic.** Backed by Langfuse's own `PUT /api/public/llm-connections`, which creates or replaces by provider in a single request.
 
+| Blob Storage Integrations
+| `upsert(...)`
+| **Atomic.** Backed by Langfuse's own `PUT /api/public/blob-storage-integrations`, which creates or replaces in a single request.
+
 | Models
 | `createIfAbsent(...)`
 | **Not atomic.** Langfuse offers no upsert-by-name endpoint for models. This performs a lookup followed by a create; concurrent callers may both observe absence and both create.
 
 | Datasets
 | `createIfAbsent(...)`
-| **Not atomic.** Lookup is a single request (`GET /api/public/v2/datasets/{name}`), but the create is a separate second request.
+| **Not atomic.** Lookup is a single request (`GET /api/public/v2/datasets/\{name}`), but the create is a separate second request.
 
 | Score Configs
 | `createIfAbsent(...)`
@@ -530,7 +747,19 @@ TIP: Prefer `deleteById` wherever ids are already known. Reserve `deleteByName` 
 | `createIfAbsent(...)`
 | **Not atomic.** Cursor scan followed by create.
 
-| Models, LLM Connections, Evaluation Rules, Evaluators
+| Prompts
+| `createIfAbsent(...)`
+| **Not atomic.** A single-request lookup by name followed by a create. Note that Langfuse's create endpoint adds a *new version* to an existing prompt; this method deliberately does not, and returns the existing prompt untouched instead. Use `api()` to version a prompt.
+
+| Annotation Queues
+| `createIfAbsent(...)`
+| **Not atomic.** Page scan followed by create.
+
+| Annotation Queue Items
+| `update(String, ...)`
+| **Not atomic against concurrent writers.** A single PATCH, but last write wins - Langfuse offers no conditional update.
+
+| Any domain declaring it
 | `deleteById(...)`
 | **Not atomic.** Langfuse offers no bulk delete endpoint, so a batch is client-side iteration and can partially apply. Inspect the returned `DeletionResult` rather than assuming all-or-nothing.
 
@@ -538,10 +767,79 @@ TIP: Prefer `deleteById` wherever ids are already known. Reserve `deleteByName` 
 | `deleteByName(...)`
 | **Not atomic.** Resolution followed by delete, per identifier. A resource created between the lookup and the delete is not seen.
 
+| Prompts
+| `deleteByName(...)`
+| **Not atomic** across a batch, but each name is a single server-side request with no resolution step - see <<deleting-by-name,Deleting by Name>>.
+
 | LLM Connections
 | `deleteByProvider(...)`
 | **Not atomic.** Resolution followed by delete, per provider.
 |===
+
+[#why-the-surface-is-asymmetric]
+== Why the Surface Is Asymmetric
+
+Some domains have `findById` and some do not. Some have delete and some do not. Two use `upsert` and the rest `createIfAbsent`. One list operation is unpaginated, one delete takes two identifiers, and one is keyed on a name.
+
+That is **the design**, not an unfinished state. This layer gives each domain the shape its endpoint actually supports rather than a uniform one, because the alternative is worse: forcing symmetry means naming a method for something it cannot do, and in a public API a wrong name cannot be withdrawn. Each case below states what is absent and why, so it need not be read as an oversight.
+
+=== Lookup
+
+Observations have **no `findById`**::
+The only GET-by-id for an observation is the v1 endpoint, which Langfuse has deprecated and will remove from Langfuse Cloud on November 16, 2026. Building a public method on an endpoint with a removal date would hand callers a method that stops working on a known date. The v2 listing, which this layer uses, has no by-id form.
+
+Blob storage integrations have **`findStatusById`, not `findById`**::
+The `\{id}` GET on that endpoint answers a `BlobStorageIntegrationStatusResponse` - the *status* of the integration, such as whether its last export succeeded - and not the integration itself. A method named `findById` would promise the integration and return something else, so the method is named for what it actually returns.
+
+Experiments have **neither `findById` nor `findByName`**::
+`id` and `name` are **comma-separated list criteria** on that endpoint, not unique keys: either may select many experiments or none. Neither can be the basis of a lookup that returns at most one result, so both live on `ExperimentFilter` as criteria instead.
+
+Scores have **no `findByName`**::
+A `ScoreV3` has a name, but it is not unique - many scores share one. `name` is therefore a filter criterion, and `deleteById` is the only delete.
+
+Comments, dataset items, experiment items and annotation queue items have **no `findByName`**::
+Those models have no name to look up by. For the same reason none of them has `createIfAbsent`: there is no key on which absence could be decided.
+
+Evaluator versions have **no lookup at all**::
+The version history endpoint is the only way in, and it is a listing. Versions are read-only: they appear as a side effect of updating the evaluator and are removed only when the evaluator itself is deleted.
+
+=== Deletion
+
+Comments and annotation queues have **no delete**::
+Langfuse exposes no DELETE endpoint for either. Annotation queue *items* do have one, reached through `langfuse.annotationQueues().items(queueId).deleteById(...)`.
+
+Datasets and score configs have **no delete**::
+Unchanged from before this expansion, and still an upstream gap: Langfuse exposes no DELETE for either resource. (`DELETE /api/public/v2/datasets/\{name}/runs/\{runName}` deletes a dataset *run*, which this layer does not model.)
+
+Observations, experiments, experiment items and evaluator versions have **no delete**::
+No DELETE endpoint exists for any of them.
+
+=== Creation
+
+`create` on comments returns **an id, not a comment**::
+Langfuse's create endpoint answers a `CreateCommentResponse` carrying `id` and nothing else, so `CommentOperations.create` returns a `String`. Returning a `Comment` would require a second GET this layer does not silently issue on your behalf; if you want the created comment, follow up with `findById`.
+
+Observations, experiments, experiment items and evaluator versions have **no `create`**::
+Those collections are produced by ingestion or by other operations, and Langfuse exposes no create endpoint on them. Observations and scores arrive through the ingestion API, reachable via `api()`.
+
+== What This Layer Deliberately Does Not Cover
+
+Two classes of endpoint are excluded as a standing rule. Neither is an oversight, and neither is awaiting work.
+
+=== Deprecated endpoints
+
+The layer is never built over an endpoint Langfuse has deprecated. A curated method is a promise of support, and these carry a **removal date from Langfuse Cloud of November 16, 2026**:
+
+* traces and sessions;
+* `/api/public/v2/scores` - the v3 listing (`langfuse.scores()`) supersedes it;
+* v1 observations, including the GET-by-id discussed above - the v2 listing (`langfuse.observations()`) supersedes it;
+* dataset runs and dataset run items.
+
+All of them remain reachable through `api()` for as long as Langfuse serves them.
+
+=== `/unstable/` endpoints
+
+Endpoints published by Langfuse under `/api/public/unstable/` - currently dashboards and dashboard widgets - are excluded as a project rule. Langfuse marks them as subject to change without notice, and a stable public method over an unstable endpoint would transfer that instability to this extension's own API. They too remain reachable through `api()`.
 
 == Configuration Reference
 

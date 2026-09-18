@@ -5,13 +5,17 @@ import java.util.function.Function;
 
 import com.langfuse.api.evaluators.EvaluatorsApi.APIEvaluatorsCreateRequest;
 import com.langfuse.api.evaluators.EvaluatorsApi.APIEvaluatorsDeleteRequest;
+import com.langfuse.api.evaluators.EvaluatorsApi.APIEvaluatorsGetRequest;
 import com.langfuse.api.evaluators.EvaluatorsApi.APIEvaluatorsListRequest;
 import com.langfuse.api.evaluators.async.EvaluatorsApi;
 import com.langfuse.api.model.CreateEvaluatorRequest;
+import com.langfuse.api.model.CursorMeta;
 import com.langfuse.api.model.Evaluator;
 
 import io.quarkiverse.langfuse.api.cursor.Cursor;
 import io.quarkiverse.langfuse.api.cursor.CursorResult;
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
+import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkiverse.langfuse.util.ValidationUtils;
 import io.smallrye.mutiny.Uni;
@@ -19,10 +23,36 @@ import io.smallrye.mutiny.Uni;
 final class DefaultAsyncEvaluatorOperations extends AbstractAsyncCursorOperations<Evaluator>
         implements AsyncEvaluatorOperations {
     private final EvaluatorsApi evaluatorsApi;
+    private final LangfuseConfig config;
 
     DefaultAsyncEvaluatorOperations(EvaluatorsApi evaluatorsApi, LangfuseConfig config) {
         super(cursor -> fetch(evaluatorsApi, cursor), config);
         this.evaluatorsApi = evaluatorsApi;
+        this.config = config;
+    }
+
+    @Override
+    public AsyncEvaluatorVersionOperations versions(String evaluatorId) {
+        // Validated here, outside any deferred supplier, so an invalid parent throws from versions("")
+        // rather than surfacing as a failure event on a later traversal.
+        return new DefaultAsyncEvaluatorVersionOperations(this.evaluatorsApi, this.config,
+                ValidationUtils.ensureNotBlank(evaluatorId, "Evaluator id"));
+    }
+
+    @Override
+    public Uni<Evaluator> findById(String id) {
+        // Validated here rather than inside the completionStage supplier: a throw in there becomes a
+        // failure event, and blank input must surface as a thrown IllegalArgumentException.
+        var evaluatorId = ValidationUtils.ensureNotBlank(id, "Evaluator id");
+
+        // Direct GET, so no scan. recoverWithNull is scoped to LangfuseNotFoundException alone: every
+        // other failure, a 401 included, must still fail the Uni rather than read as absence.
+        return Uni.createFrom()
+                .completionStage(() -> this.evaluatorsApi.evaluatorsGet(APIEvaluatorsGetRequest.newBuilder()
+                        .evaluatorId(evaluatorId)
+                        .build()))
+                .onFailure(LangfuseNotFoundException.class)
+                .recoverWithNull();
     }
 
     @Override
@@ -85,6 +115,7 @@ final class DefaultAsyncEvaluatorOperations extends AbstractAsyncCursorOperation
                         .limit(cursor.limit())
                         .cursor(cursor.value().orElse(null))
                         .build()))
-                .map(response -> CursorResults.from(cursor, response.getData(), response.getMeta()));
+                .map(response -> CursorResults.from(cursor, response.getData(), response.getMeta(),
+                        CursorMeta::getCursor));
     }
 }

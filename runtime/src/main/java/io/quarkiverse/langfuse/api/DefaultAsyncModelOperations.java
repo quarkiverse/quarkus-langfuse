@@ -7,11 +7,14 @@ import com.langfuse.api.model.CreateModelRequest;
 import com.langfuse.api.model.Model;
 import com.langfuse.api.models.ModelsApi.APIModelsCreateRequest;
 import com.langfuse.api.models.ModelsApi.APIModelsDeleteRequest;
+import com.langfuse.api.models.ModelsApi.APIModelsGetRequest;
 import com.langfuse.api.models.ModelsApi.APIModelsListRequest;
 import com.langfuse.api.models.async.ModelsApi;
 
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
 import io.quarkiverse.langfuse.api.paging.Page;
 import io.quarkiverse.langfuse.api.paging.PagedResult;
+import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkiverse.langfuse.util.ValidationUtils;
 import io.smallrye.mutiny.Uni;
@@ -22,6 +25,22 @@ final class DefaultAsyncModelOperations extends AbstractAsyncPagedOperations<Mod
     DefaultAsyncModelOperations(ModelsApi modelsApi, LangfuseConfig config) {
         super(page -> fetch(modelsApi, page), config);
         this.modelsApi = modelsApi;
+    }
+
+    @Override
+    public Uni<Model> findById(String id) {
+        // Validated here rather than inside the completionStage supplier: a throw in there becomes a
+        // failure event, and blank input must surface as a thrown IllegalArgumentException.
+        var modelId = ValidationUtils.ensureNotBlank(id, "Model id");
+
+        // Direct GET, so no scan. recoverWithNull is scoped to LangfuseNotFoundException alone: every
+        // other failure, a 401 included, must still fail the Uni rather than read as absence.
+        return Uni.createFrom()
+                .completionStage(() -> this.modelsApi.modelsGet(APIModelsGetRequest.newBuilder()
+                        .id(modelId)
+                        .build()))
+                .onFailure(LangfuseNotFoundException.class)
+                .recoverWithNull();
     }
 
     @Override

@@ -27,6 +27,8 @@ import io.quarkiverse.langfuse.api.LangfuseOperations;
 import io.quarkiverse.langfuse.api.paging.Page;
 import io.quarkiverse.langfuse.api.paging.PageSelection;
 import io.quarkiverse.langfuse.api.paging.PagedResult;
+import io.quarkiverse.langfuse.client.LangfuseAuthenticationException;
+import io.quarkiverse.langfuse.client.LangfuseAuthorizationException;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.QuarkusUnitTest;
@@ -51,6 +53,64 @@ class ModelOperationsTests extends ModelOperationsTestSupport {
     }
 
     // --- lookup ----------------------------------------------------------------------------
+
+    /**
+     * {@code findById} is a direct GET, so it costs one request and never touches the listing - the
+     * whole point of the method next to the scanning {@code findByName}.
+     */
+    @Test
+    void findByIdResolvesInASingleRequestWithoutScanning() {
+        stubModels(7, 3);
+        stubModelFound("model-2");
+
+        assertThat(langfuse.models().findById("model-2"))
+                .isPresent()
+                .get()
+                .extracting(Model::getId)
+                .isEqualTo("model-2");
+
+        verifyModelGetRequests(1, "model-2");
+        verifyListRequests(0);
+    }
+
+    @Test
+    void findByIdTreatsNotFoundAsAbsence() {
+        stubModelFailure("nope", 404);
+
+        assertThat(langfuse.models().findById("nope")).isEmpty();
+    }
+
+    /**
+     * The absence-versus-failure rule: only a 404 is recovered, so a rejected credential must escape
+     * rather than read as "no model with that id".
+     */
+    @Test
+    void findByIdNeverMistakesARejectedCredentialForAbsence() {
+        stubModelFailure("model-1", 401);
+
+        assertThatThrownBy(() -> langfuse.models().findById("model-1"))
+                .isInstanceOf(LangfuseAuthenticationException.class);
+    }
+
+    @Test
+    void findByIdNeverMistakesARefusedActionForAbsence() {
+        stubModelFailure("model-1", 403);
+
+        assertThatThrownBy(() -> langfuse.models().findById("model-1"))
+                .isInstanceOf(LangfuseAuthorizationException.class);
+    }
+
+    @Test
+    void blankIdsAreRejectedBeforeAnyRequest() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> langfuse.models().findById("  "))
+                .withMessageContaining("Model id");
+
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> langfuse.models().findById(null));
+
+        verifyModelGetRequests(0, "  ");
+    }
 
     @Test
     void findByNameStopsAtTheFirstPageWhenTheModelIsThere() {

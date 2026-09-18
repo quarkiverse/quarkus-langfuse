@@ -31,6 +31,8 @@ import io.quarkiverse.langfuse.api.LangfuseOperations;
 import io.quarkiverse.langfuse.api.paging.Page;
 import io.quarkiverse.langfuse.api.paging.PageSelection;
 import io.quarkiverse.langfuse.api.paging.PagedResult;
+import io.quarkiverse.langfuse.client.LangfuseAuthenticationException;
+import io.quarkiverse.langfuse.client.LangfuseAuthorizationException;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.QuarkusUnitTest;
@@ -66,6 +68,64 @@ class AsyncModelOperationsTests extends ModelOperationsTestSupport {
     }
 
     // --- lookup ----------------------------------------------------------------------------
+
+    /**
+     * {@code findById} is a direct GET, so it costs one request and never touches the listing - the
+     * whole point of the method next to the scanning {@code findByName}.
+     */
+    @Test
+    void findByIdResolvesInASingleRequestWithoutScanning() {
+        stubModels(7, 3);
+        stubModelFound("model-2");
+
+        assertThat(await(asyncLangfuse.models().findById("model-2")))
+                .isNotNull()
+                .extracting(Model::getId)
+                .isEqualTo("model-2");
+
+        verifyModelGetRequests(1, "model-2");
+        verifyListRequests(0);
+    }
+
+    @Test
+    void findByIdEmitsNullWhenAbsent() {
+        stubModelFailure("nope", 404);
+
+        assertThat(await(asyncLangfuse.models().findById("nope"))).isNull();
+    }
+
+    /**
+     * The asynchronous mirror of the absence-versus-failure rule: only a 404 is recovered, so a 401
+     * fails the {@link Uni} rather than emitting {@code null}.
+     */
+    @Test
+    void findByIdNeverMistakesARejectedCredentialForAbsence() {
+        stubModelFailure("model-1", 401);
+
+        assertThatThrownBy(() -> await(asyncLangfuse.models().findById("model-1")))
+                .isInstanceOf(LangfuseAuthenticationException.class);
+    }
+
+    @Test
+    void findByIdNeverMistakesARefusedActionForAbsence() {
+        stubModelFailure("model-1", 403);
+
+        assertThatThrownBy(() -> await(asyncLangfuse.models().findById("model-1")))
+                .isInstanceOf(LangfuseAuthorizationException.class);
+    }
+
+    /**
+     * Validation runs outside the deferred supplier, so a blank id throws from the call itself rather
+     * than surfacing as a failed {@link Uni} at subscription.
+     */
+    @Test
+    void blankIdsAreRejectedBeforeAnyRequest() {
+        assertThatIllegalArgumentException()
+                .isThrownBy(() -> asyncLangfuse.models().findById("  "))
+                .withMessageContaining("Model id");
+
+        verifyListRequests(0);
+    }
 
     @Test
     void findByNameStopsAtTheFirstPageWhenTheModelIsThere() {

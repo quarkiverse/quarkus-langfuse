@@ -8,6 +8,8 @@ import java.util.Objects;
 import com.langfuse.api.model.LlmConnection;
 import com.langfuse.api.model.UpsertLlmConnectionRequest;
 
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome;
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
 import io.smallrye.mutiny.Uni;
 
 /**

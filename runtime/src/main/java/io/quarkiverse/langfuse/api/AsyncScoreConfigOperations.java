@@ -22,6 +22,23 @@ public sealed interface AsyncScoreConfigOperations extends AsyncPagedOperations<
         permits DefaultAsyncScoreConfigOperations {
 
     /**
+     * Finds a score config by its id.
+     *
+     * <p>
+     * <strong>Emits {@code null} if no config has that id.</strong>
+     *
+     * <p>
+     * Unlike {@link #findByName(String)}, this is a <strong>direct lookup</strong>: Langfuse resolves
+     * the id server-side, so it costs a single request whatever the size of the collection. Prefer it
+     * wherever the id is already known.
+     *
+     * @param id the score config id to look for, must not be {@code null} or blank
+     * @return the matching score config, or {@code null} if no config has that id
+     * @throws IllegalArgumentException if {@code id} is {@code null} or blank
+     */
+    Uni<ScoreConfig> findById(String id);
+
+    /**
      * Finds a score config by its exact name.
      *
      * <p>

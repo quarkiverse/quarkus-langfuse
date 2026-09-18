@@ -8,6 +8,8 @@ import java.util.Objects;
 import com.langfuse.api.model.CreateModelRequest;
 import com.langfuse.api.model.Model;
 
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome;
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
 import io.smallrye.mutiny.Uni;
 
 /**
@@ -28,6 +30,23 @@ import io.smallrye.mutiny.Uni;
  * @see ModelOperations
  */
 public sealed interface AsyncModelOperations extends AsyncPagedOperations<Model> permits DefaultAsyncModelOperations {
+
+    /**
+     * Finds a model definition by its id.
+     *
+     * <p>
+     * <strong>Emits {@code null} if no model has that id.</strong>
+     *
+     * <p>
+     * Unlike {@link #findByName(String)}, this is a <strong>direct lookup</strong>: Langfuse resolves
+     * the id server-side, so it costs a single request whatever the size of the collection. Prefer it
+     * wherever the id is already known.
+     *
+     * @param id the model id to look for, must not be {@code null} or blank
+     * @return the matching model, or {@code null} if no model has that id
+     * @throws IllegalArgumentException if {@code id} is {@code null} or blank
+     */
+    Uni<Model> findById(String id);
 
     /**
      * Finds a model definition by its exact name.

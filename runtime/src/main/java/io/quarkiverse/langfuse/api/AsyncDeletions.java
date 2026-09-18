@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome;
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.smallrye.mutiny.Uni;
 
@@ -86,10 +88,10 @@ final class AsyncDeletions {
         // there inside the pipeline where the recoveries can catch it.
         return Uni.createFrom().deferred(() -> resolve.apply(identifier))
                 .flatMap(resolvedId -> (resolvedId == null)
-                        ? Uni.createFrom().<DeletionOutcome> item(DeletionOutcome.notFound(identifier))
-                        : delete.apply(resolvedId).replaceWith(() -> DeletionOutcome.deleted(identifier)))
+                        ? Uni.createFrom().<DeletionOutcome> item(DeletionOutcome.NotFound.of(identifier))
+                        : delete.apply(resolvedId).replaceWith(() -> DeletionOutcome.Deleted.of(identifier)))
                 .onFailure(LangfuseNotFoundException.class)
-                .recoverWithItem(() -> DeletionOutcome.notFound(identifier))
-                .onFailure().recoverWithItem(t -> DeletionOutcome.failed(identifier, t));
+                .recoverWithItem(() -> DeletionOutcome.NotFound.of(identifier))
+                .onFailure().recoverWithItem(t -> DeletionOutcome.Failed.of(identifier, t));
     }
 }

@@ -21,7 +21,9 @@ import io.smallrye.mutiny.Uni;
  * @see AbstractAsyncCursorOperations
  */
 sealed interface AsyncCursorOperations<T>
-        permits AsyncEvaluationRuleOperations, AsyncEvaluatorOperations, AbstractAsyncCursorOperations {
+        permits AsyncEvaluationRuleOperations, AsyncEvaluatorOperations, AsyncEvaluatorVersionOperations,
+        AsyncExperimentOperations, AsyncExperimentItemOperations, AsyncObservationOperations, AsyncScoreOperations,
+        AbstractAsyncCursorOperations {
 
     /**
      * All items, fetched using the batch size configured by
