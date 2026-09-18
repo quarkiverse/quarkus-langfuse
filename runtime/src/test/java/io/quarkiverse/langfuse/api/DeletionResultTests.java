@@ -13,6 +13,9 @@ import org.junit.jupiter.api.Test;
 
 import com.langfuse.api.LangfuseApiException;
 
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome;
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
+
 class DeletionResultTests {
 
     @Test

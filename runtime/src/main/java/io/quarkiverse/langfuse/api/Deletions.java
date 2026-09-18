@@ -11,6 +11,8 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.IntStream;
 
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome;
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.smallrye.mutiny.infrastructure.Infrastructure;
 
@@ -136,18 +138,18 @@ final class Deletions {
         try {
             return resolve.apply(identifier)
                     .map(resolvedId -> deleteResolved(identifier, resolvedId, delete))
-                    .orElseGet(() -> DeletionOutcome.notFound(identifier));
+                    .orElseGet(() -> DeletionOutcome.NotFound.of(identifier));
         } catch (LangfuseNotFoundException e) {
-            return DeletionOutcome.notFound(identifier);
+            return DeletionOutcome.NotFound.of(identifier);
         } catch (Throwable t) {
             // Throwable, not Exception, so an Error also becomes a Failed outcome.
-            return DeletionOutcome.failed(identifier, t);
+            return DeletionOutcome.Failed.of(identifier, t);
         }
     }
 
     private static DeletionOutcome deleteResolved(String identifier, String resolvedId, Consumer<String> delete) {
         delete.accept(resolvedId);
 
-        return DeletionOutcome.deleted(identifier);
+        return DeletionOutcome.Deleted.of(identifier);
     }
 }

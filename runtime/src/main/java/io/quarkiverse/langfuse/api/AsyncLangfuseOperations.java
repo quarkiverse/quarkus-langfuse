@@ -29,6 +29,15 @@ public class AsyncLangfuseOperations {
     private final AsyncScoreConfigOperations scoreConfigs;
     private final AsyncEvaluationRuleOperations evaluationRules;
     private final AsyncEvaluatorOperations evaluators;
+    private final AsyncPromptOperations prompts;
+    private final AsyncAnnotationQueueOperations annotationQueues;
+    private final AsyncCommentOperations comments;
+    private final AsyncDatasetItemOperations datasetItems;
+    private final AsyncExperimentTimeWindow experiments;
+    private final AsyncExperimentItemTimeWindow experimentItems;
+    private final AsyncObservationOperations observations;
+    private final AsyncScoreOperations scores;
+    private final AsyncBlobStorageIntegrationOperations blobStorageIntegrations;
 
     AsyncLangfuseOperations(LangfuseApi langfuseApi, LangfuseConfig config) {
         this.langfuseApi = langfuseApi;
@@ -38,6 +47,17 @@ public class AsyncLangfuseOperations {
         this.scoreConfigs = new DefaultAsyncScoreConfigOperations(langfuseApi.asyncScoreConfigs(), config);
         this.evaluationRules = new DefaultAsyncEvaluationRuleOperations(langfuseApi.asyncEvaluationRules(), config);
         this.evaluators = new DefaultAsyncEvaluatorOperations(langfuseApi.asyncEvaluators(), config);
+        this.prompts = new DefaultAsyncPromptOperations(langfuseApi.asyncPrompts(), config);
+        this.annotationQueues = new DefaultAsyncAnnotationQueueOperations(langfuseApi.asyncAnnotationQueues(), config);
+        this.comments = new DefaultAsyncCommentOperations(langfuseApi.asyncComments(), config);
+        this.datasetItems = new DefaultAsyncDatasetItemOperations(langfuseApi.asyncDatasetItems(), config);
+        this.experiments = new DefaultAsyncExperimentTimeWindow(langfuseApi.asyncExperiments(), config);
+        this.experimentItems = new DefaultAsyncExperimentItemTimeWindow(langfuseApi.asyncExperiments(), config);
+        this.observations = new DefaultAsyncObservationOperations(langfuseApi.asyncObservations(), config);
+        this.scores = new DefaultAsyncScoreOperations(langfuseApi.asyncScoresV3(), langfuseApi.asyncScores(),
+                langfuseApi.asyncLegacyScoreV1(), config);
+        this.blobStorageIntegrations = new DefaultAsyncBlobStorageIntegrationOperations(
+                langfuseApi.asyncBlobStorageIntegrations(), config);
     }
 
     /**
@@ -101,5 +121,102 @@ public class AsyncLangfuseOperations {
      */
     public AsyncEvaluatorOperations evaluators() {
         return this.evaluators;
+    }
+
+    /**
+     * Operations over prompts.
+     *
+     * @return the prompt operations
+     */
+    public AsyncPromptOperations prompts() {
+        return this.prompts;
+    }
+
+    /**
+     * Operations over annotation queues.
+     *
+     * @return the annotation queue operations
+     */
+    public AsyncAnnotationQueueOperations annotationQueues() {
+        return this.annotationQueues;
+    }
+
+    /**
+     * Operations over comments.
+     *
+     * @return the comment operations
+     */
+    public AsyncCommentOperations comments() {
+        return this.comments;
+    }
+
+    /**
+     * Operations over dataset items.
+     *
+     * @return the dataset item operations
+     */
+    public AsyncDatasetItemOperations datasetItems() {
+        return this.datasetItems;
+    }
+
+    /**
+     * Operations over experiments, reached by choosing a time window.
+     *
+     * <p>
+     * Langfuse requires a lower bound on the time range, so the collection is reached through
+     * {@link AsyncExperimentTimeWindow#since(java.time.OffsetDateTime) since} or
+     * {@link AsyncExperimentTimeWindow#between(java.time.OffsetDateTime, java.time.OffsetDateTime)
+     * between} rather than directly.
+     *
+     * @return the entry point to the experiment operations
+     */
+    public AsyncExperimentTimeWindow experiments() {
+        return this.experiments;
+    }
+
+    /**
+     * Operations over experiment items, reached by choosing a time window.
+     *
+     * <p>
+     * A top-level collection rather than a sub-collection of {@link #experiments()}: Langfuse takes
+     * the parent experiment as a query criterion, so it is a filter rather than a scoping step.
+     *
+     * <p>
+     * Langfuse requires a lower bound on the time range, so the collection is reached through
+     * {@link AsyncExperimentItemTimeWindow#since(java.time.OffsetDateTime) since} or
+     * {@link AsyncExperimentItemTimeWindow#between(java.time.OffsetDateTime, java.time.OffsetDateTime)
+     * between} rather than directly.
+     *
+     * @return the entry point to the experiment item operations
+     */
+    public AsyncExperimentItemTimeWindow experimentItems() {
+        return this.experimentItems;
+    }
+
+    /**
+     * Operations over observations.
+     *
+     * @return the observation operations
+     */
+    public AsyncObservationOperations observations() {
+        return this.observations;
+    }
+
+    /**
+     * Operations over scores.
+     *
+     * @return the score operations
+     */
+    public AsyncScoreOperations scores() {
+        return this.scores;
+    }
+
+    /**
+     * Operations over blob storage integrations.
+     *
+     * @return the blob storage integration operations
+     */
+    public AsyncBlobStorageIntegrationOperations blobStorageIntegrations() {
+        return this.blobStorageIntegrations;
     }
 }

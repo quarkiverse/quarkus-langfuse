@@ -5,13 +5,17 @@ import java.util.function.Function;
 
 import com.langfuse.api.evaluationRules.EvaluationRulesApi.APIEvaluationRulesCreateRequest;
 import com.langfuse.api.evaluationRules.EvaluationRulesApi.APIEvaluationRulesDeleteRequest;
+import com.langfuse.api.evaluationRules.EvaluationRulesApi.APIEvaluationRulesGetRequest;
 import com.langfuse.api.evaluationRules.EvaluationRulesApi.APIEvaluationRulesListRequest;
 import com.langfuse.api.evaluationRules.async.EvaluationRulesApi;
 import com.langfuse.api.model.CreateEvaluationRuleRequest;
+import com.langfuse.api.model.CursorMeta;
 import com.langfuse.api.model.EvaluationRule;
 
 import io.quarkiverse.langfuse.api.cursor.Cursor;
 import io.quarkiverse.langfuse.api.cursor.CursorResult;
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
+import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkiverse.langfuse.util.ValidationUtils;
 import io.smallrye.mutiny.Uni;
@@ -23,6 +27,23 @@ final class DefaultAsyncEvaluationRuleOperations extends AbstractAsyncCursorOper
     DefaultAsyncEvaluationRuleOperations(EvaluationRulesApi evaluationRulesApi, LangfuseConfig config) {
         super(cursor -> fetch(evaluationRulesApi, cursor), config);
         this.evaluationRulesApi = evaluationRulesApi;
+    }
+
+    @Override
+    public Uni<EvaluationRule> findById(String id) {
+        // Validated here rather than inside the completionStage supplier: a throw in there becomes a
+        // failure event, and blank input must surface as a thrown IllegalArgumentException.
+        var ruleId = ValidationUtils.ensureNotBlank(id, "Evaluation rule id");
+
+        // Direct GET, so no scan. recoverWithNull is scoped to LangfuseNotFoundException alone: every
+        // other failure, a 401 included, must still fail the Uni rather than read as absence.
+        return Uni.createFrom()
+                .completionStage(() -> this.evaluationRulesApi.evaluationRulesGet(
+                        APIEvaluationRulesGetRequest.newBuilder()
+                                .evaluationRuleId(ruleId)
+                                .build()))
+                .onFailure(LangfuseNotFoundException.class)
+                .recoverWithNull();
     }
 
     @Override
@@ -86,6 +107,7 @@ final class DefaultAsyncEvaluationRuleOperations extends AbstractAsyncCursorOper
                         .limit(cursor.limit())
                         .cursor(cursor.value().orElse(null))
                         .build()))
-                .map(response -> CursorResults.from(cursor, response.getData(), response.getMeta()));
+                .map(response -> CursorResults.from(cursor, response.getData(), response.getMeta(),
+                        CursorMeta::getCursor));
     }
 }

@@ -21,6 +21,22 @@ import io.quarkiverse.langfuse.api.paging.PageSelection;
 public sealed interface ScoreConfigOperations extends PagedOperations<ScoreConfig> permits DefaultScoreConfigOperations {
 
     /**
+     * Finds a score config by its id.
+     *
+     * <p>
+     * Unlike {@link #findByName(String)}, this is a <strong>direct lookup</strong>: Langfuse resolves
+     * the id server-side, so it costs a single request whatever the size of the collection. Prefer it
+     * wherever the id is already known.
+     *
+     * @param id the score config id to look for, must not be {@code null} or blank
+     * @return the matching score config, or empty if no config has that id
+     * @throws IllegalArgumentException if {@code id} is {@code null} or blank
+     * @throws com.langfuse.api.LangfuseApiException if the request fails for any reason other than the
+     *         config not existing
+     */
+    Optional<ScoreConfig> findById(String id);
+
+    /**
      * Finds a score config by its exact name.
      *
      * <p>

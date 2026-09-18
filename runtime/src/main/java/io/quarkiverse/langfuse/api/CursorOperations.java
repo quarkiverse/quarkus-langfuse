@@ -19,7 +19,9 @@ import io.quarkiverse.langfuse.api.cursor.CursorSelection;
  * @param <T> the type of the items in the collection
  * @see AbstractCursorOperations
  */
-sealed interface CursorOperations<T> permits EvaluationRuleOperations, EvaluatorOperations, AbstractCursorOperations {
+sealed interface CursorOperations<T>
+        permits EvaluationRuleOperations, EvaluatorOperations, EvaluatorVersionOperations, ExperimentOperations,
+        ExperimentItemOperations, ObservationOperations, ScoreOperations, AbstractCursorOperations {
 
     /**
      * All items, fetched using the batch size configured by

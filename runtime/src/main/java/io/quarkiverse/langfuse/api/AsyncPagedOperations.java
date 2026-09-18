@@ -22,7 +22,8 @@ import io.smallrye.mutiny.Uni;
  */
 sealed interface AsyncPagedOperations<T>
         permits AsyncModelOperations, AsyncDatasetOperations, AsyncLlmConnectionOperations, AsyncScoreConfigOperations,
-        AbstractAsyncPagedOperations {
+        AsyncPromptOperations, AsyncAnnotationQueueOperations, AsyncAnnotationQueueItemOperations, AsyncCommentOperations,
+        AsyncDatasetItemOperations, AbstractAsyncPagedOperations {
 
     /**
      * All items, fetched using the page size configured by

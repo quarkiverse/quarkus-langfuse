@@ -10,6 +10,7 @@ import com.langfuse.api.llmConnections.async.LlmConnectionsApi;
 import com.langfuse.api.model.LlmConnection;
 import com.langfuse.api.model.UpsertLlmConnectionRequest;
 
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
 import io.quarkiverse.langfuse.api.paging.Page;
 import io.quarkiverse.langfuse.api.paging.PagedResult;
 import io.quarkiverse.langfuse.config.LangfuseConfig;

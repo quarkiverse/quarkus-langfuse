@@ -10,6 +10,8 @@ import com.langfuse.api.model.EvaluationRule;
 
 import io.quarkiverse.langfuse.api.cursor.Cursor;
 import io.quarkiverse.langfuse.api.cursor.CursorSelection;
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome;
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
 
 /**
  * Higher-level operations over Langfuse evaluation rules.
@@ -25,6 +27,22 @@ import io.quarkiverse.langfuse.api.cursor.CursorSelection;
  */
 public sealed interface EvaluationRuleOperations extends CursorOperations<EvaluationRule>
         permits DefaultEvaluationRuleOperations {
+
+    /**
+     * Finds an evaluation rule by its id.
+     *
+     * <p>
+     * Unlike {@link #findByName(String)}, this is a <strong>direct lookup</strong>: Langfuse resolves
+     * the id server-side, so it costs a single request whatever the size of the collection. Prefer it
+     * wherever the id is already known.
+     *
+     * @param id the rule id to look for, must not be {@code null} or blank
+     * @return the matching rule, or empty if no rule has that id
+     * @throws IllegalArgumentException if {@code id} is {@code null} or blank
+     * @throws com.langfuse.api.LangfuseApiException if the request fails for any reason other than the
+     *         rule not existing
+     */
+    Optional<EvaluationRule> findById(String id);
 
     /**
      * Finds an evaluation rule by its exact name.

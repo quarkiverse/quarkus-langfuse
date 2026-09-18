@@ -33,10 +33,12 @@ public interface QuarkusObservationsAsyncApi extends com.langfuse.api.observatio
             @QueryParam("parseIoAsJson") Boolean parseIoAsJson,
             @QueryParam("name") String name,
             @QueryParam("userId") String userId,
+            @QueryParam("sessionId") String sessionId,
             @QueryParam("type") String type,
             @QueryParam("traceId") String traceId,
             @QueryParam("level") ObservationLevel level,
             @QueryParam("parentObservationId") String parentObservationId,
+            @QueryParam("isRootObservation") Boolean isRootObservation,
             @QueryParam("environment") List<String> environment,
             @QueryParam("fromStartTime") OffsetDateTime fromStartTime,
             @QueryParam("toStartTime") OffsetDateTime toStartTime,
@@ -50,9 +52,9 @@ public interface QuarkusObservationsAsyncApi extends com.langfuse.api.observatio
     default CompletionStage<ObservationsV2Response> observationsGetMany(APIObservationsGetManyRequest apiRequest) {
         return observationsGetMany(apiRequest.fields(), apiRequest.expandMetadata(), apiRequest.limit(),
                 apiRequest.cursor(), apiRequest.parseIoAsJson(), apiRequest.name(), apiRequest.userId(),
-                apiRequest.type(), apiRequest.traceId(), apiRequest.level(), apiRequest.parentObservationId(),
-                apiRequest.environment(), apiRequest.fromStartTime(), apiRequest.toStartTime(), apiRequest.version(),
-                apiRequest.filter());
+                apiRequest.sessionId(), apiRequest.type(), apiRequest.traceId(), apiRequest.level(),
+                apiRequest.parentObservationId(), apiRequest.isRootObservation(), apiRequest.environment(),
+                apiRequest.fromStartTime(), apiRequest.toStartTime(), apiRequest.version(), apiRequest.filter());
     }
 
 }

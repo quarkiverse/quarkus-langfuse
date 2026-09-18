@@ -11,9 +11,10 @@ import org.junit.jupiter.api.Test;
 
 import com.langfuse.api.LangfuseApiException;
 
-import io.quarkiverse.langfuse.api.DeletionOutcome.Deleted;
-import io.quarkiverse.langfuse.api.DeletionOutcome.Failed;
-import io.quarkiverse.langfuse.api.DeletionOutcome.NotFound;
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome;
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome.Deleted;
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome.Failed;
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome.NotFound;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.smallrye.mutiny.Uni;
 

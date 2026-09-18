@@ -8,6 +8,8 @@ import java.util.Objects;
 import com.langfuse.api.model.CreateEvaluationRuleRequest;
 import com.langfuse.api.model.EvaluationRule;
 
+import io.quarkiverse.langfuse.api.deletion.DeletionOutcome;
+import io.quarkiverse.langfuse.api.deletion.DeletionResult;
 import io.smallrye.mutiny.Uni;
 
 /**
@@ -23,6 +25,23 @@ import io.smallrye.mutiny.Uni;
  */
 public sealed interface AsyncEvaluationRuleOperations extends AsyncCursorOperations<EvaluationRule>
         permits DefaultAsyncEvaluationRuleOperations {
+
+    /**
+     * Finds an evaluation rule by its id.
+     *
+     * <p>
+     * <strong>Emits {@code null} if no rule has that id.</strong>
+     *
+     * <p>
+     * Unlike {@link #findByName(String)}, this is a <strong>direct lookup</strong>: Langfuse resolves
+     * the id server-side, so it costs a single request whatever the size of the collection. Prefer it
+     * wherever the id is already known.
+     *
+     * @param id the rule id to look for, must not be {@code null} or blank
+     * @return the matching rule, or {@code null} if no rule has that id
+     * @throws IllegalArgumentException if {@code id} is {@code null} or blank
+     */
+    Uni<EvaluationRule> findById(String id);
 
     /**
      * Finds an evaluation rule by its exact name.
