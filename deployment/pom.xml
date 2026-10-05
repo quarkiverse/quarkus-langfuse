@@ -27,11 +27,6 @@
 			<artifactId>quarkus-rest-client-jackson-deployment</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>io.quarkus</groupId>
-			<artifactId>quarkus-opentelemetry-deployment</artifactId>
-			<optional>true</optional>
-		</dependency>
-		<dependency>
 			<groupId>io.quarkiverse.langchain4j</groupId>
 			<artifactId>quarkus-langchain4j-core-deployment</artifactId>
 			<optional>true</optional>
