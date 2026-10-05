@@ -30,6 +30,10 @@ This extension integrates Langfuse into the Quarkus ecosystem with the following
 
 This version of the extension requires **Langfuse v4**. If you are upgrading from a previous version of the extension that targeted Langfuse v3, complete the https://langfuse.com/changelog/2025-05-14-langfuse-v4[Langfuse v4 migration] before upgrading the extension.
 
+=== Quarkus
+
+This version of the extension requires **Quarkus 3.40 LTS or later**. Applications still on Quarkus 3.33 LTS should stay on the 0.7.x line of the extension.
+
 === OpenAPI spec validation
 
 The Langfuse v4 OpenAPI spec uses the `const` keyword (an OpenAPI 3.1 feature) while declaring version 3.0.1. The `openapi-generator-maven-plugin` cannot validate the spec with this incompatibility, so `skipValidateSpec` is set to `true` in the `langfuse-client` module's POM. This does not affect code generation -- only the upfront validation check is bypassed. This is tracked upstream as https://github.com/OpenAPITools/openapi-generator/issues/10445[openapi-generator#10445].
