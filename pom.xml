@@ -39,6 +39,7 @@
 	<properties>
 		<assertj.version>3.27.7</assertj.version>
 		<compiler-plugin.version>3.16.0</compiler-plugin.version>
+		<dependency-plugin.version>3.11.0</dependency-plugin.version>
 		<maven.compiler.release>17</maven.compiler.release>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -114,6 +115,10 @@
 					<configuration>
 						<parameters>true</parameters>
 					</configuration>
+				</plugin>
+				<plugin>
+					<artifactId>maven-dependency-plugin</artifactId>
+					<version>${dependency-plugin.version}</version>
 				</plugin>
 				<plugin>
 					<groupId>io.quarkus</groupId>
