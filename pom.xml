@@ -49,7 +49,7 @@
 		<quarkus-antora.version>3.40.0</quarkus-antora.version>
 		<quarkus-wiremock.version>1.8.1</quarkus-wiremock.version>
 		<quarkus-langchain4j.version>1.14.0</quarkus-langchain4j.version>
-		<testcontainers-redis.version>2.2.4</testcontainers-redis.version>
+		<testcontainers-redis.version>3.0.0</testcontainers-redis.version>
 	</properties>
 
 	<developers>
