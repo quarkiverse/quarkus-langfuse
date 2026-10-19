@@ -149,7 +149,9 @@ class DeletionBatchTests {
 
         assertThat(result.failed()).containsOnlyKeys("item-1");
         assertThat(result.deleted()).containsExactly("item-2", "item-3");
-        assertThat(collection.deletedIds()).containsExactly("id-of-item-2", "id-of-item-3");
+        // In any order: the deletes run concurrently, so call order is not deterministic. Result order
+        // is, and result.deleted() above already covers that.
+        assertThat(collection.deletedIds()).containsExactlyInAnyOrder("id-of-item-2", "id-of-item-3");
     }
 
     @Test
