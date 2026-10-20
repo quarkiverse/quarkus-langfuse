@@ -19,11 +19,11 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import com.langfuse.api.model.ObservationLevel;
-import com.langfuse.api.model.ObservationType;
 import com.langfuse.api.model.ObservationV2;
 
 import io.quarkiverse.langfuse.api.LangfuseOperations;
 import io.quarkiverse.langfuse.api.ObservationFilter;
+import io.quarkiverse.langfuse.api.ObservationType;
 import io.quarkiverse.langfuse.api.cursor.Cursor;
 import io.quarkiverse.langfuse.api.cursor.CursorResult;
 import io.quarkiverse.langfuse.api.cursor.CursorSelection;

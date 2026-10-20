@@ -4,17 +4,12 @@ import com.langfuse.api.annotationQueues.AnnotationQueuesApi;
 import com.langfuse.api.blobStorageIntegrations.BlobStorageIntegrationsApi;
 import com.langfuse.api.comments.CommentsApi;
 import com.langfuse.api.datasetItems.DatasetItemsApi;
-import com.langfuse.api.datasetRunItems.DatasetRunItemsApi;
 import com.langfuse.api.datasets.DatasetsApi;
 import com.langfuse.api.evaluationRules.EvaluationRulesApi;
 import com.langfuse.api.evaluators.EvaluatorsApi;
 import com.langfuse.api.experiments.ExperimentsApi;
 import com.langfuse.api.feedback.FeedbackApi;
 import com.langfuse.api.health.HealthApi;
-import com.langfuse.api.ingestion.IngestionApi;
-import com.langfuse.api.legacyMetricsV1.LegacyMetricsV1Api;
-import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api;
-import com.langfuse.api.legacyScoreV1.LegacyScoreV1Api;
 import com.langfuse.api.llmConnections.LlmConnectionsApi;
 import com.langfuse.api.media.MediaApi;
 import com.langfuse.api.metrics.MetricsApi;
@@ -28,8 +23,7 @@ import com.langfuse.api.prompts.PromptsApi;
 import com.langfuse.api.scim.ScimApi;
 import com.langfuse.api.scoreConfigs.ScoreConfigsApi;
 import com.langfuse.api.scores.ScoresApi;
-import com.langfuse.api.scoresV3.ScoresV3Api;
-import com.langfuse.api.sessions.SessionsApi;
+import com.langfuse.api.skills.SkillsApi;
 import com.langfuse.api.trace.TraceApi;
 import com.langfuse.api.unstableDashboardWidgets.UnstableDashboardWidgetsApi;
 import com.langfuse.api.unstableDashboards.UnstableDashboardsApi;
@@ -39,17 +33,12 @@ public interface LangfuseApis extends
         BlobStorageIntegrationsApi,
         CommentsApi,
         DatasetItemsApi,
-        DatasetRunItemsApi,
         DatasetsApi,
         EvaluationRulesApi,
         EvaluatorsApi,
         ExperimentsApi,
         FeedbackApi,
         HealthApi,
-        IngestionApi,
-        LegacyMetricsV1Api,
-        LegacyObservationsV1Api,
-        LegacyScoreV1Api,
         LlmConnectionsApi,
         MediaApi,
         MetricsApi,
@@ -63,8 +52,7 @@ public interface LangfuseApis extends
         ScimApi,
         ScoreConfigsApi,
         ScoresApi,
-        ScoresV3Api,
-        SessionsApi,
+        SkillsApi,
         TraceApi,
         UnstableDashboardWidgetsApi,
         UnstableDashboardsApi {

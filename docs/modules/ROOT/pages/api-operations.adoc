@@ -820,7 +820,7 @@ No DELETE endpoint exists for any of them.
 Langfuse's create endpoint answers a `CreateCommentResponse` carrying `id` and nothing else, so `CommentOperations.create` returns a `String`. Returning a `Comment` would require a second GET this layer does not silently issue on your behalf; if you want the created comment, follow up with `findById`.
 
 Observations, experiments, experiment items and evaluator versions have **no `create`**::
-Those collections are produced by ingestion or by other operations, and Langfuse exposes no create endpoint on them. Observations and scores arrive through the ingestion API, reachable via `api()`.
+Those collections are produced by ingestion or by other operations, and Langfuse exposes no create endpoint on them. Observations arrive through the OpenTelemetry ingestion endpoint, reachable via `api().opentelemetry()`.
 
 == What This Layer Deliberately Does Not Cover
 
@@ -828,14 +828,18 @@ Two classes of endpoint are excluded as a standing rule. Neither is an oversight
 
 === Deprecated endpoints
 
-The layer is never built over an endpoint Langfuse has deprecated. A curated method is a promise of support, and these carry a **removal date from Langfuse Cloud of November 16, 2026**:
+The layer is never built over an endpoint Langfuse has deprecated. A curated method is a promise of support, and an endpoint with a published removal date cannot be supported.
 
-* traces and sessions;
+Langfuse has since **withdrawn these endpoints from its published specification entirely**, so they are no longer reachable through `api()` either:
+
+* reading traces and sessions - `trace().traceDelete(...)` and `trace().traceDeleteMultiple(...)` survive, but there is no longer any way to read a trace or a session;
+* `/api/public/ingestion`, the batch ingestion endpoint - spans and traces now reach Langfuse through the OpenTelemetry endpoint (`api().opentelemetry()`), and scores through `langfuse.scores().create(...)`;
 * `/api/public/v2/scores` - the v3 listing (`langfuse.scores()`) supersedes it;
 * v1 observations, including the GET-by-id discussed above - the v2 listing (`langfuse.observations()`) supersedes it;
-* dataset runs and dataset run items.
+* `/api/public/metrics` - the v2 metrics endpoint (`api().metrics()`) supersedes it;
+* dataset runs and dataset run items - `langfuse.experiments()` and `langfuse.experimentItems()` are the read-only successors, and there is no replacement for creating a dataset run item.
 
-All of them remain reachable through `api()` for as long as Langfuse serves them.
+NOTE: Several of these endpoints are still answered by Langfuse servers. This extension tracks the published specification, so an endpoint Langfuse stops publishing is removed here regardless of whether it still responds.
 
 === `/unstable/` endpoints
 

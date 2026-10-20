@@ -1,7 +1,6 @@
 package io.quarkiverse.langfuse.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 
 import java.time.Duration;
@@ -16,8 +15,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.LangfuseApiException;
-import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api.APILegacyObservationsV1GetManyRequest;
-import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api.APILegacyObservationsV1GetRequest;
 import com.langfuse.api.model.ObservationV2;
 import com.langfuse.api.observations.ObservationsApi.APIObservationsGetManyRequest;
 
@@ -66,27 +63,5 @@ class ObservationsApiTest {
                                     .extracting(ObservationV2::getTraceId, ObservationV2::getType)
                                     .containsExactly(TRACE_ID, "SPAN");
                         }));
-    }
-
-    @Test
-    @Order(2)
-    void legacyListObservationsReturns404() {
-        assertThatThrownBy(() -> client.legacyObservationsV1().legacyObservationsV1GetMany(
-                APILegacyObservationsV1GetManyRequest.newBuilder()
-                        .traceId(TRACE_ID)
-                        .build()))
-                .isInstanceOf(LangfuseApiException.class)
-                .satisfies(e -> assertThat(((LangfuseApiException) e).getStatusCode()).isEqualTo(404));
-    }
-
-    @Test
-    @Order(2)
-    void legacyGetObservationByIdReturns404() {
-        assertThatThrownBy(() -> client.legacyObservationsV1().legacyObservationsV1Get(
-                APILegacyObservationsV1GetRequest.newBuilder()
-                        .observationId(UUID.randomUUID().toString())
-                        .build()))
-                .isInstanceOf(LangfuseApiException.class)
-                .satisfies(e -> assertThat(((LangfuseApiException) e).getStatusCode()).isEqualTo(404));
     }
 }

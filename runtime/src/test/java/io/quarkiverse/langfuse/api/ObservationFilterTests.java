@@ -9,7 +9,6 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 
 import com.langfuse.api.model.ObservationLevel;
-import com.langfuse.api.model.ObservationType;
 
 class ObservationFilterTests {
     private static final OffsetDateTime FROM_START_TIME = OffsetDateTime.parse("2024-01-02T03:04:05Z");

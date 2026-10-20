@@ -54,8 +54,7 @@ public class AsyncLangfuseOperations {
         this.experiments = new DefaultAsyncExperimentTimeWindow(langfuseApi.asyncExperiments(), config);
         this.experimentItems = new DefaultAsyncExperimentItemTimeWindow(langfuseApi.asyncExperiments(), config);
         this.observations = new DefaultAsyncObservationOperations(langfuseApi.asyncObservations(), config);
-        this.scores = new DefaultAsyncScoreOperations(langfuseApi.asyncScoresV3(), langfuseApi.asyncScores(),
-                langfuseApi.asyncLegacyScoreV1(), config);
+        this.scores = new DefaultAsyncScoreOperations(langfuseApi.asyncScores(), config);
         this.blobStorageIntegrations = new DefaultAsyncBlobStorageIntegrationOperations(
                 langfuseApi.asyncBlobStorageIntegrations(), config);
     }

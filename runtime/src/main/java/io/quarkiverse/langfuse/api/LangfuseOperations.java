@@ -66,8 +66,7 @@ public class LangfuseOperations {
         this.experiments = new DefaultExperimentTimeWindow(langfuseApi.experiments(), config);
         this.experimentItems = new DefaultExperimentItemTimeWindow(langfuseApi.experiments(), config);
         this.observations = new DefaultObservationOperations(langfuseApi.observations(), config);
-        this.scores = new DefaultScoreOperations(langfuseApi.scoresV3(), langfuseApi.scores(),
-                langfuseApi.legacyScoreV1(), config);
+        this.scores = new DefaultScoreOperations(langfuseApi.scores(), config);
         this.blobStorageIntegrations = new DefaultBlobStorageIntegrationOperations(langfuseApi.blobStorageIntegrations(),
                 config);
     }

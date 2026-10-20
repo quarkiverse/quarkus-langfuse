@@ -1,7 +1,6 @@
 package io.quarkiverse.langfuse.it;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 
 import java.time.Duration;
@@ -21,8 +20,6 @@ import com.langfuse.api.model.TraceDeleteMultipleRequest;
 import com.langfuse.api.observations.ObservationsApi.APIObservationsGetManyRequest;
 import com.langfuse.api.trace.TraceApi.APITraceDeleteMultipleRequest;
 import com.langfuse.api.trace.TraceApi.APITraceDeleteRequest;
-import com.langfuse.api.trace.TraceApi.APITraceGetRequest;
-import com.langfuse.api.trace.TraceApi.APITraceListRequest;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -41,30 +38,6 @@ class TraceApiTest {
     void ingestTrace() {
         // Ingest via OTel — legacy ingestion rejects trace-create in v4 events_only mode
         OtelTestHelper.ingestTrace(client, TRACE_ID, TRACE_NAME);
-    }
-
-    @Test
-    @Order(2)
-    void getTraceByIdReturns404InEventsOnlyMode() {
-        // Legacy GET /api/public/traces/{id} returns 404 in v4 events_only mode
-        assertThatThrownBy(() -> client.trace().traceGet(
-                APITraceGetRequest.newBuilder()
-                        .traceId(TRACE_ID)
-                        .build()))
-                .isInstanceOf(LangfuseApiException.class)
-                .satisfies(e -> assertThat(((LangfuseApiException) e).getStatusCode()).isEqualTo(404));
-    }
-
-    @Test
-    @Order(2)
-    void listTracesReturns404InEventsOnlyMode() {
-        // Legacy GET /api/public/traces returns 404 in v4 events_only mode
-        assertThatThrownBy(() -> client.trace().traceList(
-                APITraceListRequest.newBuilder()
-                        .name(TRACE_NAME)
-                        .build()))
-                .isInstanceOf(LangfuseApiException.class)
-                .satisfies(e -> assertThat(((LangfuseApiException) e).getStatusCode()).isEqualTo(404));
     }
 
     @Test

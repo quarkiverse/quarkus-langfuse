@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import com.langfuse.api.model.CreateScoreRequest;
-import com.langfuse.api.model.CreateScoreResponse;
+import com.langfuse.api.model.CreateScoresResponse;
 import com.langfuse.api.model.ScoreV3;
 
 import io.quarkiverse.langfuse.api.deletion.DeletionOutcome;
@@ -22,10 +22,10 @@ import io.smallrye.mutiny.Uni;
  * {@code null} item for the asynchronous one.
  *
  * <p>
- * <strong>There is no lookup by id or by name.</strong> The only by-id endpoint belongs to the
- * deprecated v3 API and is scheduled for removal, and a score name is shared by many scores rather
- * than identifying one. Both are reached instead through {@link ScoreFilter#id()} and
- * {@link ScoreFilter#name()} on {@link #matching(ScoreFilter)}, which are filtered listings.
+ * <strong>There is no lookup by id or by name.</strong> Langfuse no longer publishes a by-id
+ * endpoint, and a score name is shared by many scores rather than identifying one. Both are reached
+ * instead through {@link ScoreFilter#id()} and {@link ScoreFilter#name()} on
+ * {@link #matching(ScoreFilter)}, which are filtered listings.
  *
  * @see ScoreOperations
  */
@@ -56,19 +56,53 @@ public sealed interface AsyncScoreOperations extends AsyncCursorOperations<Score
     AsyncScoreOperations matching(ScoreFilter filter);
 
     /**
-     * Creates a score.
+     * Creates the given scores.
      *
      * <p>
-     * What the score is attached to - a trace, an observation, a session or an experiment - is named
-     * on the request itself, and Langfuse answers with the id it assigned rather than the stored
-     * score.
+     * What each score is attached to - a trace, an observation, a session or a dataset run - is named
+     * on the request itself.
+     *
+     * <p>
+     * <strong>Ingestion is asynchronous and the batch is not atomic.</strong> Langfuse accepts the
+     * whole batch with HTTP 202, or accepts it partially with HTTP 207 and reports per-score errors.
+     * The emitted {@link CreateScoresResponse} carries whichever of the two Langfuse answered, so
+     * inspect it rather than assuming every score was stored. <strong>Do not retry a partially
+     * accepted batch</strong> - the accepted scores would be created twice.
+     *
+     * @param requests the scores to create, must not be {@code null} and must not contain {@code null}
+     *        elements; may be empty, in which case an empty batch is sent
+     * @return Langfuse's answer for the batch. Never {@code null}
+     * @throws IllegalArgumentException if {@code requests} is {@code null} or contains {@code null}.
+     *         Thrown from this call rather than emitted as a failure
+     */
+    Uni<CreateScoresResponse> create(Collection<CreateScoreRequest> requests);
+
+    /**
+     * Creates a single score.
      *
      * @param request the score to create, must not be {@code null}
-     * @return the id Langfuse assigned to the created score. Never {@code null}
+     * @return Langfuse's answer for the batch of one. Never {@code null}
      * @throws IllegalArgumentException if {@code request} is {@code null}. Thrown from this call rather
      *         than emitted as a failure
+     * @see #create(Collection)
      */
-    Uni<CreateScoreResponse> create(CreateScoreRequest request);
+    default Uni<CreateScoresResponse> create(CreateScoreRequest request) {
+        return create(Collections.singletonList(request));
+    }
+
+    /**
+     * Creates the given scores.
+     *
+     * @param requests the scores to create, must not be {@code null} and must not contain {@code null}
+     *        elements; may be empty, in which case an empty batch is sent
+     * @return Langfuse's answer for the batch. Never {@code null}
+     * @throws IllegalArgumentException if {@code requests} is {@code null} or contains {@code null}.
+     *         Thrown from this call rather than emitted as a failure
+     * @see #create(Collection)
+     */
+    default Uni<CreateScoresResponse> create(CreateScoreRequest... requests) {
+        return create((requests == null) ? null : Arrays.asList(requests));
+    }
 
     /**
      * Deletes the scores with the given ids.

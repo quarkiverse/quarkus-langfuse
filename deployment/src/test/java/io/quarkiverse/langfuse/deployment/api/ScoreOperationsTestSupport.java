@@ -43,12 +43,12 @@ abstract class ScoreOperationsTestSupport extends CursorCollectionTestSupport {
     }
 
     /**
-     * Langfuse answers a score create with the assigned id alone rather than the stored score.
+     * Langfuse answers a score create with the acceptance counts of the batch (the HTTP 207 shape).
      */
-    void stubScoreCreated(String scoreId) {
+    void stubScoreCreated(int accepted) {
         wiremock().register(
                 post(urlPathEqualTo(SCORES_WRITE_PATH))
-                        .willReturn(okJson("{\"id\":\"%s\"}".formatted(scoreId))));
+                        .willReturn(okJson("{\"accepted\":%d,\"rejected\":0,\"errors\":[]}".formatted(accepted))));
     }
 
     /**

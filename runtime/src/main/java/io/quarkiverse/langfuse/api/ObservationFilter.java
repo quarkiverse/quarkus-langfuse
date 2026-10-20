@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.langfuse.api.model.ObservationLevel;
-import com.langfuse.api.model.ObservationType;
 
 /**
  * The criteria Langfuse applies when listing observations.

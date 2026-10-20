@@ -1,21 +1,20 @@
 package io.quarkiverse.langfuse.api;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.langfuse.api.legacyScoreV1.LegacyScoreV1Api;
-import com.langfuse.api.legacyScoreV1.LegacyScoreV1Api.APILegacyScoreV1DeleteRequest;
 import com.langfuse.api.model.CreateScoreRequest;
-import com.langfuse.api.model.CreateScoreResponse;
+import com.langfuse.api.model.CreateScoresResponse;
 import com.langfuse.api.model.GetScoresV3Meta;
 import com.langfuse.api.model.ScoreV3;
 import com.langfuse.api.scores.ScoresApi;
 import com.langfuse.api.scores.ScoresApi.APIScoresCreateRequest;
-import com.langfuse.api.scoresV3.ScoresV3Api;
-import com.langfuse.api.scoresV3.ScoresV3Api.APIScoresV3GetManyV3Request;
+import com.langfuse.api.scores.ScoresApi.APIScoresDeleteRequest;
+import com.langfuse.api.scores.ScoresApi.APIScoresGetManyRequest;
 
 import io.quarkiverse.langfuse.api.cursor.Cursor;
 import io.quarkiverse.langfuse.api.cursor.CursorResult;
@@ -23,43 +22,37 @@ import io.quarkiverse.langfuse.api.deletion.DeletionResult;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkiverse.langfuse.util.ValidationUtils;
 
-// Three generated APIs rather than the usual one: Langfuse splits scores across the v3 listing, the
-// unversioned create and the score delete, and none of the three carries the other two's operations.
+// A single generated API backs all three operations, even though Langfuse does not version them
+// alike: the listing is v3, the create and the delete are unversioned.
 final class DefaultScoreOperations extends AbstractCursorOperations<ScoreV3> implements ScoreOperations {
-    private final ScoresV3Api scoresV3Api;
     private final ScoresApi scoresApi;
-    private final LegacyScoreV1Api legacyScoreV1Api;
     private final LangfuseConfig config;
 
-    DefaultScoreOperations(ScoresV3Api scoresV3Api, ScoresApi scoresApi, LegacyScoreV1Api legacyScoreV1Api,
-            LangfuseConfig config) {
-        this(scoresV3Api, scoresApi, legacyScoreV1Api, config, ScoreFilter.none());
+    DefaultScoreOperations(ScoresApi scoresApi, LangfuseConfig config) {
+        this(scoresApi, config, ScoreFilter.none());
     }
 
     // The filter is captured in the fetcher lambda handed to the engine, which is why a filtered view
     // needs neither a widened CursorFetcher nor a change to Pagination: a view is just this class
     // constructed over a different fetcher.
-    private DefaultScoreOperations(ScoresV3Api scoresV3Api, ScoresApi scoresApi, LegacyScoreV1Api legacyScoreV1Api,
-            LangfuseConfig config, ScoreFilter filter) {
-        super(cursor -> fetch(scoresV3Api, cursor, filter), config);
-        this.scoresV3Api = scoresV3Api;
+    private DefaultScoreOperations(ScoresApi scoresApi, LangfuseConfig config, ScoreFilter filter) {
+        super(cursor -> fetch(scoresApi, cursor, filter), config);
         this.scoresApi = scoresApi;
-        this.legacyScoreV1Api = legacyScoreV1Api;
         this.config = config;
     }
 
     @Override
     public ScoreOperations matching(ScoreFilter filter) {
-        return new DefaultScoreOperations(this.scoresV3Api, this.scoresApi, this.legacyScoreV1Api, this.config,
+        return new DefaultScoreOperations(this.scoresApi, this.config,
                 ValidationUtils.ensureNotNull(filter, "Filter"));
     }
 
     @Override
-    public CreateScoreResponse create(CreateScoreRequest request) {
-        ValidationUtils.ensureNotNull(request, "request");
+    public CreateScoresResponse create(Collection<CreateScoreRequest> requests) {
+        ValidationUtils.ensureNotNull(requests, "requests");
 
         return this.scoresApi.scoresCreate(APIScoresCreateRequest.newBuilder()
-                .createScoreRequest(request)
+                .createScoreRequest(scores(requests))
                 .build());
     }
 
@@ -70,14 +63,22 @@ final class DefaultScoreOperations extends AbstractCursorOperations<ScoreV3> imp
         return Deletions.deleteAll(ids, "Score id", Optional::of, this::delete, deleteConcurrency());
     }
 
+    // The generated builder keeps the list it is handed, so a defensive copy is taken here; the same
+    // pass rejects null elements, which the generated layer would otherwise serialise as JSON nulls.
+    private static List<CreateScoreRequest> scores(Collection<CreateScoreRequest> requests) {
+        return requests.stream()
+                .map(request -> ValidationUtils.ensureNotNull(request, "request"))
+                .toList();
+    }
+
     private void delete(String id) {
-        this.legacyScoreV1Api.legacyScoreV1Delete(APILegacyScoreV1DeleteRequest.newBuilder()
+        this.scoresApi.scoresDelete(APIScoresDeleteRequest.newBuilder()
                 .scoreId(id)
                 .build());
     }
 
-    private static CursorResult<ScoreV3> fetch(ScoresV3Api scoresV3Api, Cursor cursor, ScoreFilter filter) {
-        var response = scoresV3Api.scoresV3GetManyV3(request(cursor, filter));
+    private static CursorResult<ScoreV3> fetch(ScoresApi scoresApi, Cursor cursor, ScoreFilter filter) {
+        var response = scoresApi.scoresGetMany(request(cursor, filter));
 
         return CursorResults.from(cursor, response.getData(), response.getMeta(), GetScoresV3Meta::getCursor);
     }
@@ -89,8 +90,8 @@ final class DefaultScoreOperations extends AbstractCursorOperations<ScoreV3> imp
     // Langfuse caps limit at 100 and answers HTTP 400 above it. The cursor's limit comes from
     // quarkus.langfuse.api.default-batch-size, which defaults to 50; a caller raising it past 100 gets
     // that 400 rather than a silently clamped request.
-    private static APIScoresV3GetManyV3Request request(Cursor cursor, ScoreFilter filter) {
-        var builder = APIScoresV3GetManyV3Request.newBuilder()
+    private static APIScoresGetManyRequest request(Cursor cursor, ScoreFilter filter) {
+        var builder = APIScoresGetManyRequest.newBuilder()
                 .limit(cursor.limit())
                 .cursor(cursor.value().orElse(null));
 

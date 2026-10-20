@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.awaitility.Awaitility.await;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.UUID;
 
 import jakarta.inject.Inject;
@@ -18,12 +19,12 @@ import com.langfuse.api.LangfuseApiException;
 import com.langfuse.api.model.CreateScoreRequest;
 import com.langfuse.api.model.CreateScoreSource;
 import com.langfuse.api.model.CreateScoreValue;
+import com.langfuse.api.model.CreateScoresResponse;
 import com.langfuse.api.model.ScoreDataType;
 import com.langfuse.api.scores.ScoresApi.APIScoresCreateRequest;
-import com.langfuse.api.scores.ScoresApi.APIScoresGetByIdRequest;
-import com.langfuse.api.scores.ScoresApi.APIScoresGetManyRequest;
-import com.langfuse.api.scoresV3.ScoresV3Api.APIScoresV3GetManyV3Request;
 
+import io.quarkiverse.langfuse.api.AsyncLangfuseOperations;
+import io.quarkiverse.langfuse.api.ScoreFilter;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -36,6 +37,9 @@ class ScoresApiAsyncTest {
 
     @Inject
     LangfuseApi client;
+
+    @Inject
+    AsyncLangfuseOperations asyncLangfuse;
 
     @Inject
     LangfuseConfig config;
@@ -53,55 +57,32 @@ class ScoresApiAsyncTest {
     void createScore() {
         assertThat(client.asyncScores().scoresCreate(
                 APIScoresCreateRequest.newBuilder()
-                        .createScoreRequest(CreateScoreRequest.builder()
+                        .createScoreRequest(List.of(CreateScoreRequest.builder()
                                 .traceId(TRACE_ID)
                                 .name(SCORE_NAME)
                                 .value(new CreateScoreValue(0.85))
                                 .dataType(ScoreDataType.NUMERIC)
                                 .source(CreateScoreSource.API)
                                 .environment(config.environment())
-                                .build())
+                                .build()))
                         .build()))
                 .succeedsWithin(Duration.ofSeconds(5))
-                .satisfies(response -> assertThat(response.getId()).isNotBlank());
+                .isInstanceOfSatisfying(CreateScoresResponse.class,
+                        response -> assertThat(response.getActualInstance()).isNotNull());
     }
 
     @Test
     @Order(2)
     void listScoresForTrace() {
-        // Query via v3 endpoint — v2 scores endpoint returns 404 in v4 events_only mode
+        // Query via the scores collection API — the v3 list is now exposed through it.
         await().atMost(Duration.ofSeconds(30))
                 .pollInterval(Duration.ofSeconds(1))
                 .ignoreExceptionsMatching(e -> e instanceof LangfuseApiException)
-                .untilAsserted(() -> assertThat(client.asyncScoresV3().scoresV3GetManyV3(
-                        APIScoresV3GetManyV3Request.newBuilder()
-                                .name(SCORE_NAME)
-                                .traceId(TRACE_ID)
-                                .build()))
+                .untilAsserted(() -> assertThat(asyncLangfuse.scores().matching(ScoreFilter.builder()
+                        .name(SCORE_NAME)
+                        .traceId(TRACE_ID)
+                        .build()).findAll().subscribeAsCompletionStage())
                         .succeedsWithin(Duration.ofSeconds(5))
-                        .satisfies(scores -> assertThat(scores.getData()).isNotEmpty()));
-    }
-
-    @Test
-    @Order(3)
-    void scoresGetManyReturns404() {
-        assertThat(client.asyncScores().scoresGetMany(
-                APIScoresGetManyRequest.newBuilder()
-                        .build()))
-                .failsWithin(Duration.ofSeconds(5))
-                .withThrowableThat()
-                .withCauseInstanceOf(LangfuseApiException.class);
-    }
-
-    @Test
-    @Order(3)
-    void scoresGetByIdReturns404() {
-        assertThat(client.asyncScores().scoresGetById(
-                APIScoresGetByIdRequest.newBuilder()
-                        .scoreId(UUID.randomUUID().toString())
-                        .build()))
-                .failsWithin(Duration.ofSeconds(5))
-                .withThrowableThat()
-                .withCauseInstanceOf(LangfuseApiException.class);
+                        .satisfies(scores -> assertThat(scores).isNotEmpty()));
     }
 }

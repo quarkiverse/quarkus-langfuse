@@ -1,7 +1,6 @@
 package io.quarkiverse.langfuse.client.jaxrs;
 
 import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -11,16 +10,10 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 
 import com.langfuse.api.datasets.DatasetsApi.APIDatasetsCreateRequest;
-import com.langfuse.api.datasets.DatasetsApi.APIDatasetsDeleteRunRequest;
 import com.langfuse.api.datasets.DatasetsApi.APIDatasetsGetRequest;
-import com.langfuse.api.datasets.DatasetsApi.APIDatasetsGetRunRequest;
-import com.langfuse.api.datasets.DatasetsApi.APIDatasetsGetRunsRequest;
 import com.langfuse.api.datasets.DatasetsApi.APIDatasetsListRequest;
 import com.langfuse.api.model.CreateDatasetRequest;
 import com.langfuse.api.model.Dataset;
-import com.langfuse.api.model.DatasetRunWithItems;
-import com.langfuse.api.model.DeleteDatasetRunResponse;
-import com.langfuse.api.model.PaginatedDatasetRuns;
 import com.langfuse.api.model.PaginatedDatasets;
 
 /**
@@ -47,24 +40,6 @@ public interface QuarkusDatasetsApi extends com.langfuse.api.datasets.DatasetsAp
     }
 
     /**
-     * Delete a dataset run and all its run items.
-     */
-    @DELETE
-    @Path("/api/public/datasets/{datasetName}/runs/{runName}")
-    @Produces(MediaType.APPLICATION_JSON)
-    DeleteDatasetRunResponse datasetsDeleteRun(
-            @PathParam("datasetName") String datasetName,
-            @PathParam("runName") String runName);
-
-    /**
-     * Delete a dataset run and all its run items.
-     */
-    @Override
-    default DeleteDatasetRunResponse datasetsDeleteRun(APIDatasetsDeleteRunRequest apiRequest) {
-        return datasetsDeleteRun(apiRequest.datasetName(), apiRequest.runName());
-    }
-
-    /**
      * Get a dataset
      */
     @GET
@@ -79,43 +54,6 @@ public interface QuarkusDatasetsApi extends com.langfuse.api.datasets.DatasetsAp
     @Override
     default Dataset datasetsGet(APIDatasetsGetRequest apiRequest) {
         return datasetsGet(apiRequest.datasetName());
-    }
-
-    /**
-     * Get a dataset run and its items
-     */
-    @GET
-    @Path("/api/public/datasets/{datasetName}/runs/{runName}")
-    @Produces(MediaType.APPLICATION_JSON)
-    DatasetRunWithItems datasetsGetRun(
-            @PathParam("datasetName") String datasetName,
-            @PathParam("runName") String runName);
-
-    /**
-     * Get a dataset run and its items
-     */
-    @Override
-    default DatasetRunWithItems datasetsGetRun(APIDatasetsGetRunRequest apiRequest) {
-        return datasetsGetRun(apiRequest.datasetName(), apiRequest.runName());
-    }
-
-    /**
-     * Get dataset runs
-     */
-    @GET
-    @Path("/api/public/datasets/{datasetName}/runs")
-    @Produces(MediaType.APPLICATION_JSON)
-    PaginatedDatasetRuns datasetsGetRuns(
-            @PathParam("datasetName") String datasetName,
-            @QueryParam("page") Integer page,
-            @QueryParam("limit") Integer limit);
-
-    /**
-     * Get dataset runs
-     */
-    @Override
-    default PaginatedDatasetRuns datasetsGetRuns(APIDatasetsGetRunsRequest apiRequest) {
-        return datasetsGetRuns(apiRequest.datasetName(), apiRequest.page(), apiRequest.limit());
     }
 
     /**

@@ -20,8 +20,6 @@ import com.langfuse.api.model.TraceDeleteMultipleRequest;
 import com.langfuse.api.observations.ObservationsApi.APIObservationsGetManyRequest;
 import com.langfuse.api.trace.TraceApi.APITraceDeleteMultipleRequest;
 import com.langfuse.api.trace.TraceApi.APITraceDeleteRequest;
-import com.langfuse.api.trace.TraceApi.APITraceGetRequest;
-import com.langfuse.api.trace.TraceApi.APITraceListRequest;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -41,32 +39,6 @@ class TraceApiAsyncTest {
         // Ingest via OTel — legacy ingestion rejects trace-create in v4 events_only mode
         assertThat(OtelTestHelper.ingestTraceAsync(client, TRACE_ID, TRACE_NAME))
                 .succeedsWithin(Duration.ofSeconds(5));
-    }
-
-    @Test
-    @Order(2)
-    void getTraceByIdReturns404InEventsOnlyMode() {
-        // Legacy GET /api/public/traces/{id} returns 404 in v4 events_only mode
-        assertThat(client.asyncTrace().traceGet(
-                APITraceGetRequest.newBuilder()
-                        .traceId(TRACE_ID)
-                        .build()))
-                .failsWithin(Duration.ofSeconds(5))
-                .withThrowableThat()
-                .withCauseInstanceOf(LangfuseApiException.class);
-    }
-
-    @Test
-    @Order(2)
-    void listTracesReturns404InEventsOnlyMode() {
-        // Legacy GET /api/public/traces returns 404 in v4 events_only mode
-        assertThat(client.asyncTrace().traceList(
-                APITraceListRequest.newBuilder()
-                        .name(TRACE_NAME)
-                        .build()))
-                .failsWithin(Duration.ofSeconds(5))
-                .withThrowableThat()
-                .withCauseInstanceOf(LangfuseApiException.class);
     }
 
     @Test

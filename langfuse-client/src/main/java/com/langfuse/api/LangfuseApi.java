@@ -8,17 +8,12 @@ import com.langfuse.api.annotationQueues.AnnotationQueuesApi;
 import com.langfuse.api.blobStorageIntegrations.BlobStorageIntegrationsApi;
 import com.langfuse.api.comments.CommentsApi;
 import com.langfuse.api.datasetItems.DatasetItemsApi;
-import com.langfuse.api.datasetRunItems.DatasetRunItemsApi;
 import com.langfuse.api.datasets.DatasetsApi;
 import com.langfuse.api.evaluationRules.EvaluationRulesApi;
 import com.langfuse.api.evaluators.EvaluatorsApi;
 import com.langfuse.api.experiments.ExperimentsApi;
 import com.langfuse.api.feedback.FeedbackApi;
 import com.langfuse.api.health.HealthApi;
-import com.langfuse.api.ingestion.IngestionApi;
-import com.langfuse.api.legacyMetricsV1.LegacyMetricsV1Api;
-import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api;
-import com.langfuse.api.legacyScoreV1.LegacyScoreV1Api;
 import com.langfuse.api.llmConnections.LlmConnectionsApi;
 import com.langfuse.api.media.MediaApi;
 import com.langfuse.api.metrics.MetricsApi;
@@ -32,8 +27,7 @@ import com.langfuse.api.prompts.PromptsApi;
 import com.langfuse.api.scim.ScimApi;
 import com.langfuse.api.scoreConfigs.ScoreConfigsApi;
 import com.langfuse.api.scores.ScoresApi;
-import com.langfuse.api.scoresV3.ScoresV3Api;
-import com.langfuse.api.sessions.SessionsApi;
+import com.langfuse.api.skills.SkillsApi;
 import com.langfuse.api.spi.LangfuseApiBuilderFactory;
 import com.langfuse.api.spi.ServiceLoaderHelper;
 import com.langfuse.api.trace.TraceApi;
@@ -97,12 +91,6 @@ public interface LangfuseApi {
     /** @return the async Dataset Items API */
     com.langfuse.api.datasetItems.async.DatasetItemsApi asyncDatasetItems();
 
-    /** @return the Dataset Run Items API */
-    DatasetRunItemsApi datasetRunItems();
-
-    /** @return the async Dataset Run Items API */
-    com.langfuse.api.datasetRunItems.async.DatasetRunItemsApi asyncDatasetRunItems();
-
     /** @return the Datasets API */
     DatasetsApi datasets();
 
@@ -132,30 +120,6 @@ public interface LangfuseApi {
 
     /** @return the async Feedback API */
     com.langfuse.api.feedback.async.FeedbackApi asyncFeedback();
-
-    /** @return the Ingestion API */
-    IngestionApi ingestion();
-
-    /** @return the async Ingestion API */
-    com.langfuse.api.ingestion.async.IngestionApi asyncIngestion();
-
-    /** @return the Legacy Metrics V1 API */
-    LegacyMetricsV1Api legacyMetricsV1();
-
-    /** @return the async Legacy Metrics V1 API */
-    com.langfuse.api.legacyMetricsV1.async.LegacyMetricsV1Api asyncLegacyMetricsV1();
-
-    /** @return the Legacy Observations V1 API */
-    LegacyObservationsV1Api legacyObservationsV1();
-
-    /** @return the async Legacy Observations V1 API */
-    com.langfuse.api.legacyObservationsV1.async.LegacyObservationsV1Api asyncLegacyObservationsV1();
-
-    /** @return the Legacy Score V1 API */
-    LegacyScoreV1Api legacyScoreV1();
-
-    /** @return the async Legacy Score V1 API */
-    com.langfuse.api.legacyScoreV1.async.LegacyScoreV1Api asyncLegacyScoreV1();
 
     /** @return the LLM Connections API */
     LlmConnectionsApi llmConnections();
@@ -235,17 +199,11 @@ public interface LangfuseApi {
     /** @return the async Scores API */
     com.langfuse.api.scores.async.ScoresApi asyncScores();
 
-    /** @return the Scores V3 API */
-    ScoresV3Api scoresV3();
+    /** @return the Skills API */
+    SkillsApi skills();
 
-    /** @return the async Scores V3 API */
-    com.langfuse.api.scoresV3.async.ScoresV3Api asyncScoresV3();
-
-    /** @return the Sessions API */
-    SessionsApi sessions();
-
-    /** @return the async Sessions API */
-    com.langfuse.api.sessions.async.SessionsApi asyncSessions();
+    /** @return the async Skills API */
+    com.langfuse.api.skills.async.SkillsApi asyncSkills();
 
     /** @return the Trace API */
     TraceApi trace();

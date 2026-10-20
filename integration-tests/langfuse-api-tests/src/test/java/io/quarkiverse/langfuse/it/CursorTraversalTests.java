@@ -82,7 +82,7 @@ class CursorTraversalTests {
     void seedScoresOnADedicatedTrace() {
         OtelTestHelper.ingestTrace(this.client, SCORE_TRACE_ID, "cursor-traversal-score-trace");
 
-        var ids = IntStream.rangeClosed(1, SCORE_COUNT)
+        var responses = IntStream.rangeClosed(1, SCORE_COUNT)
                 .mapToObj(i -> CreateScoreRequest.builder()
                         .traceId(SCORE_TRACE_ID)
                         .name(SCORE_NAME_PREFIX + i)
@@ -90,13 +90,12 @@ class CursorTraversalTests {
                         .dataType(ScoreDataType.NUMERIC)
                         .source(CreateScoreSource.API)
                         .build())
-                .map(request -> this.langfuse.scores().create(request).getId())
+                .map(request -> this.langfuse.scores().create(request))
                 .toList();
 
-        assertThat(ids)
+        assertThat(responses)
                 .hasSize(SCORE_COUNT)
-                .doesNotHaveDuplicates()
-                .allSatisfy(id -> assertThat(id).isNotBlank());
+                .allSatisfy(response -> assertThat(response.getActualInstance()).isNotNull());
     }
 
     @Test

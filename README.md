@@ -12,7 +12,7 @@ A Quarkus extension for [Langfuse](https://langfuse.com), the open-source LLM en
 
 ## Features
 
-- **Type-safe Langfuse API client** - Synchronous and asynchronous clients covering the full [Langfuse public API](https://langfuse.com/docs) (traces, ingestion, prompts, scores, datasets, observations, sessions, and more), built on the Quarkus REST Client Reactive.
+- **Type-safe Langfuse API client** - Synchronous and asynchronous clients covering the full [Langfuse public API](https://langfuse.com/docs) (traces, prompts, scores, datasets, observations, skills, and more), built on the Quarkus REST Client Reactive.
 - **Higher-level API operations** - Curated `LangfuseOperations` and `AsyncLangfuseOperations` (Mutiny) beans covering seventeen domains - models, datasets and dataset items, LLM connections, score configs, evaluation rules, evaluators and their versions, prompts, annotation queues and their items, comments, scores, observations, experiments and experiment items, and blob storage integrations. They offer find-by-id and find-by-name, existence checks, filtered views, lazy pagination with short-circuiting, idempotent resource initialization, and batch deletes that report an outcome per identifier, with an `api()` escape hatch to the raw client.
 - **CDI integration** - Inject `LangfuseApi`, `LangfuseOperations`, or `AsyncLangfuseOperations` directly into your beans.
 - **DevServices** - Automatically starts a complete Langfuse stack (Langfuse server, PostgreSQL, ClickHouse, Redis, MinIO, and Worker) in dev and test mode using Testcontainers. No manual setup required.
@@ -106,7 +106,7 @@ public class MyService {
     }
 
     public void listScores() {
-        var scores = langfuseApi.scoresV3().scoresV3GetManyV3(/* parameters */);
+        var scores = langfuseApi.scores().scoresGetMany(/* parameters */);
     }
 
     public void checkHealth() {
@@ -124,15 +124,13 @@ The `LangfuseApi` bean provides access to the full [Langfuse public API](https:/
 | `health()` | Health check endpoints |
 | `opentelemetry()` | OpenTelemetry trace ingestion (recommended for v4) |
 | `observations()` | Query observations with selective fields and cursor pagination (v2) |
-| `scores()` | Create scores and query scores (v2, deprecated in events_only mode) |
-| `scoresV3()` | Query scores with polymorphic values and cursor pagination (v3, recommended) |
+| `scores()` | Create scores (batch, `POST /api/public/scores`), query scores with cursor pagination (v3), and delete scores |
 | `experiments()` | List experiments and experiment items (dataset runs) |
 | `prompts()` | Manage, version, and retrieve prompts |
 | `promptVersion()` | Manage individual prompt versions |
 | `scoreConfigs()` | Manage score configurations |
 | `datasets()` | Create and manage datasets |
 | `datasetItems()` | Manage dataset items |
-| `datasetRunItems()` | Manage dataset run items |
 | `models()` | Create, upsert, and manage model definitions and pricing |
 | `evaluators()` | Create and manage evaluators (v2) |
 | `evaluationRules()` | Create and manage evaluation rules (v2) |
@@ -142,18 +140,14 @@ The `LangfuseApi` bean provides access to the full [Langfuse public API](https:/
 | `media()` | Upload and manage media attachments |
 | `metrics()` | Query usage metrics (v2) |
 | `annotationQueues()` | Manage annotation queues for human review |
-| `llmConnections()` | Manage LLM provider connections |
+| `llmConnections()` | Manage LLM provider connections (project scope) |
 | `blobStorageIntegrations()` | Manage blob storage integrations |
 | `scim()` | SCIM user provisioning |
 | `feedback()` | Submit feedback about Langfuse features |
 | `unstableDashboardWidgets()` | Create, list, update, and delete dashboard widgets (unstable) |
 | `unstableDashboards()` | Create, list, update, and delete dashboards with placements (unstable) |
-| `ingestion()` | Legacy batch ingestion (deprecated — use `opentelemetry()`) |
-| `trace()` | Legacy trace endpoints (deprecated in v4 events_only mode) |
-| `sessions()` | Legacy session endpoints (deprecated in v4 events_only mode) |
-| `legacyObservationsV1()` | Legacy observations (v1, deprecated — use `observations()`) |
-| `legacyMetricsV1()` | Legacy metrics (v1, deprecated — use `metrics()`) |
-| `legacyScoreV1()` | Legacy score deletion (v1, deprecated) |
+| `skills()` | Manage skills, their versions, labels and file contents |
+| `trace()` | Trace delete endpoints (reads are unavailable in v4 events_only mode; use `observations()`) |
 
 ## OpenTelemetry Integration
 

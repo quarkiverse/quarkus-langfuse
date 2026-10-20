@@ -15,8 +15,6 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.LangfuseApiException;
-import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api.APILegacyObservationsV1GetManyRequest;
-import com.langfuse.api.legacyObservationsV1.LegacyObservationsV1Api.APILegacyObservationsV1GetRequest;
 import com.langfuse.api.observations.ObservationsApi.APIObservationsGetManyRequest;
 
 import io.quarkus.test.junit.QuarkusTest;
@@ -54,29 +52,5 @@ class ObservationsApiAsyncTest {
                         .satisfies(observations -> assertThat(observations.getData())
                                 .isNotEmpty()
                                 .anyMatch(o -> SPAN_NAME.equals(o.getName()))));
-    }
-
-    @Test
-    @Order(2)
-    void legacyListObservationsReturns404() {
-        assertThat(client.asyncLegacyObservationsV1().legacyObservationsV1GetMany(
-                APILegacyObservationsV1GetManyRequest.newBuilder()
-                        .traceId(TRACE_ID)
-                        .build()))
-                .failsWithin(Duration.ofSeconds(5))
-                .withThrowableThat()
-                .withCauseInstanceOf(LangfuseApiException.class);
-    }
-
-    @Test
-    @Order(2)
-    void legacyGetObservationByIdReturns404() {
-        assertThat(client.asyncLegacyObservationsV1().legacyObservationsV1Get(
-                APILegacyObservationsV1GetRequest.newBuilder()
-                        .observationId(UUID.randomUUID().toString())
-                        .build()))
-                .failsWithin(Duration.ofSeconds(5))
-                .withThrowableThat()
-                .withCauseInstanceOf(LangfuseApiException.class);
     }
 }

@@ -20,8 +20,6 @@ open module com.langfuse.api {
     exports com.langfuse.api.comments.async;
     exports com.langfuse.api.datasetItems;
     exports com.langfuse.api.datasetItems.async;
-    exports com.langfuse.api.datasetRunItems;
-    exports com.langfuse.api.datasetRunItems.async;
     exports com.langfuse.api.datasets;
     exports com.langfuse.api.datasets.async;
     exports com.langfuse.api.evaluationRules;
@@ -34,14 +32,6 @@ open module com.langfuse.api {
     exports com.langfuse.api.feedback.async;
     exports com.langfuse.api.health;
     exports com.langfuse.api.health.async;
-    exports com.langfuse.api.ingestion;
-    exports com.langfuse.api.ingestion.async;
-    exports com.langfuse.api.legacyMetricsV1;
-    exports com.langfuse.api.legacyMetricsV1.async;
-    exports com.langfuse.api.legacyObservationsV1;
-    exports com.langfuse.api.legacyObservationsV1.async;
-    exports com.langfuse.api.legacyScoreV1;
-    exports com.langfuse.api.legacyScoreV1.async;
     exports com.langfuse.api.llmConnections;
     exports com.langfuse.api.llmConnections.async;
     exports com.langfuse.api.media;
@@ -68,10 +58,8 @@ open module com.langfuse.api {
     exports com.langfuse.api.scoreConfigs.async;
     exports com.langfuse.api.scores;
     exports com.langfuse.api.scores.async;
-    exports com.langfuse.api.scoresV3;
-    exports com.langfuse.api.scoresV3.async;
-    exports com.langfuse.api.sessions;
-    exports com.langfuse.api.sessions.async;
+    exports com.langfuse.api.skills;
+    exports com.langfuse.api.skills.async;
     exports com.langfuse.api.trace;
     exports com.langfuse.api.trace.async;
     exports com.langfuse.api.unstableDashboardWidgets;

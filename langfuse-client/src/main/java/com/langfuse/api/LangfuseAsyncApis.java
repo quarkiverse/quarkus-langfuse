@@ -4,17 +4,12 @@ import com.langfuse.api.annotationQueues.async.AnnotationQueuesApi;
 import com.langfuse.api.blobStorageIntegrations.async.BlobStorageIntegrationsApi;
 import com.langfuse.api.comments.async.CommentsApi;
 import com.langfuse.api.datasetItems.async.DatasetItemsApi;
-import com.langfuse.api.datasetRunItems.async.DatasetRunItemsApi;
 import com.langfuse.api.datasets.async.DatasetsApi;
 import com.langfuse.api.evaluationRules.async.EvaluationRulesApi;
 import com.langfuse.api.evaluators.async.EvaluatorsApi;
 import com.langfuse.api.experiments.async.ExperimentsApi;
 import com.langfuse.api.feedback.async.FeedbackApi;
 import com.langfuse.api.health.async.HealthApi;
-import com.langfuse.api.ingestion.async.IngestionApi;
-import com.langfuse.api.legacyMetricsV1.async.LegacyMetricsV1Api;
-import com.langfuse.api.legacyObservationsV1.async.LegacyObservationsV1Api;
-import com.langfuse.api.legacyScoreV1.async.LegacyScoreV1Api;
 import com.langfuse.api.llmConnections.async.LlmConnectionsApi;
 import com.langfuse.api.media.async.MediaApi;
 import com.langfuse.api.metrics.async.MetricsApi;
@@ -28,8 +23,7 @@ import com.langfuse.api.prompts.async.PromptsApi;
 import com.langfuse.api.scim.async.ScimApi;
 import com.langfuse.api.scoreConfigs.async.ScoreConfigsApi;
 import com.langfuse.api.scores.async.ScoresApi;
-import com.langfuse.api.scoresV3.async.ScoresV3Api;
-import com.langfuse.api.sessions.async.SessionsApi;
+import com.langfuse.api.skills.async.SkillsApi;
 import com.langfuse.api.trace.async.TraceApi;
 import com.langfuse.api.unstableDashboardWidgets.async.UnstableDashboardWidgetsApi;
 import com.langfuse.api.unstableDashboards.async.UnstableDashboardsApi;
@@ -39,17 +33,12 @@ public interface LangfuseAsyncApis extends
         BlobStorageIntegrationsApi,
         CommentsApi,
         DatasetItemsApi,
-        DatasetRunItemsApi,
         DatasetsApi,
         EvaluationRulesApi,
         EvaluatorsApi,
         ExperimentsApi,
         FeedbackApi,
         HealthApi,
-        IngestionApi,
-        LegacyMetricsV1Api,
-        LegacyObservationsV1Api,
-        LegacyScoreV1Api,
         LlmConnectionsApi,
         MediaApi,
         MetricsApi,
@@ -63,8 +52,7 @@ public interface LangfuseAsyncApis extends
         ScimApi,
         ScoreConfigsApi,
         ScoresApi,
-        ScoresV3Api,
-        SessionsApi,
+        SkillsApi,
         TraceApi,
         UnstableDashboardWidgetsApi,
         UnstableDashboardsApi {

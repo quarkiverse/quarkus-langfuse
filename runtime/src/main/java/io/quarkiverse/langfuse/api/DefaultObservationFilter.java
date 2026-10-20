@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Optional;
 
 import com.langfuse.api.model.ObservationLevel;
-import com.langfuse.api.model.ObservationType;
 
 // The components carry the raw nullable values and are renamed, because a record component and an
 // Optional-returning accessor cannot share a name. Same shape as DefaultCursor.cursorValue backing

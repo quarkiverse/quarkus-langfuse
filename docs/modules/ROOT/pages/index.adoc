@@ -16,7 +16,7 @@ https://langfuse.com[Langfuse] is an open-source LLM engineering platform that h
 
 This extension integrates Langfuse into the Quarkus ecosystem with the following features:
 
-* **Type-safe Langfuse API client** - Synchronous and asynchronous clients covering the full https://langfuse.com/docs[Langfuse public API] (traces, ingestion, prompts, scores, datasets, observations, sessions, and more), built on the Quarkus REST Client Reactive.
+* **Type-safe Langfuse API client** - Synchronous and asynchronous clients covering the full https://langfuse.com/docs[Langfuse public API] (traces, prompts, scores, datasets, observations, skills, and more), built on the Quarkus REST Client Reactive.
 * **Higher-level API operations** - Curated `LangfuseOperations` and `AsyncLangfuseOperations` beans over seventeen domains, offering lookup by id or name, existence checks, filtered views, lazy pagination, idempotent initialization and batch deletes that report an outcome per identifier. See xref:api-operations.adoc[Higher-Level API Operations].
 * **CDI integration** - Inject `LangfuseApi` directly into your beans. No Quarkus-specific types needed.
 * **DevServices** - Automatically starts a complete Langfuse stack (Langfuse server, PostgreSQL, ClickHouse, Redis, MinIO, and Worker) in dev and test mode using Testcontainers. No manual setup required.
@@ -105,7 +105,7 @@ public class MyService {
     }
 
     public void listScores() {
-        var scores = langfuseApi.scoresV3().scoresV3GetManyV3(/* parameters */);
+        var scores = langfuseApi.scores().scoresGetMany(/* parameters */);
     }
 
     public void checkHealth() {
@@ -132,10 +132,7 @@ The `LangfuseApi` bean provides access to the full https://langfuse.com/docs[Lan
 | Query observations with selective fields and cursor pagination (v2)
 
 | `scores()`
-| Create scores and query scores (v2, deprecated in events_only mode)
-
-| `scoresV3()`
-| Query scores with polymorphic values and cursor pagination (v3, recommended)
+| Create scores (batch, `POST /api/public/scores`), query scores with cursor pagination (v3), and delete scores
 
 | `experiments()`
 | List experiments and experiment items (dataset runs)
@@ -154,9 +151,6 @@ The `LangfuseApi` bean provides access to the full https://langfuse.com/docs[Lan
 
 | `datasetItems()`
 | Manage dataset items
-
-| `datasetRunItems()`
-| Manage dataset run items
 
 | `models()`
 | Create, upsert, and manage model definitions and pricing
@@ -186,7 +180,7 @@ The `LangfuseApi` bean provides access to the full https://langfuse.com/docs[Lan
 | Manage annotation queues for human review
 
 | `llmConnections()`
-| Manage LLM provider connections
+| Manage LLM provider connections (project scope)
 
 | `blobStorageIntegrations()`
 | Manage blob storage integrations
@@ -203,23 +197,11 @@ The `LangfuseApi` bean provides access to the full https://langfuse.com/docs[Lan
 | `unstableDashboards()`
 | Create, list, update, and delete dashboards with placements (unstable)
 
-| `ingestion()`
-| Legacy batch ingestion (deprecated -- use `opentelemetry()`)
+| `skills()`
+| Manage skills, their versions, labels and file contents
 
 | `trace()`
-| Legacy trace endpoints (deprecated in v4 events_only mode)
-
-| `sessions()`
-| Legacy session endpoints (deprecated in v4 events_only mode)
-
-| `legacyObservationsV1()`
-| Legacy observations (v1, deprecated -- use `observations()`)
-
-| `legacyMetricsV1()`
-| Legacy metrics (v1, deprecated -- use `metrics()`)
-
-| `legacyScoreV1()`
-| Legacy score deletion (v1, deprecated)
+| Trace delete endpoints (reads are unavailable in v4 events_only mode; use `observations()`)
 |===
 
 === Example: Listing Prompts

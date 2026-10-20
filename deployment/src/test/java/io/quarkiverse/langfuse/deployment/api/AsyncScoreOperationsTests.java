@@ -16,9 +16,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import com.langfuse.api.model.CreateScoreBatchResults;
 import com.langfuse.api.model.CreateScoreRequest;
-import com.langfuse.api.model.CreateScoreResponse;
 import com.langfuse.api.model.CreateScoreValue;
+import com.langfuse.api.model.CreateScoresResponse;
 import com.langfuse.api.model.NumericScoreV31;
 import com.langfuse.api.model.ScoreDataType;
 import com.langfuse.api.model.ScoreSource;
@@ -193,13 +194,16 @@ class AsyncScoreOperationsTests extends ScoreOperationsTestSupport {
     // --- writes ----------------------------------------------------------------------------
 
     @Test
-    void createReturnsTheAssignedId() {
-        stubScoreCreated("score-new");
+    void createReturnsTheBatchResponse() {
+        stubScoreCreated(1);
 
         assertThat(await(asyncLangfuse.scores().create(createRequest())))
-                .isNotNull()
-                .extracting(CreateScoreResponse::getId)
-                .isEqualTo("score-new");
+                .isInstanceOfSatisfying(CreateScoresResponse.class, response -> {
+                    assertThat(response.getActualInstance()).isInstanceOf(CreateScoreBatchResults.class);
+                    assertThat(response.getCreateScoreBatchResults().getAccepted()).isEqualTo(1);
+                    assertThat(response.getCreateScoreBatchResults().getRejected()).isZero();
+                    assertThat(response.getCreateScoreBatchResults().getErrors()).isEmpty();
+                });
 
         verifyScoresCreated(1);
     }
@@ -211,7 +215,7 @@ class AsyncScoreOperationsTests extends ScoreOperationsTestSupport {
     @Test
     void createRejectsANullRequestFromTheCallRatherThanAtSubscription() {
         assertThatIllegalArgumentException()
-                .isThrownBy(() -> asyncLangfuse.scores().create(null));
+                .isThrownBy(() -> asyncLangfuse.scores().create((CreateScoreRequest) null));
 
         verifyScoresCreated(0);
     }

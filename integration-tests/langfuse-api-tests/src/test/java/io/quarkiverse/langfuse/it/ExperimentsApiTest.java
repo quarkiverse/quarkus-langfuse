@@ -15,13 +15,11 @@ import org.junit.jupiter.api.TestMethodOrder;
 
 import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.datasetItems.DatasetItemsApi.APIDatasetItemsCreateRequest;
-import com.langfuse.api.datasetRunItems.DatasetRunItemsApi.APIDatasetRunItemsCreateRequest;
 import com.langfuse.api.datasets.DatasetsApi.APIDatasetsCreateRequest;
 import com.langfuse.api.experiments.ExperimentsApi.APIExperimentsListItemsRequest;
 import com.langfuse.api.experiments.ExperimentsApi.APIExperimentsListRequest;
 import com.langfuse.api.model.CreateDatasetItemRequest;
 import com.langfuse.api.model.CreateDatasetRequest;
-import com.langfuse.api.model.CreateDatasetRunItemRequest;
 
 import io.quarkus.test.junit.QuarkusTest;
 
@@ -31,9 +29,7 @@ class ExperimentsApiTest {
 
     private static final OffsetDateTime TEST_START = OffsetDateTime.now();
     private static final String DATASET_NAME = "test-experiments-dataset-" + UUID.randomUUID();
-    private static final String RUN_NAME = "test-experiment-run-" + UUID.randomUUID().toString().substring(0, 8);
     private static final String TRACE_ID = UUID.randomUUID().toString().replace("-", "");
-    private static String datasetItemId;
 
     @Inject
     LangfuseApi client;
@@ -41,7 +37,7 @@ class ExperimentsApiTest {
     @Test
     @Order(1)
     void setupDatasetAndExperiment() {
-        // Create dataset, item, trace, and run item to populate the experiments endpoint
+        // Create dataset and trace to populate the experiments endpoint
         client.datasets().datasetsCreate(
                 APIDatasetsCreateRequest.newBuilder()
                         .createDatasetRequest(CreateDatasetRequest.builder()
@@ -58,19 +54,9 @@ class ExperimentsApiTest {
                         .build());
 
         assertThat(item.getId()).isNotBlank();
-        datasetItemId = item.getId();
 
-        // Ingest trace via OTel so the dataset run item can reference it
+        // Ingest trace via OTel so the experiments list has a recent observation to work with
         OtelTestHelper.ingestTrace(client, TRACE_ID, "experiment-test-trace");
-
-        client.datasetRunItems().datasetRunItemsCreate(
-                APIDatasetRunItemsCreateRequest.newBuilder()
-                        .createDatasetRunItemRequest(CreateDatasetRunItemRequest.builder()
-                                .runName(RUN_NAME)
-                                .datasetItemId(datasetItemId)
-                                .traceId(TRACE_ID)
-                                .build())
-                        .build());
     }
 
     @Test
