@@ -14,11 +14,11 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import com.langfuse.api.LangfuseApi;
 import com.langfuse.api.model.HealthResponse;
 
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 class LangfuseDevServiceWorksTests {
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest extensionTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideRuntimeConfigKey("quarkus.langfuse.log-requests", "true")
             .overrideRuntimeConfigKey("quarkus.langfuse.log-responses", "true");

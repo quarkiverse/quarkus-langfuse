@@ -13,7 +13,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.quarkiverse.langfuse.runtime.otel.LangfuseOtelConfigSourceFactory;
 import io.quarkiverse.langfuse.runtime.otel.LangfuseSpanProcessor;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 /**
  * Verifies that when {@code quarkus.langfuse.otel.enabled} is set to {@code false},
@@ -22,7 +22,7 @@ import io.quarkus.test.QuarkusUnitTest;
  */
 public class OtelExportLangfuseOnlyTests {
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest extensionTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideConfigKey("quarkus.langfuse.otel.export-target", "LANGFUSE_ONLY")

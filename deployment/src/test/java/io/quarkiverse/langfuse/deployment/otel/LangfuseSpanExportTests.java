@@ -22,7 +22,7 @@ import io.opentelemetry.semconv.incubating.GenAiIncubatingAttributes;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkiverse.langfuse.deployment.WiremockAware;
 import io.quarkiverse.langfuse.runtime.otel.LangfuseSpanProcessor;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 /**
  * Verifies that the {@link LangfuseSpanProcessor} registered for {@code export-target=ALL} actually ships spans to the
@@ -36,7 +36,7 @@ class LangfuseSpanExportTests extends WiremockAware {
     private static final String SPAN_NAME = "langfuse-export-test-chat";
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest extensionTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideRuntimeConfigKey(LangfuseConfig.BASE_URL_KEY, wiremockUrlForConfig())

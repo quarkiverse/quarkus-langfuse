@@ -31,7 +31,7 @@ import io.quarkiverse.langfuse.api.cursor.CursorSelection;
 import io.quarkiverse.langfuse.client.LangfuseAuthenticationException;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
@@ -43,7 +43,7 @@ class AsyncObservationOperationsTests extends ObservationOperationsTestSupport {
     private static final OffsetDateTime TO_START_TIME = OffsetDateTime.parse("2024-02-03T04:05:06Z");
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest extensionTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideRuntimeConfigKey("quarkus.langfuse.public-key", "quarkus")

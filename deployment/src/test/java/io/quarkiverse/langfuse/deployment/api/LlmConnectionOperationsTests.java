@@ -23,12 +23,12 @@ import io.quarkiverse.langfuse.api.paging.PageSelection;
 import io.quarkiverse.langfuse.api.paging.PagedResult;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 class LlmConnectionOperationsTests extends LlmConnectionOperationsTestSupport {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest extensionTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideRuntimeConfigKey("quarkus.langfuse.public-key", "quarkus")

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
 import io.quarkiverse.langfuse.runtime.otel.LangfuseSpanProcessor;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 /**
  * Verifies that when {@code quarkus.otel.sdk.disabled} is set to {@code true},
@@ -20,7 +20,7 @@ import io.quarkus.test.QuarkusUnitTest;
  */
 public class OtelSdkDisabledTests {
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest extensionTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideRuntimeConfigKey("quarkus.otel.sdk.disabled", "true")

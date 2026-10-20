@@ -35,7 +35,7 @@ import io.quarkiverse.langfuse.api.deletion.DeletionOutcome;
 import io.quarkiverse.langfuse.client.LangfuseAuthenticationException;
 import io.quarkiverse.langfuse.client.LangfuseAuthorizationException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.smallrye.mutiny.Uni;
 
 class AsyncScoreOperationsTests extends ScoreOperationsTestSupport {
@@ -44,7 +44,7 @@ class AsyncScoreOperationsTests extends ScoreOperationsTestSupport {
     private static final OffsetDateTime TO_TIMESTAMP = OffsetDateTime.parse("2024-02-03T04:05:06Z");
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest extensionTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideRuntimeConfigKey("quarkus.langfuse.public-key", "quarkus")

@@ -30,7 +30,7 @@ import io.quarkiverse.langfuse.api.cursor.CursorResult;
 import io.quarkiverse.langfuse.api.cursor.CursorSelection;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
 
@@ -38,7 +38,7 @@ class AsyncEvaluatorOperationsTests extends EvaluatorOperationsTestSupport {
     private static final Duration TIMEOUT = Duration.ofSeconds(10);
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest extensionTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideRuntimeConfigKey("quarkus.langfuse.public-key", "quarkus")

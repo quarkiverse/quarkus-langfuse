@@ -27,7 +27,7 @@ import io.quarkiverse.langfuse.client.LangfuseAuthenticationException;
 import io.quarkiverse.langfuse.client.LangfuseAuthorizationException;
 import io.quarkiverse.langfuse.client.LangfuseNotFoundException;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
-import io.quarkus.test.QuarkusUnitTest;
+import io.quarkus.test.QuarkusExtensionTest;
 
 /**
  * Unlike the other domains, {@code datasets().findByName} and {@code exists} resolve in a single
@@ -38,7 +38,7 @@ import io.quarkus.test.QuarkusUnitTest;
 class DatasetOperationsTests extends DatasetOperationsTestSupport {
 
     @RegisterExtension
-    static final QuarkusUnitTest unitTest = new QuarkusUnitTest()
+    static final QuarkusExtensionTest extensionTest = new QuarkusExtensionTest()
             .setArchiveProducer(() -> ShrinkWrap.create(JavaArchive.class))
             .overrideConfigKey("quarkus.langfuse.devservices.enabled", "false")
             .overrideRuntimeConfigKey("quarkus.langfuse.public-key", "quarkus")
