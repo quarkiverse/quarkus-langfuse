@@ -78,6 +78,31 @@ endif::add-copy-button-to-env-var[]
 |string
 |`+++langfuse+++`
 
+a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-image-version]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-image-version[`+++quarkus.langfuse.devservices.langfuse.image-version+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.image-version+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The Langfuse release to run, shared by the Langfuse web server and the Langfuse worker.
+
+Both containers must run the same release, so this is the only property needed to move them. It is used by the default value of `image-name` here and of `quarkus.langfuse.devservices.worker.image-name`. Setting either `image-name` explicitly takes precedence over this property for that container.
+
+The default is the release whose OpenAPI specification the client was generated from.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_IMAGE_VERSION+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_IMAGE_VERSION+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++4.65.0+++`
+
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-image-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-image-name[`+++quarkus.langfuse.devservices.langfuse.image-name+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.langfuse.devservices.langfuse.image-name+++[]
@@ -88,6 +113,8 @@ endif::add-copy-button-to-config-props[]
 --
 The container image name to use for the Langfuse web server.
 
+Defaults to the official image at the release set by `image-version`.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_IMAGE_NAME+++[]
@@ -97,7 +124,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_IMAGE_NAME+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++docker.io/langfuse/langfuse:4+++`
+|`+++docker.io/langfuse/langfuse:${quarkus.langfuse.devservices.langfuse.image-version}+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-port]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-port[`+++quarkus.langfuse.devservices.langfuse.port+++`]##
 ifdef::add-copy-button-to-config-props[]
@@ -890,6 +917,8 @@ endif::add-copy-button-to-config-props[]
 --
 The container image name to use for the Langfuse worker.
 
+Defaults to the official worker image at the release set by `quarkus.langfuse.devservices.langfuse.image-version`, so the worker always runs the same release as the web server.
+
 
 ifdef::add-copy-button-to-env-var[]
 Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_DEVSERVICES_WORKER_IMAGE_NAME+++[]
@@ -899,7 +928,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_WORKER_IMAGE_NAME+++`
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++docker.io/langfuse/langfuse-worker:4+++`
+|`+++docker.io/langfuse/langfuse-worker:${quarkus.langfuse.devservices.langfuse.image-version}+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-worker-container-env-container-env]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-worker-container-env-container-env[`+++quarkus.langfuse.devservices.worker.container-env."container-env"+++`]##
 ifdef::add-copy-button-to-config-props[]

@@ -12,9 +12,24 @@ import io.smallrye.config.WithDefault;
 @ConfigGroup
 public interface LangfuseServerDevServicesConfig {
     /**
-     * The container image name to use for the Langfuse web server.
+     * The Langfuse release to run, shared by the Langfuse web server and the Langfuse worker.
+     * <p>
+     * Both containers must run the same release, so this is the only property needed to move them.
+     * It is used by the default value of {@code image-name} here and of
+     * {@code quarkus.langfuse.devservices.worker.image-name}. Setting either {@code image-name}
+     * explicitly takes precedence over this property for that container.
+     * <p>
+     * The default is the release whose OpenAPI specification the client was generated from.
      */
-    @WithDefault(LangfuseConfig.DEFAULT_IMAGE)
+    @WithDefault(LangfuseConfig.SERVER_VERSION)
+    String imageVersion();
+
+    /**
+     * The container image name to use for the Langfuse web server.
+     * <p>
+     * Defaults to the official image at the release set by {@code image-version}.
+     */
+    @WithDefault(LangfuseConfig.IMAGE_REPOSITORY + ":${quarkus.langfuse.devservices.langfuse.image-version}")
     String imageName();
 
     /**

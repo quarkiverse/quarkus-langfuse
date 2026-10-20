@@ -10,9 +10,15 @@ import java.util.Map;
  */
 public interface WorkerConfig {
     /**
-     * Default container image for the Langfuse worker.
+     * Container image repository of the Langfuse worker, without a tag.
      */
-    String DEFAULT_IMAGE = "docker.io/langfuse/langfuse-worker:4";
+    String IMAGE_REPOSITORY = "docker.io/langfuse/langfuse-worker";
+
+    /**
+     * Default container image for the Langfuse worker, pinned to the same release as the web server
+     * ({@link LangfuseConfig#SERVER_VERSION}).
+     */
+    String DEFAULT_IMAGE = IMAGE_REPOSITORY + ":" + LangfuseConfig.SERVER_VERSION;
 
     /**
      * @return the container image

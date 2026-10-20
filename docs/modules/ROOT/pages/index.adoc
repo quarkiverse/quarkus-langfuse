@@ -357,6 +357,19 @@ The DevServices stack includes:
 
 The extension automatically configures the `quarkus.langfuse.base-url`, `quarkus.langfuse.public-key`, and `quarkus.langfuse.secret-key` properties to point to the DevServices instance.
 
+=== Langfuse Server Version
+
+The Langfuse server and worker images are pinned to the Langfuse release whose OpenAPI specification the client is generated from, so the DevServices server always serves the API the extension was built against. The extension moves both images to newer Langfuse releases only after its build, including the integration tests, passes against them.
+
+To run a different Langfuse release, set one property. It applies to both the server and the worker, so they always stay on the same release:
+
+[source,properties]
+----
+quarkus.langfuse.devservices.langfuse.image-version=<version>
+----
+
+To use a custom image instead, set `quarkus.langfuse.devservices.langfuse.image-name` and/or `quarkus.langfuse.devservices.worker.image-name`. An explicit `image-name` takes precedence over `image-version` for that container.
+
 === Container Sharing
 
 By default, DevServices containers are **shared** across multiple Quarkus applications running on the same machine. This is useful when developing microservices that all connect to the same Langfuse instance. Sharing uses label-based container discovery with the `quarkus-dev-service-langfuse` label.

@@ -210,6 +210,8 @@ In dev and test mode, the extension automatically starts a complete Langfuse sta
 
 No configuration is needed - just add the extension and run `quarkus dev`. The extension automatically configures `quarkus.langfuse.base-url`, `quarkus.langfuse.username`, and `quarkus.langfuse.password` to point to the DevServices instance.
 
+The Langfuse server and worker images are pinned to the Langfuse release whose OpenAPI specification the client is generated from, so the DevServices server always serves the API the extension was built against. A weekly CI job moves both to newer Langfuse releases once the build passes against them. To run a different release, set `quarkus.langfuse.devservices.langfuse.image-version`. It applies to both the server and the worker, so they always stay on the same release. Set `image-name` on either one to use a custom image instead.
+
 ### DevServices Configuration
 
 DevServices can be customized under `quarkus.langfuse.devservices`:
@@ -219,7 +221,8 @@ DevServices can be customized under `quarkus.langfuse.devservices`:
 | `quarkus.langfuse.devservices.enabled` | `boolean` | `true` | Enable/disable DevServices |
 | `quarkus.langfuse.devservices.shared` | `boolean` | `true` | Share containers across applications |
 | `quarkus.langfuse.devservices.service-name` | `String` | `langfuse` | Label for container discovery |
-| `quarkus.langfuse.devservices.langfuse.image-name` | `String` | _(Langfuse default)_ | Langfuse server container image |
+| `quarkus.langfuse.devservices.langfuse.image-version` | `String` | _(Langfuse release the client is generated from)_ | Langfuse release shared by the server and worker images |
+| `quarkus.langfuse.devservices.langfuse.image-name` | `String` | _(official image at `image-version`)_ | Langfuse server container image |
 | `quarkus.langfuse.devservices.langfuse.port` | `int` | `8080` | Langfuse server port |
 | `quarkus.langfuse.devservices.langfuse.username` | `String` | `quarkus` | Project public key |
 | `quarkus.langfuse.devservices.langfuse.password` | `String` | `quarkuslangfuse` | Project secret key |

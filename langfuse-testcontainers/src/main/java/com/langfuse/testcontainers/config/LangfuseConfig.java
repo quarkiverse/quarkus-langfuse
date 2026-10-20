@@ -12,9 +12,23 @@ import java.util.Optional;
  */
 public interface LangfuseConfig {
     /**
+     * Langfuse server release the default web server and worker images are pinned to.
+     * <p>
+     * This is the release whose OpenAPI specification is vendored in {@code langfuse-client}. It moves
+     * only together with that specification, so the default images always serve the API the client was
+     * generated from.
+     */
+    String SERVER_VERSION = "4.65.0";
+
+    /**
+     * Container image repository of the Langfuse web server, without a tag.
+     */
+    String IMAGE_REPOSITORY = "docker.io/langfuse/langfuse";
+
+    /**
      * Default container image for Langfuse web server.
      */
-    String DEFAULT_IMAGE = "docker.io/langfuse/langfuse:4";
+    String DEFAULT_IMAGE = IMAGE_REPOSITORY + ":" + SERVER_VERSION;
 
     /**
      * Default port for the Langfuse web server.
