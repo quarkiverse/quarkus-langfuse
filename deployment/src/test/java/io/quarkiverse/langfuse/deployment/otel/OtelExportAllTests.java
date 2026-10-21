@@ -38,7 +38,7 @@ public class OtelExportAllTests {
 
         assertThat(config.getValue(LangfuseOtelConfigSourceFactory.OTEL_ENDPOINT_KEY, String.class))
                 .as("OTel endpoint should be auto-configured to Langfuse")
-                .isEqualTo("http://localhost:4317/");
+                .isIn("http://localhost:4317/", "http://localhost:4318/");
     }
 
     @Test

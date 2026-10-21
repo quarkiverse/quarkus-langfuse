@@ -114,6 +114,7 @@
 			<properties>
 				<quarkus.package.jar.enabled>false</quarkus.package.jar.enabled>
 				<quarkus.native.enabled>true</quarkus.native.enabled>
+				<skipITs>false</skipITs>
 			</properties>
 		</profile>
 	</profiles>

@@ -42,10 +42,31 @@ class LangfuseSpanExportTests extends WiremockAware {
             .overrideRuntimeConfigKey(LangfuseConfig.BASE_URL_KEY, wiremockUrlForConfig())
             .overrideRuntimeConfigKey(LangfuseConfig.PUBLIC_KEY, PUBLIC_KEY)
             .overrideRuntimeConfigKey(LangfuseConfig.SECRET_KEY, SECRET_KEY)
-            .overrideRuntimeConfigKey("quarkus.otel.exporter.otlp.memory-mode", "reusable-data");
+            .overrideRuntimeConfigKey("quarkus.otel.exporter.otlp.memory-mode", "reusable-data")
+            .overrideConfigKey("quarkus.log.category.\"io.quarkiverse.langfuse.runtime.otel\".level", "DEBUG")
+            .setLogRecordPredicate(logRecord -> logRecord.getMessage().startsWith("Using Langfuse span exporter factory"))
+            .assertLogRecords(logRecords -> assertThat(logRecords)
+                    .singleElement()
+                    .extracting(logRecord -> logRecord.getParameters()[0])
+                    .isEqualTo(expectedExporterFactory()));
 
     @Inject
     Tracer tracer;
+
+    private static String expectedExporterFactory() {
+        return isClassPresent("io.opentelemetry.exporter.otlp.internal.HttpExporter")
+                ? "io.quarkiverse.langfuse.runtime.otel.LangfuseSpanExporterFactoryQuarkus4"
+                : "io.quarkiverse.langfuse.runtime.otel.LangfuseSpanExporterFactoryQuarkus3";
+    }
+
+    private static boolean isClassPresent(String className) {
+        try {
+            Class.forName(className, false, Thread.currentThread().getContextClassLoader());
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
+    }
 
     @Inject
     LangfuseSpanProcessor langfuseSpanProcessor;
