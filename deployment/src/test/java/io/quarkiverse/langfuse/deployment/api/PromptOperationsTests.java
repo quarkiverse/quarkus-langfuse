@@ -8,14 +8,18 @@ import java.util.List;
 
 import jakarta.inject.Inject;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
 import org.jboss.shrinkwrap.api.spec.JavaArchive;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.RegisterExtension;
 
+import com.langfuse.api.model.ChatMessage;
+import com.langfuse.api.model.ChatMessageWithPlaceholders;
 import com.langfuse.api.model.CreateTextPromptRequest;
 import com.langfuse.api.model.CreateTextPromptType;
+import com.langfuse.api.model.PlaceholderMessage;
 import com.langfuse.api.model.Prompt;
 import com.langfuse.api.model.PromptMeta;
 
@@ -67,6 +71,29 @@ class PromptOperationsTests extends PromptOperationsTestSupport {
 
         verifyPromptGetRequests(1, "prompt-2");
         verifyListRequests(0);
+    }
+
+    /**
+     * Both message shapes accept a chat message once unknown properties are ignored, so the generated
+     * deserializer alone would pick the wrong one. The mixin must apply to whichever Jackson major
+     * version the application runs on.
+     */
+    @Test
+    void findByNameKeepsChatMessagesApartFromPlaceholders() {
+        stubChatPromptFound("chat-prompt");
+
+        assertThat(langfuse.prompts().findByName("chat-prompt"))
+                .get()
+                .extracting(prompt -> prompt.getChatPrompt1().getPrompt(),
+                        InstanceOfAssertFactories.list(ChatMessageWithPlaceholders.class))
+                .extracting(ChatMessageWithPlaceholders::getActualInstance)
+                .satisfiesExactly(
+                        message -> assertThat(message)
+                                .isInstanceOfSatisfying(ChatMessage.class,
+                                        chatMessage -> assertThat(chatMessage.getRole()).isEqualTo("system")),
+                        message -> assertThat(message)
+                                .isInstanceOfSatisfying(PlaceholderMessage.class,
+                                        placeholder -> assertThat(placeholder.getName()).isEqualTo("history")));
     }
 
     @Test

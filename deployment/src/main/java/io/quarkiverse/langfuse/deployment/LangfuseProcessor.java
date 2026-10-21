@@ -21,7 +21,6 @@ import io.quarkiverse.langfuse.runtime.otel.LangfuseOtelConfigBuilder;
 import io.quarkus.arc.deployment.AdditionalBeanBuildItem;
 import io.quarkus.arc.deployment.OpenTelemetrySdkBuildItem;
 import io.quarkus.arc.deployment.SyntheticBeanBuildItem;
-import io.quarkus.bootstrap.classloading.QuarkusClassLoader;
 import io.quarkus.deployment.annotations.BuildProducer;
 import io.quarkus.deployment.annotations.BuildStep;
 import io.quarkus.deployment.annotations.ExecutionTime;
@@ -30,15 +29,11 @@ import io.quarkus.deployment.builditem.CombinedIndexBuildItem;
 import io.quarkus.deployment.builditem.FeatureBuildItem;
 import io.quarkus.deployment.builditem.IndexDependencyBuildItem;
 import io.quarkus.deployment.builditem.RunTimeConfigBuilderBuildItem;
-import io.quarkus.deployment.builditem.nativeimage.ReflectiveClassBuildItem;
 import io.quarkus.deployment.builditem.nativeimage.ServiceProviderBuildItem;
 import io.quarkus.vertx.core.deployment.CoreVertxBuildItem;
 
 class LangfuseProcessor {
     private static final String FEATURE = "langfuse";
-    private static final String QUARKUS_4_HTTP_EXPORTER = "io.opentelemetry.exporter.otlp.internal.HttpExporter";
-    private static final String EXPORTER_FACTORY_QUARKUS_3 = "io.quarkiverse.langfuse.runtime.otel.LangfuseSpanExporterFactoryQuarkus3";
-    private static final String EXPORTER_FACTORY_QUARKUS_4 = "io.quarkiverse.langfuse.runtime.otel.LangfuseSpanExporterFactoryQuarkus4";
 
     @BuildStep
     FeatureBuildItem feature() {
@@ -99,28 +94,6 @@ class LangfuseProcessor {
     }
 
     @BuildStep
-    void registerOtelExporterFactory(
-            LangfuseBuildTimeConfig buildTimeConfig,
-            Optional<OpenTelemetrySdkBuildItem> openTelemetrySdkBuildItem,
-            BuildProducer<ReflectiveClassBuildItem> reflectiveClass) {
-
-        if (isOtelAvailableAndEnabled(buildTimeConfig, openTelemetrySdkBuildItem)) {
-            reflectiveClass.produce(ReflectiveClassBuildItem.builder(detectExporterFactoryClass()).constructors().build());
-        }
-    }
-
-    /**
-     * {@code HttpExporter} moved from {@code io.opentelemetry.exporter.internal.http} (Quarkus 3.x) to
-     * {@code io.opentelemetry.exporter.otlp.internal} (Quarkus 4.x), so the factory that references it has to match the
-     * OTel version on the application's classpath. Only the selected factory is ever loaded.
-     */
-    private static String detectExporterFactoryClass() {
-        return QuarkusClassLoader.isClassPresentAtRuntime(QUARKUS_4_HTTP_EXPORTER)
-                ? EXPORTER_FACTORY_QUARKUS_4
-                : EXPORTER_FACTORY_QUARKUS_3;
-    }
-
-    @BuildStep
     void exportOtelToLangfuseOnly(
             LangfuseBuildTimeConfig buildTimeConfig,
             Optional<OpenTelemetrySdkBuildItem> openTelemetrySdkBuildItem,
@@ -150,7 +123,6 @@ class LangfuseProcessor {
                             .setRuntimeInit()
                             .scope(Singleton.class)
                             .supplier(recorder.langfuseSpanProcessor(
-                                    detectExporterFactoryClass(),
                                     OpenTelemetrySdkBuildItem.isOtelSdkEnabled(openTelemetrySdkBuildItem),
                                     vertxBuildItem.getVertx()))
                             .unremovable()

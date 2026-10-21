@@ -3,8 +3,6 @@ open module com.langfuse.api {
     requires static jakarta.annotation;
     requires static jakarta.validation;
     requires static com.fasterxml.jackson.annotation;
-    requires static com.fasterxml.jackson.core;
-    requires static com.fasterxml.jackson.databind;
     requires static tools.jackson.core;
     requires static tools.jackson.databind;
     requires java.logging;

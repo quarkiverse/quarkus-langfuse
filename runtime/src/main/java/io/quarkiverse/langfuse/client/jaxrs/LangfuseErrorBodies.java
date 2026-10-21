@@ -6,11 +6,12 @@ import java.util.function.Predicate;
 
 import jakarta.ws.rs.core.MediaType;
 
-import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.langfuse.api.LangfuseErrorBody;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JsonNode;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 /**
  * Turns a raw error response body into a {@link LangfuseErrorBody}.
@@ -29,8 +30,7 @@ import com.langfuse.api.LangfuseErrorBody;
  */
 final class LangfuseErrorBodies {
 
-    private static final ObjectMapper MAPPER = new ObjectMapper()
-            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+    private static final ObjectMapper MAPPER = new JsonMapper();
 
     private LangfuseErrorBodies() {
     }
@@ -87,7 +87,7 @@ final class LangfuseErrorBodies {
         return Optional.ofNullable(root.get(name))
                 .filter(JsonNode::isValueNode)
                 .filter(Predicate.not(JsonNode::isNull))
-                .map(JsonNode::asText)
+                .map(JsonNode::asString)
                 .filter(Predicate.not(String::isBlank));
     }
 }

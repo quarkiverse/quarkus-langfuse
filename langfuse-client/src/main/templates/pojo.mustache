@@ -25,7 +25,6 @@ import {{invokerPackage}}.JSON;
 {{/jackson}}
 {{>additionalModelTypeAnnotations}}{{>generatedAnnotation}}{{#discriminator}}{{>typeInfoAnnotation}}{{/discriminator}}{{>xmlAnnotation}}
 {{#generateBuilders}}
-@com.fasterxml.jackson.databind.annotation.JsonDeserialize(builder = {{classname}}.Builder.class)
 @tools.jackson.databind.annotation.JsonDeserialize(builder = {{classname}}.Builder.class)
 {{/generateBuilders}}
 {{#vendorExtensions.x-class-extra-annotation}}
