@@ -81,11 +81,15 @@ jobs:
         shell: bash
         run: scripts/ci-reclaim-disk-space.sh
 
+      # JDK 21 is installed first so the matrix JDK stays the default. The extra JDK 21 is registered as a Maven
+      # toolchain, which is how the Quarkus 4 exporter module compiles on JDK 17 (Quarkus 4 classes need Java 21).
       - name: Set up JDK ${{ matrix.java }}
         uses: actions/setup-java@v6.0.1
         with:
           distribution: temurin
-          java-version: ${{ matrix.java }}
+          java-version: |
+            21
+            ${{ matrix.java }}
           cache: maven
 
       - name: Build with Maven
