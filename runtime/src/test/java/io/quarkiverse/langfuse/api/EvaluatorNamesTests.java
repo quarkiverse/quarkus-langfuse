@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.langfuse.api.model.CodeEvaluator1;
 import com.langfuse.api.model.CodeEvaluatorSourceCodeLanguage;
 import com.langfuse.api.model.CreateCodeEvaluatorRequest1;
@@ -13,6 +12,8 @@ import com.langfuse.api.model.CreateEvaluatorRequest;
 import com.langfuse.api.model.CreateLlmAsJudgeEvaluatorRequest1;
 import com.langfuse.api.model.Evaluator;
 import com.langfuse.api.model.LlmAsJudgeEvaluator1;
+
+import tools.jackson.databind.json.JsonMapper;
 
 class EvaluatorNamesTests {
 
@@ -88,7 +89,7 @@ class EvaluatorNamesTests {
                   "sourceCodeLanguage": "PYTHON"
                 }
                 """;
-        var mapper = new ObjectMapper();
+        var mapper = new JsonMapper();
         var evaluator = mapper.readValue(json, Evaluator.class);
 
         assertThat(EvaluatorNames.of(evaluator)).isEqualTo("evaluator-1");

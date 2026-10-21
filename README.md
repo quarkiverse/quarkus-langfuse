@@ -28,7 +28,7 @@ This version of the extension requires **Langfuse v4**. If you are upgrading fro
 
 ### Quarkus
 
-This version of the extension requires **Quarkus 3.40 LTS or later**. Applications still on Quarkus 3.33 LTS should stay on the 0.8.x releases of the extension (0.9.0 is the first release that requires Quarkus 3.40).
+This branch of the extension targets **Quarkus 4** and requires **Java 21 or later**. It uses Jackson 3 only, like Quarkus 4 itself. Applications on Quarkus 3.40 LTS should use the releases built from the `main` branch, and applications still on Quarkus 3.33 LTS should stay on the 0.8.x releases.
 
 ### OpenAPI spec validation
 

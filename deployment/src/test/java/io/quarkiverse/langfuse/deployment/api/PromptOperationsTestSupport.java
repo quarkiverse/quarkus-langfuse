@@ -49,6 +49,17 @@ abstract class PromptOperationsTestSupport extends PagedCollectionTestSupport {
     }
 
     /**
+     * Serves a chat prompt mixing a chat message with a placeholder. Langfuse sends the chat message
+     * without a {@code type}, so it also fits the placeholder schema and only its {@code role} tells
+     * the two apart.
+     */
+    void stubChatPromptFound(String promptName) {
+        wiremock().register(
+                get(urlPathEqualTo(PROMPTS_PATH + "/" + promptName))
+                        .willReturn(okJson(chatPromptJson(promptName))));
+    }
+
+    /**
      * Makes the single-prompt lookup endpoint fail with the given status, so tests can prove that only
      * a 404 is read as absence on the direct-lookup path.
      */
@@ -108,6 +119,23 @@ abstract class PromptOperationsTestSupport extends PagedCollectionTestSupport {
                   "type": "text",
                   "version": 1,
                   "prompt": "hello",
+                  "labels": ["production"],
+                  "tags": []
+                }
+                """.formatted(promptName);
+    }
+
+    private static String chatPromptJson(String promptName) {
+        return """
+                {
+                  "name": "%1$s",
+                  "type": "chat",
+                  "version": 1,
+                  "prompt": [
+                    { "role": "system", "content": "You are a helpful assistant." },
+                    { "type": "placeholder", "name": "history" }
+                  ],
+                  "config": {},
                   "labels": ["production"],
                   "tags": []
                 }

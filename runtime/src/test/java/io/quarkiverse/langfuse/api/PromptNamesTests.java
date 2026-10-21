@@ -7,7 +7,6 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.langfuse.api.model.ChatPrompt1;
 import com.langfuse.api.model.CreateChatPromptRequest;
 import com.langfuse.api.model.CreateChatPromptType;
@@ -16,6 +15,8 @@ import com.langfuse.api.model.CreateTextPromptRequest;
 import com.langfuse.api.model.CreateTextPromptType;
 import com.langfuse.api.model.Prompt;
 import com.langfuse.api.model.TextPrompt1;
+
+import tools.jackson.databind.json.JsonMapper;
 
 class PromptNamesTests {
 
@@ -94,7 +95,7 @@ class PromptNamesTests {
                   "tags": []
                 }
                 """;
-        var prompt = new ObjectMapper().readValue(json, Prompt.class);
+        var prompt = new JsonMapper().readValue(json, Prompt.class);
 
         assertThat(PromptNames.of(prompt)).isEqualTo("prompt-1");
     }

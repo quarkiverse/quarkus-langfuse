@@ -4,11 +4,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.langfuse.api.model.CodeEvaluator1;
 import com.langfuse.api.model.CodeEvaluatorSourceCodeLanguage;
 import com.langfuse.api.model.Evaluator;
 import com.langfuse.api.model.LlmAsJudgeEvaluator1;
+
+import tools.jackson.databind.json.JsonMapper;
 
 class EvaluatorIdsTests {
 
@@ -67,7 +68,7 @@ class EvaluatorIdsTests {
                   "sourceCodeLanguage": "PYTHON"
                 }
                 """;
-        var mapper = new ObjectMapper();
+        var mapper = new JsonMapper();
         var evaluator = mapper.readValue(json, Evaluator.class);
 
         assertThat(EvaluatorIds.of(evaluator)).isEqualTo("evaluator-1");
