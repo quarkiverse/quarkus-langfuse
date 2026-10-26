@@ -18,7 +18,7 @@ public interface LangfuseConfig {
      * only together with that specification, so the default images always serve the API the client was
      * generated from.
      */
-    String SERVER_VERSION = "4.65.0";
+    String SERVER_VERSION = "4.70.1";
 
     /**
      * Container image repository of the Langfuse web server, without a tag.

@@ -101,7 +101,7 @@ Environment variable: `+++QUARKUS_LANGFUSE_DEVSERVICES_LANGFUSE_IMAGE_VERSION+++
 endif::add-copy-button-to-env-var[]
 --
 |string
-|`+++4.65.0+++`
+|`+++4.70.1+++`
 
 a|icon:lock[title=Fixed at build time] [[quarkus-langfuse_quarkus-langfuse-devservices-langfuse-image-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-devservices-langfuse-image-name[`+++quarkus.langfuse.devservices.langfuse.image-name+++`]##
 ifdef::add-copy-button-to-config-props[]
