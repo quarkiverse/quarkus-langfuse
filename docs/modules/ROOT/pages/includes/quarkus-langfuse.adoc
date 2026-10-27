@@ -1272,6 +1272,138 @@ endif::add-copy-button-to-env-var[]
 a|`all`, `ai-only`
 |`+++ai-only+++`
 
+a| [[quarkus-langfuse_quarkus-langfuse-otel-tls-configuration-name]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-tls-configuration-name[`+++quarkus.langfuse.otel.tls-configuration-name+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.otel.tls-configuration-name+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The name of the TLS configuration from the Quarkus TLS registry (`quarkus.tls.<name>.++*++`) used by the dedicated Langfuse OpenTelemetry exporter when `quarkus.langfuse.otel.export-target=ALL` and the Langfuse base URL uses `https`.
+
+Defaults to the TLS configuration name of the Quarkus OpenTelemetry traces exporter (`quarkus.otel.exporter.otlp.traces.tls-configuration-name`). If neither is set, the default TLS configuration is used. For an `https` base URL, startup fails if the named configuration does not exist. For an `http` base URL this setting is ignored and no TLS configuration is looked up.
+
+This setting is ignored when `quarkus.langfuse.otel.export-target=LANGFUSE_ONLY`. In that mode the standard Quarkus OpenTelemetry exporter, and therefore its `quarkus.otel.exporter.otlp.++*++` TLS settings, is used.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_OTEL_TLS_CONFIGURATION_NAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_OTEL_TLS_CONFIGURATION_NAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|`+++${quarkus.otel.exporter.otlp.traces.tls-configuration-name:}+++`
+
+a| [[quarkus-langfuse_quarkus-langfuse-otel-proxy-options-enabled]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-proxy-options-enabled[`+++quarkus.langfuse.otel.proxy-options.enabled+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.otel.proxy-options.enabled+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+Whether the dedicated Langfuse OpenTelemetry exporter connects through a proxy.
+
+If enabled and `quarkus.langfuse.otel.proxy-options.host` is not set, the proxy is read from the JDK system properties `https.proxyHost`, `https.proxyPort`, `https.proxyUser` and `https.proxyPassword`, or from their `http.++*++` counterparts for an `http` Langfuse URL. If those are not set either, no proxy is used.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_OTEL_PROXY_OPTIONS_ENABLED+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_OTEL_PROXY_OPTIONS_ENABLED+++`
+endif::add-copy-button-to-env-var[]
+--
+|boolean
+|`+++false+++`
+
+a| [[quarkus-langfuse_quarkus-langfuse-otel-proxy-options-host]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-proxy-options-host[`+++quarkus.langfuse.otel.proxy-options.host+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.otel.proxy-options.host+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The proxy host.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_OTEL_PROXY_OPTIONS_HOST+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_OTEL_PROXY_OPTIONS_HOST+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
+a| [[quarkus-langfuse_quarkus-langfuse-otel-proxy-options-port]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-proxy-options-port[`+++quarkus.langfuse.otel.proxy-options.port+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.otel.proxy-options.port+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The proxy port. If not set, the Vert.x default proxy port (`3128`) is used.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_OTEL_PROXY_OPTIONS_PORT+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_OTEL_PROXY_OPTIONS_PORT+++`
+endif::add-copy-button-to-env-var[]
+--
+|int
+|
+
+a| [[quarkus-langfuse_quarkus-langfuse-otel-proxy-options-username]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-proxy-options-username[`+++quarkus.langfuse.otel.proxy-options.username+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.otel.proxy-options.username+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The proxy username.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_OTEL_PROXY_OPTIONS_USERNAME+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_OTEL_PROXY_OPTIONS_USERNAME+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
+a| [[quarkus-langfuse_quarkus-langfuse-otel-proxy-options-password]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-otel-proxy-options-password[`+++quarkus.langfuse.otel.proxy-options.password+++`]##
+ifdef::add-copy-button-to-config-props[]
+config_property_copy_button:+++quarkus.langfuse.otel.proxy-options.password+++[]
+endif::add-copy-button-to-config-props[]
+
+
+[.description]
+--
+The proxy password.
+
+
+ifdef::add-copy-button-to-env-var[]
+Environment variable: env_var_with_copy_button:+++QUARKUS_LANGFUSE_OTEL_PROXY_OPTIONS_PASSWORD+++[]
+endif::add-copy-button-to-env-var[]
+ifndef::add-copy-button-to-env-var[]
+Environment variable: `+++QUARKUS_LANGFUSE_OTEL_PROXY_OPTIONS_PASSWORD+++`
+endif::add-copy-button-to-env-var[]
+--
+|string
+|
+
 a| [[quarkus-langfuse_quarkus-langfuse-api-default-page-size]] [.property-path]##link:#quarkus-langfuse_quarkus-langfuse-api-default-page-size[`+++quarkus.langfuse.api.default-page-size+++`]##
 ifdef::add-copy-button-to-config-props[]
 config_property_copy_button:+++quarkus.langfuse.api.default-page-size+++[]

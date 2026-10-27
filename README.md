@@ -83,6 +83,12 @@ quarkus.langfuse.secret-key=sk-lf-...
 | `quarkus.langfuse.otel.export-target` | `String` | `ALL` | Export target (build time): `ALL` (Langfuse + other OTLP backends) or `LANGFUSE_ONLY` |
 | `quarkus.langfuse.otel.trace-ingestion-url` | `String` | `<base-url>/api/public/otel/v1/traces` | Override the OTLP trace ingestion endpoint (applies when `export-target=ALL`) |
 | `quarkus.langfuse.otel.span-filter` | `String` | `AI_ONLY` | Span filter: `AI_ONLY` (AI spans + ancestors) or `ALL` (applies when `export-target=ALL`) |
+| `quarkus.langfuse.otel.tls-configuration-name` | `String` | `${quarkus.otel.exporter.otlp.traces.tls-configuration-name:}` | Named TLS configuration (`quarkus.tls.<name>.*`) for HTTPS export (applies when `export-target=ALL`) |
+| `quarkus.langfuse.otel.proxy-options.enabled` | `boolean` | `false` | Enable/disable proxy for OTel export (applies when `export-target=ALL`) |
+| `quarkus.langfuse.otel.proxy-options.host` | `String` | _none_ | Proxy host (falls back to `https.proxyHost`/`http.proxyHost` JDK system properties) |
+| `quarkus.langfuse.otel.proxy-options.port` | `int` | `3128` | Proxy port (falls back to `https.proxyPort`/`http.proxyPort` JDK system properties) |
+| `quarkus.langfuse.otel.proxy-options.username` | `String` | _none_ | Proxy username (falls back to `https.proxyUser`/`http.proxyUser` JDK system properties) |
+| `quarkus.langfuse.otel.proxy-options.password` | `String` | _none_ | Proxy password (falls back to `https.proxyPassword`/`http.proxyPassword` JDK system properties) |
 
 ## Usage
 
@@ -168,6 +174,39 @@ The `quarkus.langfuse.otel.export-target` property (build time) controls how spa
 ```properties
 quarkus.langfuse.otel.export-target=LANGFUSE_ONLY
 ```
+
+### HTTPS / TLS
+
+When `quarkus.langfuse.base-url` (or `trace-ingestion-url`) uses `https://` and `export-target=ALL` (the default), the dedicated Langfuse OTel exporter automatically connects over TLS with ALPN enabled.
+
+By default, the exporter uses the Quarkus TLS registry and honours the TLS configuration specified in `quarkus.langfuse.otel.tls-configuration-name`. This setting defaults to `${quarkus.otel.exporter.otlp.traces.tls-configuration-name:}` (the OTel traces exporter's TLS configuration), falling back to the default `quarkus.tls.*` configuration if neither is explicitly set.
+
+For example, to configure a custom CA certificate or mTLS for the Langfuse exporter:
+
+```properties
+quarkus.langfuse.base-url=https://langfuse.internal.corp
+quarkus.langfuse.otel.tls-configuration-name=langfuse-tls
+
+quarkus.tls.langfuse-tls.trust-store.pem.certs=/path/to/langfuse-ca.crt
+```
+
+> **Note:** When using `export-target=LANGFUSE_ONLY`, the standard Quarkus OpenTelemetry exporter is used instead, and TLS is configured using the standard `quarkus.otel.exporter.otlp.*` TLS configuration properties.
+
+### Proxy Support
+
+When `export-target=ALL`, the dedicated Langfuse exporter can connect through an HTTP/HTTPS proxy via `quarkus.langfuse.otel.proxy-options.*`:
+
+```properties
+quarkus.langfuse.otel.proxy-options.enabled=true
+quarkus.langfuse.otel.proxy-options.host=proxy.internal.corp
+quarkus.langfuse.otel.proxy-options.port=8080
+```
+
+If `proxy-options.enabled=true` and `host` is omitted, the exporter automatically falls back to the standard JDK system properties (`https.proxyHost`/`https.proxyPort` for HTTPS, or `http.proxyHost`/`http.proxyPort` for HTTP).
+
+### Export Failure Logging
+
+When span exports to Langfuse fail (for instance due to TLS handshake errors, network issues, or HTTP error responses), the dedicated exporter logs a concise warning at `WARN` level indicating the target URL and root cause (or HTTP status). The full exception stack trace is logged at `DEBUG` level to keep logs readable during outages.
 
 ### AI Span Filtering
 

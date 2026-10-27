@@ -25,6 +25,13 @@
 			<artifactId>quarkus-opentelemetry</artifactId>
 			<optional>true</optional>
 		</dependency>
+		<!-- Used by the Langfuse OTel exporter (LangfuseHttpClientOptionsCustomizer) for https.
+				 Always present when quarkus-opentelemetry is, declared explicitly because it is referenced directly -->
+		<dependency>
+			<groupId>io.quarkus</groupId>
+			<artifactId>quarkus-tls-registry</artifactId>
+			<optional>true</optional>
+		</dependency>
 		<dependency>
 			<groupId>io.quarkiverse.langfuse</groupId>
 			<artifactId>quarkus-langfuse-compat-spi</artifactId>

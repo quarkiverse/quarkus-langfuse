@@ -7,7 +7,7 @@ import io.opentelemetry.sdk.trace.data.SpanData;
 import io.opentelemetry.sdk.trace.export.SpanExporter;
 
 sealed abstract class DelegatingSpanExporter implements SpanExporter
-        permits FilteringAISpanExporter, LangfuseAttributeEnrichingSpanExporter {
+        permits FailureLoggingSpanExporter, FilteringAISpanExporter, LangfuseAttributeEnrichingSpanExporter {
     private final SpanExporter delegate;
 
     protected DelegatingSpanExporter(SpanExporter delegate) {

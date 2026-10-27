@@ -7,6 +7,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Optional;
+import java.util.OptionalInt;
 import java.util.concurrent.TimeUnit;
 
 import jakarta.inject.Inject;
@@ -20,6 +22,7 @@ import org.junit.jupiter.api.extension.RegisterExtension;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.semconv.incubating.GenAiIncubatingAttributes;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
+import io.quarkiverse.langfuse.config.LangfuseOtelConfig.ProxyOptionsConfig;
 import io.quarkiverse.langfuse.deployment.WiremockAware;
 import io.quarkiverse.langfuse.runtime.otel.LangfuseSpanProcessor;
 import io.quarkus.test.QuarkusExtensionTest;
@@ -71,9 +74,28 @@ class LangfuseSpanExportTests extends WiremockAware {
     @Inject
     LangfuseSpanProcessor langfuseSpanProcessor;
 
+    @Inject
+    LangfuseConfig langfuseConfig;
+
     @BeforeEach
     void resetWiremockRequests() {
         resetRequests();
+    }
+
+    @Test
+    void tlsConfigurationNameIsUnsetByDefault() {
+        assertThat(this.langfuseConfig.otel().tlsConfigurationName())
+                .isEmpty();
+    }
+
+    @Test
+    void proxyIsDisabledByDefault() {
+        assertThat(this.langfuseConfig.otel().proxyOptions())
+                .returns(false, ProxyOptionsConfig::enabled)
+                .returns(Optional.empty(), ProxyOptionsConfig::host)
+                .returns(OptionalInt.empty(), ProxyOptionsConfig::port)
+                .returns(Optional.empty(), ProxyOptionsConfig::username)
+                .returns(Optional.empty(), ProxyOptionsConfig::password);
     }
 
     @Test

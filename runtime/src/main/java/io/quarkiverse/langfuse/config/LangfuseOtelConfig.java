@@ -1,5 +1,8 @@
 package io.quarkiverse.langfuse.config;
 
+import java.util.Optional;
+import java.util.OptionalInt;
+
 import io.quarkus.runtime.annotations.ConfigGroup;
 import io.smallrye.config.WithDefault;
 
@@ -39,6 +42,77 @@ public interface LangfuseOtelConfig {
      */
     @WithDefault("AI_ONLY")
     SpanFilterType spanFilter();
+
+    /**
+     * The name of the TLS configuration from the Quarkus TLS registry ({@code quarkus.tls.<name>.*}) used by the
+     * dedicated Langfuse OpenTelemetry exporter when {@code quarkus.langfuse.otel.export-target=ALL} and the Langfuse
+     * base URL uses {@code https}.
+     * <p>
+     * Defaults to the TLS configuration name of the Quarkus OpenTelemetry traces exporter
+     * ({@code quarkus.otel.exporter.otlp.traces.tls-configuration-name}). If neither is set, the default TLS
+     * configuration is used. For an {@code https} base URL, startup fails if the named configuration does not exist.
+     * For an {@code http} base URL this setting is ignored and no TLS configuration is looked up.
+     * </p>
+     * <p>
+     * This setting is ignored when {@code quarkus.langfuse.otel.export-target=LANGFUSE_ONLY}. In that mode the standard
+     * Quarkus OpenTelemetry exporter, and therefore its {@code quarkus.otel.exporter.otlp.*} TLS settings, is used.
+     * </p>
+     */
+    @WithDefault("${quarkus.otel.exporter.otlp.traces.tls-configuration-name:}")
+    Optional<String> tlsConfigurationName();
+
+    /**
+     * Proxy settings of the dedicated Langfuse OpenTelemetry exporter used when
+     * {@code quarkus.langfuse.otel.export-target=ALL}.
+     * <p>
+     * These mirror the {@code quarkus.otel.exporter.otlp.traces.proxy-options.*} settings of the Quarkus OpenTelemetry
+     * exporter. The Quarkus proxy registry ({@code quarkus.proxy.*}) is not used.
+     * </p>
+     * <p>
+     * These settings are ignored when {@code quarkus.langfuse.otel.export-target=LANGFUSE_ONLY}. In that mode the
+     * standard Quarkus OpenTelemetry exporter, and therefore its {@code quarkus.otel.exporter.otlp.*} proxy settings,
+     * is used.
+     * </p>
+     */
+    ProxyOptionsConfig proxyOptions();
+
+    /**
+     * Proxy settings of the dedicated Langfuse OpenTelemetry exporter.
+     */
+    @ConfigGroup
+    interface ProxyOptionsConfig {
+        /**
+         * Whether the dedicated Langfuse OpenTelemetry exporter connects through a proxy.
+         * <p>
+         * If enabled and {@code quarkus.langfuse.otel.proxy-options.host} is not set, the proxy is read from the JDK
+         * system properties {@code https.proxyHost}, {@code https.proxyPort}, {@code https.proxyUser} and
+         * {@code https.proxyPassword}, or from their {@code http.*} counterparts for an {@code http} Langfuse URL.
+         * If those are not set either, no proxy is used.
+         * </p>
+         */
+        @WithDefault("false")
+        boolean enabled();
+
+        /**
+         * The proxy host.
+         */
+        Optional<String> host();
+
+        /**
+         * The proxy port. If not set, the Vert.x default proxy port ({@code 3128}) is used.
+         */
+        OptionalInt port();
+
+        /**
+         * The proxy username.
+         */
+        Optional<String> username();
+
+        /**
+         * The proxy password.
+         */
+        Optional<String> password();
+    }
 
     /**
      * Enum representing the types of span filters available for OpenTelemetry integration

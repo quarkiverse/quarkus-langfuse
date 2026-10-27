@@ -21,6 +21,7 @@ import io.opentelemetry.sdk.trace.export.SpanExporter;
 import io.opentelemetry.semconv.incubating.GenAiIncubatingAttributes;
 import io.quarkiverse.langfuse.config.LangfuseConfig;
 import io.quarkiverse.langfuse.config.LangfuseOtelConfig.SpanFilterType;
+import io.quarkus.tls.TlsConfigurationRegistry;
 import io.vertx.core.Vertx;
 
 /**
@@ -45,10 +46,11 @@ public class LangfuseSpanProcessor implements SpanProcessor {
 
     private final SpanProcessor delegate;
 
-    public LangfuseSpanProcessor(LangfuseConfig langfuseConfig, Vertx vertx, LangfuseSpanExporterFactory exporterFactory) {
+    public LangfuseSpanProcessor(LangfuseConfig langfuseConfig, Vertx vertx,
+            TlsConfigurationRegistry tlsConfigurationRegistry, LangfuseSpanExporterFactory exporterFactory) {
         super();
         this.delegate = BatchSpanProcessor
-                .builder(createActualExporter(langfuseConfig, vertx, exporterFactory))
+                .builder(createActualExporter(langfuseConfig, vertx, tlsConfigurationRegistry, exporterFactory))
                 .build();
     }
 
@@ -57,8 +59,9 @@ public class LangfuseSpanProcessor implements SpanProcessor {
     }
 
     public static LangfuseSpanProcessor create(LangfuseConfig langfuseConfig, Vertx vertx,
-            String exporterFactoryClassName) {
-        return new LangfuseSpanProcessor(langfuseConfig, vertx, loadExporterFactory(exporterFactoryClassName));
+            TlsConfigurationRegistry tlsConfigurationRegistry, String exporterFactoryClassName) {
+        return new LangfuseSpanProcessor(langfuseConfig, vertx, tlsConfigurationRegistry,
+                loadExporterFactory(exporterFactoryClassName));
     }
 
     public static LangfuseSpanProcessor noop() {
@@ -84,7 +87,7 @@ public class LangfuseSpanProcessor implements SpanProcessor {
     }
 
     private static SpanExporter createActualExporter(LangfuseConfig langfuseConfig, Vertx vertx,
-            LangfuseSpanExporterFactory exporterFactory) {
+            TlsConfigurationRegistry tlsConfigurationRegistry, LangfuseSpanExporterFactory exporterFactory) {
         LOG.debug("Initializing Langfuse OTLP Span Processor");
 
         var credentials = "%s:%s".formatted(langfuseConfig.publicKey(), langfuseConfig.secretKey());
@@ -107,9 +110,11 @@ public class LangfuseSpanProcessor implements SpanProcessor {
                 Map.of("Authorization", authHeader, INGESTION_VERSION_HEADER, INGESTION_VERSION),
                 PROTOBUF_CONTENT_TYPE,
                 memoryMode,
+                new LangfuseHttpClientOptionsCustomizer(baseUri, langfuseConfig.otel(), tlsConfigurationRegistry),
                 vertx);
 
-        var exporter = exporterFactory.createExporter(exporterConfig);
+        var targetUrl = URI.create("%s%s".formatted(langfuseConfig.baseUrl().replaceAll("/+$", ""), signalPath));
+        var exporter = new FailureLoggingSpanExporter(exporterFactory.createExporter(exporterConfig), targetUrl);
         var filteredExporter = switch (langfuseConfig.otel().spanFilter()) {
             case ALL -> exporter;
             case AI_ONLY -> new FilteringAISpanExporter(exporter);

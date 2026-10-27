@@ -166,10 +166,11 @@ class LangfuseProcessor {
                             .addType(DotNames.SPAN_PROCESSOR)
                             .setRuntimeInit()
                             .scope(Singleton.class)
-                            .supplier(recorder.langfuseSpanProcessor(
+                            .createWith(recorder.langfuseSpanProcessor(
                                     detectExporterFactoryClass(),
                                     OpenTelemetrySdkBuildItem.isOtelSdkEnabled(openTelemetrySdkBuildItem),
                                     vertxBuildItem.getVertx()))
+                            .addInjectionPoint(ClassType.create(DotNames.TLS_CONFIGURATION_REGISTRY))
                             .unremovable()
                             .done());
         }

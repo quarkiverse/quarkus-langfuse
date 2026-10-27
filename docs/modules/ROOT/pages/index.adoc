@@ -251,6 +251,44 @@ The `quarkus.langfuse.otel.export-target` property (build time) controls how spa
 quarkus.langfuse.otel.export-target=LANGFUSE_ONLY
 ----
 
+[[https-tls]]
+=== HTTPS / TLS
+
+When `quarkus.langfuse.base-url` (or `trace-ingestion-url`) uses `https://` and `export-target=ALL` (the default), the dedicated Langfuse OTel exporter automatically connects over TLS with ALPN enabled.
+
+By default, the exporter uses the Quarkus TLS registry and honours the TLS configuration specified in `quarkus.langfuse.otel.tls-configuration-name`. This setting defaults to `${quarkus.otel.exporter.otlp.traces.tls-configuration-name:}` (the OTel traces exporter's TLS configuration), falling back to the default `quarkus.tls.*` configuration if neither is explicitly set.
+
+For example, to configure a custom CA certificate or mTLS for the Langfuse exporter:
+
+[source,properties]
+----
+quarkus.langfuse.base-url=https://langfuse.internal.corp
+quarkus.langfuse.otel.tls-configuration-name=langfuse-tls
+
+quarkus.tls.langfuse-tls.trust-store.pem.certs=/path/to/langfuse-ca.crt
+----
+
+NOTE: When using `export-target=LANGFUSE_ONLY`, the standard Quarkus OpenTelemetry exporter is used instead, and TLS is configured using the standard `quarkus.otel.exporter.otlp.*` TLS configuration properties.
+
+[[proxy-support]]
+=== Proxy Support
+
+When `export-target=ALL`, the dedicated Langfuse exporter can connect through an HTTP/HTTPS proxy via `quarkus.langfuse.otel.proxy-options.*`:
+
+[source,properties]
+----
+quarkus.langfuse.otel.proxy-options.enabled=true
+quarkus.langfuse.otel.proxy-options.host=proxy.internal.corp
+quarkus.langfuse.otel.proxy-options.port=8080
+----
+
+If `proxy-options.enabled=true` and `host` is omitted, the exporter automatically falls back to the standard JDK system properties (`https.proxyHost`/`https.proxyPort` for HTTPS, or `http.proxyHost`/`http.proxyPort` for HTTP).
+
+[[export-failure-logging]]
+=== Export Failure Logging
+
+When span exports to Langfuse fail (for instance due to TLS handshake errors, network issues, or HTTP error responses), the dedicated exporter logs a concise warning at `WARN` level indicating the target URL and root cause (or HTTP status). The full exception stack trace is logged at `DEBUG` level to keep logs readable during outages.
+
 [[ai-span-filtering]]
 === AI Span Filtering
 
@@ -419,6 +457,8 @@ quarkus.langfuse.pretty-print=true
 ----
 
 This logs all HTTP requests and responses exchanged with the Langfuse server. Authorization headers are automatically masked in the logs for security.
+
+For OpenTelemetry span exports (`export-target=ALL`), failed batch exports are automatically logged at `WARN` level with the target URL and root cause/HTTP status, while full exception stack traces are logged at `DEBUG` level.
 
 [[extension-configuration-reference]]
 == Extension Configuration Reference

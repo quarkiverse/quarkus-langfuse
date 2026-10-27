@@ -23,8 +23,7 @@ public class LangfuseSpanExporterFactoryQuarkus3 implements LangfuseSpanExporter
                 config.timeout(),
                 config.headers(),
                 config.contentType(),
-                options -> {
-                },
+                config.clientOptionsCustomizer(),
                 config.vertx());
 
         var httpExporter = new HttpExporter(
