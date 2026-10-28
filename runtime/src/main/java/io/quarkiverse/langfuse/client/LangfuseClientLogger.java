@@ -16,6 +16,9 @@ import io.vertx.core.MultiMap;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.json.DecodeException;
+import io.vertx.core.json.EncodeException;
+import io.vertx.core.json.Json;
 
 public final class LangfuseClientLogger implements ClientLogger {
     private static final Logger LOG = Logger.getLogger(LangfuseClientLogger.class);
@@ -74,11 +77,19 @@ public final class LangfuseClientLogger implements ClientLogger {
     private String bodyToString(Buffer body) {
         if (body == null) {
             return "";
-        } else if (this.bodySize <= 0) {
+        } else if ((this.bodySize <= 0) || !this.prettyPrint) {
             return body.toString();
         }
 
-        return this.prettyPrint ? body.toJsonObject().encodePrettily() : body.toString();
+        return prettyPrint(body);
+    }
+
+    private static String prettyPrint(Buffer body) {
+        try {
+            return Json.encodePrettily(body.toJsonValue());
+        } catch (DecodeException | EncodeException e) {
+            return body.toString();
+        }
     }
 
     private String inOneLine(MultiMap headers) {
