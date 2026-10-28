@@ -82,7 +82,7 @@ quarkus.langfuse.secret-key=sk-lf-...
 | `quarkus.langfuse.otel.enabled` | `boolean` | `true` | Enable/disable OpenTelemetry integration (build time, defaults to `quarkus.otel.enabled`) |
 | `quarkus.langfuse.otel.export-target` | `String` | `ALL` | Export target (build time): `ALL` (Langfuse + other OTLP backends) or `LANGFUSE_ONLY` |
 | `quarkus.langfuse.otel.trace-ingestion-url` | `String` | `<base-url>/api/public/otel/v1/traces` | Override the OTLP trace ingestion endpoint (applies when `export-target=ALL`) |
-| `quarkus.langfuse.otel.span-filter` | `String` | `AI_ONLY` | Span filter: `AI_ONLY` (AI spans + ancestors) or `ALL` (applies when `export-target=ALL`) |
+| `quarkus.langfuse.otel.span-filter` | `String` | `AI_ONLY` | Span filter: `AI_ONLY` (AI spans + ancestors; a span is an AI span if it has `gen_ai.*` or `langfuse.observation.*` attributes) or `ALL` (applies when `export-target=ALL`) |
 | `quarkus.langfuse.otel.tls-configuration-name` | `String` | `${quarkus.otel.exporter.otlp.traces.tls-configuration-name:}` | Named TLS configuration (`quarkus.tls.<name>.*`) for HTTPS export (applies when `export-target=ALL`) |
 | `quarkus.langfuse.otel.proxy-options.enabled` | `boolean` | `false` | Enable/disable proxy for OTel export (applies when `export-target=ALL`) |
 | `quarkus.langfuse.otel.proxy-options.host` | `String` | _none_ | Proxy host (falls back to `https.proxyHost`/`http.proxyHost` JDK system properties) |
@@ -213,6 +213,8 @@ When span exports to Langfuse fail (for instance due to TLS handshake errors, ne
 When `export-target=ALL` (the default), only AI-related spans -- those carrying `gen_ai.*` [OpenTelemetry Semantic Convention](https://opentelemetry.io/docs/specs/semconv/gen-ai/) attributes -- and their ancestor spans are exported to Langfuse. This avoids cluttering your Langfuse dashboard with HTTP, database, or other infrastructure spans.
 
 The `gen_ai.prompt` and `gen_ai.completion` attributes are automatically mapped to the Langfuse trace input and output, giving you immediate visibility into what was sent to and received from the LLM.
+
+A span that sets a `langfuse.observation.*` attribute (for example `langfuse.observation.type=chain`) is also treated as an AI span, so you can have it typed in Langfuse without adding a made-up `gen_ai.*` attribute.
 
 To export all spans instead, set:
 

@@ -120,7 +120,8 @@ public interface LangfuseOtelConfig {
      *
      * <ul>
      * <li>ALL - All spans are included without any filtering.</li>
-     * <li>AI_ONLY - Only spans related to AI-specific operations are included.</li>
+     * <li>AI_ONLY - Only spans related to AI-specific operations (spans with {@code gen_ai.*} or
+     * {@code langfuse.observation.*} attributes), plus their ancestors, are included.</li>
      * </ul>
      */
     enum SpanFilterType {

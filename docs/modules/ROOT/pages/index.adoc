@@ -292,7 +292,7 @@ When span exports to Langfuse fail (for instance due to TLS handshake errors, ne
 [[ai-span-filtering]]
 === AI Span Filtering
 
-When `export-target=ALL` (the default), only AI-related spans and their ancestor spans are exported to Langfuse. A span is considered AI-related if it carries any `gen_ai.*` https://opentelemetry.io/docs/specs/semconv/gen-ai/[OpenTelemetry Semantic Convention] attributes (such as `gen_ai.system`, `gen_ai.request.model`, `gen_ai.response.finish_reasons`, etc.). Ancestor spans -- the parent chain leading up to an AI span -- are included to preserve trace structure.
+When `export-target=ALL` (the default), only AI-related spans and their ancestor spans are exported to Langfuse. A span is considered AI-related if it carries any `gen_ai.*` https://opentelemetry.io/docs/specs/semconv/gen-ai/[OpenTelemetry Semantic Convention] attributes (such as `gen_ai.system`, `gen_ai.request.model`, `gen_ai.response.finish_reasons`, etc.). A span is also considered AI-related if it carries any `langfuse.observation.*` attribute (such as `langfuse.observation.type=chain`), which lets instrumentation request a Langfuse observation type without adding a made-up `gen_ai.*` attribute. Ancestor spans -- the parent chain leading up to an AI span -- are included to preserve trace structure.
 
 This filtering prevents infrastructure noise (HTTP server spans, database queries, framework internals) from cluttering your Langfuse dashboard while still giving you full context around AI operations.
 

@@ -25,6 +25,9 @@ import io.quarkus.logging.Log;
  * associated with generative AI processing.
  *
  * This exporter processes spans to identify generative AI-related spans and their ancestors.
+ * A span is considered AI-related if it carries a {@code gen_ai.*} attribute (other than
+ * {@code gen_ai.conversation.id}) or any {@code langfuse.observation.*} attribute
+ * (such as {@code langfuse.observation.type}).
  * It delegates the export task to another SpanExporter after performing this filtering.
  *
  * The functionality includes:
@@ -35,6 +38,8 @@ import io.quarkus.logging.Log;
  */
 final class FilteringAISpanExporter extends DelegatingSpanExporter {
     private static final Logger LOG = Logger.getLogger(FilteringAISpanExporter.class);
+    private static final String GEN_AI_PREFIX = "gen_ai.";
+    private static final String LANGFUSE_OBSERVATION_PREFIX = "langfuse.observation.";
 
     FilteringAISpanExporter(SpanExporter delegate) {
         super(delegate);
@@ -61,7 +66,7 @@ final class FilteringAISpanExporter extends DelegatingSpanExporter {
         var result = new HashMap<String, SpanData>();
 
         spansById.values().stream()
-                .filter(FilteringAISpanExporter::isGenAiSpan)
+                .filter(FilteringAISpanExporter::isAiSpan)
                 .flatMap(span -> Stream.iterate(span, Objects::nonNull, current -> spansById.get(current.getParentSpanId()))
                         .takeWhile(current -> seen.add(current.getSpanId())))
                 .forEach(span -> result.put(span.getSpanId(), span));
@@ -69,17 +74,38 @@ final class FilteringAISpanExporter extends DelegatingSpanExporter {
         return result;
     }
 
+    private static boolean isAiSpan(SpanData span) {
+        var isAiSpan = isGenAiSpan(span) || isLangfuseObservationSpan(span);
+
+        Log.debugf("Span %s: isAiSpan = %s", span.getName(), isAiSpan);
+
+        return isAiSpan;
+    }
+
     private static boolean isGenAiSpan(SpanData span) {
-        var isGenAiSpen = spanAttributeKeysMatchCriteria(
+        var isGenAiSpan = spanAttributeKeysMatchCriteria(
                 span,
                 key -> !GenAiIncubatingAttributes.GEN_AI_CONVERSATION_ID.getKey().equalsIgnoreCase(key.getKey())
-                        && key.getKey().startsWith("gen_ai."));
+                        && key.getKey().startsWith(GEN_AI_PREFIX));
 
         Log.debugf(
-                "Span %s: isGenAiSpen = %s (span does NOT have the '%s' attribute AND does NOT have any attribute starting with 'gen_ai.')",
-                span.getName(), isGenAiSpen, GenAiIncubatingAttributes.GEN_AI_CONVERSATION_ID.getKey());
+                "Span %s: isGenAiSpan = %s (span has an attribute starting with '%s' other than '%s')",
+                span.getName(), isGenAiSpan, GEN_AI_PREFIX, GenAiIncubatingAttributes.GEN_AI_CONVERSATION_ID.getKey());
 
-        return isGenAiSpen;
+        return isGenAiSpan;
+    }
+
+    // Only the langfuse.observation.* attributes are an explicit request for Langfuse typing.
+    // Other langfuse.* attributes (e.g. langfuse.environment) are added to every span upstream of this filter.
+    private static boolean isLangfuseObservationSpan(SpanData span) {
+        var isLangfuseObservationSpan = spanAttributeKeysMatchCriteria(
+                span,
+                key -> key.getKey().startsWith(LANGFUSE_OBSERVATION_PREFIX));
+
+        Log.debugf("Span %s: isLangfuseObservationSpan = %s (span has an attribute starting with '%s')",
+                span.getName(), isLangfuseObservationSpan, LANGFUSE_OBSERVATION_PREFIX);
+
+        return isLangfuseObservationSpan;
     }
 
     private static boolean spanAttributeKeysMatchCriteria(SpanData span, Predicate<AttributeKey> predicate) {
