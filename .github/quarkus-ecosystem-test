@@ -5,8 +5,10 @@ set -e
 mvn --settings .github/quarkus-ecosystem-maven-settings.xml -B versions:set-property -Dproperty=quarkus.version -DnewVersion=${QUARKUS_VERSION} -DgenerateBackupPoms=false
 mvn --settings .github/quarkus-ecosystem-maven-settings.xml -B versions:set-property -Dproperty=version.io.quarkus -DnewVersion=${QUARKUS_VERSION} -DgenerateBackupPoms=false
 
-# quarkus-langchain4j 1.x is built for Vert.x 4 and fails against Quarkus main (Vert.x 5) with NoSuchMethodError, so use the 2.x line
-mvn --settings .github/quarkus-ecosystem-maven-settings.xml -B versions:set-property -Dproperty=quarkus-langchain4j.version -DnewVersion=2.0.0.Beta1 -DgenerateBackupPoms=false
+# quarkus-langchain4j 1.x is built for Vert.x 4 and fails against Quarkus main (Vert.x 5) with NoSuchMethodError, so
+# use the 2.x line pinned by the quarkus4-langchain4j.version property
+LANGCHAIN4J_VERSION=$(mvn --settings .github/quarkus-ecosystem-maven-settings.xml -q -DforceStdout help:evaluate -Dexpression=quarkus4-langchain4j.version)
+mvn --settings .github/quarkus-ecosystem-maven-settings.xml -B versions:set-property -Dproperty=quarkus-langchain4j.version -DnewVersion=${LANGCHAIN4J_VERSION} -DgenerateBackupPoms=false
 
 # run the tests while skipping docs
 mvn --settings .github/quarkus-ecosystem-maven-settings.xml -B clean install -Dnative -Dquarkus.native.container-build=true --projects '!io.quarkiverse.langfuse:quarkus-langfuse-docs' --fail-at-end -e

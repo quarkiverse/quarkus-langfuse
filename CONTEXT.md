@@ -93,10 +93,10 @@ The Quarkus build-time processor ([`deployment/src/main/java/io/quarkiverse/lang
 
 | Extension version | Quarkus       | Langchain4j          | Java     |
 |-------------------|---------------|----------------------|----------|
-| 0.9.0 (latest)    | 3.40.1.x      | 1.14.1               | 17+      |
-|                   | 4.x (Beta)    | 2.0.0.Beta1          | 21+      |
+| 0.9.1 (latest)    | 3.40.1.x      | 1.14.2               | 17+      |
+|                   | 4.0.0.Beta2   | 2.0.0.Beta2          | 21+      |
 
-The `quarkus-baseline.version` property in the parent POM controls the default (Quarkus 3) baseline; `quarkus4.version` pins the Quarkus 4 BOM for the `runtime-compat-quarkus4` module. The Quarkus ecosystem CI tests both.
+The `quarkus-baseline.version` property in the parent POM controls the default (Quarkus 3) baseline; `quarkus4.version` pins the Quarkus 4 BOM for the `runtime-compat-quarkus4` module, and `quarkus4-langchain4j.version` pins the LangChain4j line that matches it (LangChain4j 1.x is built for Vert.x 4 and fails against Vert.x 5). Both properties are consumed by the `quarkus4` Maven profile, which rebuilds the whole tree against the Quarkus 4 line, by the `build-quarkus4` job in [`.github/workflows/build.yml`](.github/workflows/build.yml) (so a PR that breaks Quarkus 4 fails on that PR), and — for the LangChain4j pin — by [`.github/quarkus-ecosystem-test`](.github/quarkus-ecosystem-test), which builds against Quarkus `main` nightly.
 
 ## Upstream Context: langfuse-java PRs #31 and #36
 
@@ -110,11 +110,27 @@ Until PR #36 lands and is released, `quarkus-langfuse` ships its own copies of b
 
 ## Nightly Snapshot Build Status
 
-The [Quarkus ecosystem CI workflow](https://github.com/quarkiverse/quarkus-langfuse/actions/workflows/quarkus-snapshot.yaml) (`quarkus-snapshot.yaml`) runs nightly against Quarkus `main` (currently 4.x) via the [`quarkiversebot`](https://github.com/apps/quarkusbot). As of the latest release (0.9.0 / [commit `0bb7e56`](https://github.com/quarkiverse/quarkus-langfuse/commit/0bb7e568f9ad3a073a03c4fc37cf02b1cf5e278a)), **this build consistently fails** — [all recent runs](https://github.com/quarkiverse/quarkus-langfuse/actions?query=workflow%3A%22Quarkus+ecosystem+CI%22) show the build failing.
+The [Quarkus ecosystem CI workflow](https://github.com/quarkiverse/quarkus-langfuse/actions/workflows/quarkus-snapshot.yaml) (`quarkus-snapshot.yaml`) runs nightly against Quarkus `main` (currently 4.x) via the [`quarkiversebot`](https://github.com/apps/quarkusbot). It had been failing on every run; **both root causes are now identified**, one of which hid behind the other.
 
-The failure is specific to the `langfuse-api-tests` integration test module: the GraalVM native-image builder exits with code 1 during image generation. The other three integration test modules (`langfuse-otel-no-lc4j-tests`, `langfuse-no-otel-no-lc4j-tests`, and `langfuse-otel-public-api-tests`) all build native images successfully. The `langfuse-api-tests` module is the only one that includes the full extension suite: `quarkus-rest-jackson`, `quarkus-wiremock`, `quarkus-opentelemetry`, `quarkus-micrometer-opentelemetry`, `quarkus-smallrye-health`, `quarkus-smallrye-openapi`, and `quarkus-langchain4j-openai`.
+### 1. The `TlsConfiguration` split (fixed here)
 
-The quarkus-maven-plugin's docker wrapper captures the native-image stdout but truncates the actual GraalVM error before the `langfuse-api-tests` build. The visible output shows warnings about unknown module exports (`io.vertx.core`, `io.quarkus.resteasy.reactive.client`) but not the fatal error itself. **Root cause not yet identified.**
+Since 2026-10-30 the build stopped at compiling `runtime`'s test sources: Quarkus 4 removed `TlsConfiguration.getSSLOptions()` in favour of `getServerSSLOptions()` / `getClientSSLOptions()`, and `LangfuseHttpClientOptionsCustomizerTests` stubbed the Quarkus 3 shape. Production code was never affected. The test is now written against only the `TlsConfiguration` members that exist and behave identically on both lines — see the TLS entry under [Key Design Decisions](#key-design-decisions) for what changed and where the lost coverage moved.
+
+### 2. LangChain4j `OpenAiRestApi$ObjectMapperHolder` initialised at build time (worked around)
+
+Behind that, the native image build of `integration-tests/langfuse-api-tests` fails on Quarkus `main` with:
+
+```
+Error: Class initialization of io.quarkiverse.langchain4j.openai.common.OpenAiRestApi$ObjectMapperHolder failed
+Caused by: java.lang.NullPointerException: Cannot invoke "io.quarkus.arc.ArcContainer.instance(...)"
+           because the return value of "io.quarkus.arc.Arc.container()" is null
+```
+
+`OpenAiRestApi$ObjectMapperHolder` resolves its `ObjectMapper` from Arc (`QuarkusJsonCodecFactory.SnakeCaseObjectMapperHolder.MAPPER`) in a static initializer. `OpenAiRestApi` is a REST Client interface and so is registered for reflection; on Quarkus `main` that registration pulls in all nest members (`ReflectionDataBuilder.registerAllNestMembersQuery`), making the holder reachable and initialised at *build* time, where Arc is not running. Neither `OpenAiCommonProcessor#nativeImageSupport` nor `OpenAiProcessor#nativeSupport` registers it as a `RuntimeInitializedClassBuildItem`.
+
+It reproduces on released Quarkus 4.0.0.Beta2 + LangChain4j 2.0.0.Beta2 as well as on Quarkus `main`, and is reported upstream as [quarkus-langchain4j#3127](https://github.com/quarkiverse/quarkus-langchain4j/issues/3127) (the missing runtime-init registration) and [quarkus#58088](https://github.com/quarkusio/quarkus/issues/58088) (whether a nest-member reflection *query* registration should imply type reachability at all). Until those land, [`integration-tests/langfuse-api-tests/src/main/resources/application.properties`](integration-tests/langfuse-api-tests/src/main/resources/application.properties) carries a `quarkus.native.additional-build-args=--initialize-at-run-time=...` workaround. The property is applied unconditionally rather than only under the `quarkus4` profile, because the ecosystem CI overrides `quarkus.version` directly and never activates that profile — scoping it to the profile would leave the one build that most needs it uncovered. That is safe: the holder's FQN is identical in LangChain4j 1.14.2 and 2.0.0.Beta2, and the Quarkus 3 baseline native build is green with the flag in place.
+
+**Remove that property once the upstream issues are closed** — it is the only reason that line exists, and note that `quarkus.native.additional-build-args` is a single comma-separated value, so anything else needing a native build arg in that module must join it rather than add a second line.
 
 ## Recent History
 
@@ -134,4 +150,6 @@ The quarkus-maven-plugin's docker wrapper captures the native-image stdout but t
 - **Optional OTel and LangChain4j** — neither is required; they activate only when on the classpath. The deployment module detects availability and configures accordingly.
 - **Generated models, hand-coded operations** — the REST client is auto-generated from OpenAPI, but the higher-level API (`LangfuseOperations`) and the Quarkus integration (Dev Services, OTel exporter, config) are hand-written.
 - **No Jackson annotations in generated code** — the generated models avoid framework-specific annotations; Jackson configuration is provided via Mixins (for polymorphic deserialization fixes) and custom deserializers in the compat modules.
-- **OTel Exporter TLS and Proxy via `TlsConfigUtils` and SPI customizer** — instead of duplicating OTel exporter internals or splitting TLS configuration across compat modules, `LangfuseSpanExporterConfig` carries a `Consumer<HttpClientOptions>` customizer through the SPI. TLS configuration delegates to the shared Quarkus helper `TlsConfigUtils.configure(HttpClientOptions, TlsConfiguration)` (identical signature across Quarkus 3.40 and 4.0), honouring the Quarkus TLS registry (`quarkus.langfuse.otel.tls-configuration-name` or default). Failed batch exports are wrapped with `FailureLoggingSpanExporter` to log at WARN with the cause instead of silent FINE.
+- **OTel Exporter TLS and Proxy via `TlsConfigUtils` and SPI customizer** — instead of duplicating OTel exporter internals or splitting TLS configuration across compat modules, `LangfuseSpanExporterConfig` carries a `Consumer<HttpClientOptions>` customizer through the SPI. TLS configuration delegates to the shared Quarkus helper `TlsConfigUtils.configure(HttpClientOptions, TlsConfiguration)`, honouring the Quarkus TLS registry (`quarkus.langfuse.otel.tls-configuration-name` or default). Failed batch exports are wrapped with `FailureLoggingSpanExporter` to log at WARN with the cause instead of silent FINE.
+
+  Only the **signature** of `TlsConfigUtils.configure` is identical across Quarkus 3.40 and 4.0 — what it reads is not. Quarkus 4 split `TlsConfiguration.getSSLOptions()` into `getServerSSLOptions()` / `getClientSSLOptions()` and now sources trust options, key/cert options, `trustAll`, hostname verification and ALPN from `getClientSSLOptions()` rather than from `getTrustStoreOptions()` / `getKeyStoreOptions()` / `isTrustAll()` / `getSSLOptions()`. The `ClientSSLOptions` return type does not exist in Vert.x 4, so neither `runtime` production code nor its tests may name any version-specific `TlsConfiguration` member — `LangfuseHttpClientOptionsCustomizer` sticks to `TlsConfiguration.from(...)`, `isTrustAll()` and `TlsConfigUtils.configure`, all stable on both lines. Consequently [`LangfuseHttpClientOptionsCustomizerTests`](runtime/src/test/java/io/quarkiverse/langfuse/runtime/otel/LangfuseHttpClientOptionsCustomizerTests.java) asserts only version-stable behaviour (`usesSni()` → `isForceSni()`, SSL/ALPN, trustAll, registry resolution); that real trust-store options reach the HTTP client is asserted end-to-end instead by the deployment module's [`BaseHttpsSpanExportTests`](deployment/src/test/java/io/quarkiverse/langfuse/deployment/otel/BaseHttpsSpanExportTests.java) and its subclasses, which run a real TLS handshake against an HTTPS WireMock server. Do not weaken those tests.

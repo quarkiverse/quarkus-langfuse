@@ -27,11 +27,18 @@ import io.quarkiverse.langfuse.config.LangfuseOtelConfig.ProxyOptionsConfig;
 import io.quarkus.tls.TlsConfiguration;
 import io.quarkus.tls.TlsConfigurationRegistry;
 import io.vertx.core.http.HttpClientOptions;
-import io.vertx.core.net.PemTrustOptions;
 import io.vertx.core.net.ProxyOptions;
 import io.vertx.core.net.ProxyType;
-import io.vertx.core.net.SSLOptions;
 
+/**
+ * The Quarkus ecosystem CI rebuilds this module against Quarkus main, so this test has to compile and pass on both the
+ * Quarkus 3 and the Quarkus 4 lines. Only {@link TlsConfiguration} members that exist, and are read identically, on
+ * both lines may be used here: Quarkus 4 replaced {@code getSSLOptions()} with {@code getServerSSLOptions()} /
+ * {@code getClientSSLOptions()}, whose {@code ClientSSLOptions} type only exists in Vert.x 5, and it sources trust
+ * options and trustAll from those client SSL options instead of from {@code getTrustStoreOptions()} /
+ * {@code isTrustAll()}. Real trust-store propagation over HTTPS is covered version-agnostically by the deployment
+ * module's {@code BaseHttpsSpanExportTests}.
+ */
 class LangfuseHttpClientOptionsCustomizerTests {
     private static final URI HTTPS_URI = URI.create("https://langfuse.example.com");
     private static final URI HTTP_URI = URI.create("http://langfuse.example.com");
@@ -40,12 +47,8 @@ class LangfuseHttpClientOptionsCustomizerTests {
             "http.proxyHost", "http.proxyPort", "http.proxyUser", "http.proxyPassword",
             "https.proxyHost", "https.proxyPort", "https.proxyUser", "https.proxyPassword");
 
-    private final PemTrustOptions namedTrustOptions = new PemTrustOptions().addCertPath("named-ca.crt");
-    private final PemTrustOptions defaultTrustOptions = new PemTrustOptions().addCertPath("default-ca.crt");
-
     private LangfuseOtelConfig config;
     private TlsConfigurationRegistry registry;
-    private TlsConfiguration namedConfiguration;
     private ProxyOptionsConfig proxyConfig;
     private Map<String, Optional<String>> originalJdkProxyProperties;
 
@@ -67,13 +70,14 @@ class LangfuseHttpClientOptionsCustomizerTests {
         when(this.config.tlsConfigurationName()).thenReturn(Optional.empty());
         when(this.config.proxyOptions()).thenReturn(this.proxyConfig);
 
-        this.namedConfiguration = mockTlsConfiguration(this.namedTrustOptions, false);
-        var defaultConfiguration = mockTlsConfiguration(this.defaultTrustOptions, false);
+        // the configurations are built up front: stubbing a mock inside an unfinished when(...) confuses Mockito
+        var namedConfiguration = Optional.of(mockTlsConfiguration(false));
+        var defaultConfiguration = Optional.of(mockTlsConfiguration(false));
 
         this.registry = mock(TlsConfigurationRegistry.class);
         when(this.registry.get(anyString())).thenReturn(Optional.empty());
-        when(this.registry.get(TLS_CONFIGURATION_NAME)).thenReturn(Optional.of(this.namedConfiguration));
-        when(this.registry.getDefault()).thenReturn(Optional.of(defaultConfiguration));
+        when(this.registry.get(TLS_CONFIGURATION_NAME)).thenReturn(namedConfiguration);
+        when(this.registry.getDefault()).thenReturn(defaultConfiguration);
     }
 
     @AfterEach
@@ -91,12 +95,17 @@ class LangfuseHttpClientOptionsCustomizerTests {
 
         var options = customize(HTTPS_URI);
 
+        // isForceSni mirrors TlsConfiguration#usesSni, one of the few settings TlsConfigUtils reads straight off the
+        // configuration on both Quarkus lines, so it shows the resolved configuration really was applied
         assertThat(options)
                 .returns(true, HttpClientOptions::isSsl)
                 .returns(true, HttpClientOptions::isUseAlpn)
+                .returns(true, HttpClientOptions::isForceSni)
                 .returns(false, HttpClientOptions::isTrustAll)
-                .returns(true, HttpClientOptions::isVerifyHost)
-                .returns(this.namedTrustOptions, HttpClientOptions::getTrustOptions);
+                .returns(true, HttpClientOptions::isVerifyHost);
+
+        verify(this.registry).get(TLS_CONFIGURATION_NAME);
+        verify(this.registry, never()).getDefault();
     }
 
     @Test
@@ -106,9 +115,10 @@ class LangfuseHttpClientOptionsCustomizerTests {
         assertThat(options)
                 .returns(true, HttpClientOptions::isSsl)
                 .returns(true, HttpClientOptions::isUseAlpn)
-                .returns(this.defaultTrustOptions, HttpClientOptions::getTrustOptions);
+                .returns(true, HttpClientOptions::isForceSni);
 
         verify(this.registry, never()).get(anyString());
+        verify(this.registry).getDefault();
     }
 
     @Test
@@ -120,15 +130,19 @@ class LangfuseHttpClientOptionsCustomizerTests {
         assertThat(options)
                 .returns(true, HttpClientOptions::isSsl)
                 .returns(true, HttpClientOptions::isUseAlpn)
+                .returns(false, HttpClientOptions::isForceSni)
                 .returns(null, HttpClientOptions::getTrustOptions);
     }
 
     @Test
-    void httpsAlwaysUsesAlpnEvenIfTlsConfigurationDisablesIt() {
+    void httpsForcesAlpnEvenWhenTheIncomingOptionsDisableIt() {
+        // The stronger variant of this test - a TlsConfiguration whose SSL options disable ALPN, which is what the
+        // setUseAlpn(true) call after TlsConfigUtils#configure in LangfuseHttpClientOptionsCustomizer guards against -
+        // cannot be written here: Quarkus 3 reads those options from getSSLOptions() and Quarkus 4 from
+        // getClientSSLOptions(), and neither return type can be named in code that compiles against both lines
         when(this.config.tlsConfigurationName()).thenReturn(Optional.of(TLS_CONFIGURATION_NAME));
-        when(this.namedConfiguration.getSSLOptions()).thenReturn(new SSLOptions().setUseAlpn(false));
 
-        var options = customize(HTTPS_URI);
+        var options = customize(HTTPS_URI, new HttpClientOptions().setUseAlpn(false));
 
         assertThat(options)
                 .returns(true, HttpClientOptions::isSsl)
@@ -184,8 +198,8 @@ class LangfuseHttpClientOptionsCustomizerTests {
 
     @Test
     void trustAllDisablesCertificateAndHostVerification() {
-        var trustAllConfiguration = mockTlsConfiguration(null, true);
-        when(this.registry.get("trust-all")).thenReturn(Optional.of(trustAllConfiguration));
+        var trustAllConfiguration = Optional.of(mockTlsConfiguration(true));
+        when(this.registry.get("trust-all")).thenReturn(trustAllConfiguration);
         when(this.config.tlsConfigurationName()).thenReturn(Optional.of("trust-all"));
 
         var options = customize(HTTPS_URI);
@@ -198,8 +212,8 @@ class LangfuseHttpClientOptionsCustomizerTests {
 
     @Test
     void defaultTrustAllDisablesCertificateAndHostVerification() {
-        var trustAllConfiguration = mockTlsConfiguration(null, true);
-        when(this.registry.getDefault()).thenReturn(Optional.of(trustAllConfiguration));
+        var trustAllConfiguration = Optional.of(mockTlsConfiguration(true));
+        when(this.registry.getDefault()).thenReturn(trustAllConfiguration);
 
         var options = customize(HTTPS_URI);
 
@@ -369,16 +383,23 @@ class LangfuseHttpClientOptionsCustomizerTests {
     }
 
     private HttpClientOptions customize(URI baseUri) {
-        var options = new HttpClientOptions();
+        return customize(baseUri, new HttpClientOptions());
+    }
+
+    private HttpClientOptions customize(URI baseUri, HttpClientOptions options) {
         new LangfuseHttpClientOptionsCustomizer(baseUri, this.config, this.registry).accept(options);
 
         return options;
     }
 
-    private static TlsConfiguration mockTlsConfiguration(PemTrustOptions trustOptions, boolean isTrustAll) {
+    /**
+     * Stubs only what TlsConfigUtils reads off TlsConfiguration itself on both Quarkus lines. getSslEngineOptions is
+     * stubbed because TlsConfigUtils calls ifPresent on it and would NPE on Mockito's null default.
+     */
+    private static TlsConfiguration mockTlsConfiguration(boolean isTrustAll) {
         var configuration = mock(TlsConfiguration.class);
-        when(configuration.getTrustStoreOptions()).thenReturn(trustOptions);
         when(configuration.isTrustAll()).thenReturn(isTrustAll);
+        when(configuration.usesSni()).thenReturn(true);
         when(configuration.getHostnameVerificationAlgorithm()).thenReturn(Optional.empty());
         when(configuration.getSslEngineOptions()).thenReturn(Optional.empty());
 
