@@ -2,6 +2,7 @@ package io.quarkiverse.langfuse.runtime.otel;
 
 import io.opentelemetry.api.metrics.MeterProvider;
 import io.opentelemetry.exporter.otlp.internal.HttpExporter;
+import io.opentelemetry.exporter.otlp.internal.HttpExporterBuilder;
 import io.opentelemetry.sdk.common.InternalTelemetryVersion;
 import io.opentelemetry.sdk.common.internal.ComponentId;
 import io.opentelemetry.sdk.common.internal.StandardComponentId;
@@ -32,7 +33,8 @@ public class LangfuseSpanExporterFactoryQuarkus4 implements LangfuseSpanExporter
                 MeterProvider::noop,
                 InternalTelemetryVersion.LATEST,
                 config.baseUri(),
-                false);
+                false,
+                HttpExporterBuilder.DEFAULT_MAX_REQUEST_BODY_SIZE);
 
         return new VertxHttpSpanExporter(httpExporter, config.memoryMode());
     }
