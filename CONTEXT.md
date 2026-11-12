@@ -93,6 +93,8 @@ The Quarkus build-time processor ([`deployment/src/main/java/io/quarkiverse/lang
 
 | Extension version | Quarkus       | Langchain4j          | Java     |
 |-------------------|---------------|----------------------|----------|
+| main (unreleased) | 3.40.1.2      | 1.15.1               | 17+      |
+|                   | 4.0.0.CR1     | 2.0.0.Beta4          | 21+      |
 | 0.9.1 (latest)    | 3.40.1.x      | 1.14.2               | 17+      |
 |                   | 4.0.0.Beta2   | 2.0.0.Beta2          | 21+      |
 

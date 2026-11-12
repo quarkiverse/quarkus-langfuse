@@ -44,14 +44,14 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<quarkus.version>${quarkus.baseline.version}</quarkus.version>
-		<quarkus.baseline.version>3.40.1.1</quarkus.baseline.version>
-		<quarkus4.version>4.0.0.Beta2</quarkus4.version>
+		<quarkus.baseline.version>3.40.1.2</quarkus.baseline.version>
+		<quarkus4.version>4.0.0.CR1</quarkus4.version>
 		<!-- LangChain4j line that matches Quarkus 4 (Vert.x 5). Read by the quarkus4 profile and by
 		     .github/quarkus-ecosystem-test -->
-		<quarkus4-langchain4j.version>2.0.0.Beta2</quarkus4-langchain4j.version>
+		<quarkus4-langchain4j.version>2.0.0.Beta4</quarkus4-langchain4j.version>
 		<quarkus-antora.version>3.40.0</quarkus-antora.version>
 		<quarkus-wiremock.version>1.8.1</quarkus-wiremock.version>
-		<quarkus-langchain4j.version>1.14.2</quarkus-langchain4j.version>
+		<quarkus-langchain4j.version>1.15.1</quarkus-langchain4j.version>
 		<testcontainers-redis.version>3.0.1</testcontainers-redis.version>
 	</properties>
 
